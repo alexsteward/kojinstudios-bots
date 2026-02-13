@@ -552,23 +552,27 @@ nav.scrolled {
     top: 100px;
     left: 40px;
     z-index: 2;
-    box-shadow: 0 8px 32px rgba(255, 217, 61, 0.12);
-    border-color: rgba(255, 217, 61, 0.2);
+    box-shadow: 0 0 32px rgba(108, 92, 231, 0.35), 0 8px 32px rgba(108, 92, 231, 0.2);
+    border-color: rgba(108, 92, 231, 0.35);
 }
 
 .bpc-3 {
     top: 200px;
     left: 10px;
     z-index: 1;
-    box-shadow: 0 8px 32px rgba(108, 92, 231, 0.12);
-    border-color: rgba(108, 92, 231, 0.2);
+    box-shadow: 0 0 32px rgba(255, 217, 61, 0.35), 0 8px 32px rgba(255, 217, 61, 0.2);
+    border-color: rgba(255, 217, 61, 0.35);
 }
 
 .bot-preview-card:hover {
     transform: translateY(-4px) scale(1.02);
     z-index: 10;
-    box-shadow: 0 12px 40px rgba(255, 71, 87, 0.25);
 }
+
+.bpc-1:hover { box-shadow: 0 0 40px rgba(255, 71, 87, 0.4), 0 12px 40px rgba(255, 71, 87, 0.25); }
+.bpc-2:hover { box-shadow: 0 0 40px rgba(108, 92, 231, 0.45), 0 12px 40px rgba(108, 92, 231, 0.25); }
+.bpc-3:hover { box-shadow: 0 0 40px rgba(255, 217, 61, 0.45), 0 12px 40px rgba(255, 217, 61, 0.25); }
+.bpc-4:hover { box-shadow: 0 0 40px rgba(0, 184, 148, 0.45), 0 12px 40px rgba(0, 184, 148, 0.25); }
 
 @media (max-width: 960px) {
     .hero {
@@ -1305,6 +1309,16 @@ nav.scrolled {
 .price-card-featured {
     border-color: rgba(255, 217, 61, 0.3);
     box-shadow: 0 0 40px rgba(255, 217, 61, 0.08);
+}
+
+.price-card-tickets {
+    border-color: rgba(108, 92, 231, 0.4);
+    box-shadow: 0 0 40px rgba(108, 92, 231, 0.2);
+}
+
+.price-card-host {
+    border-color: rgba(255, 217, 61, 0.4);
+    box-shadow: 0 0 40px rgba(255, 217, 61, 0.2);
 }
 
 .price-card-badge {
