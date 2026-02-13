@@ -552,8 +552,8 @@ nav.scrolled {
     top: 100px;
     left: 40px;
     z-index: 2;
-    box-shadow: 0 0 32px rgba(108, 92, 231, 0.35), 0 8px 32px rgba(108, 92, 231, 0.2);
-    border-color: rgba(108, 92, 231, 0.35);
+    box-shadow: 0 0 32px rgba(59, 130, 246, 0.35), 0 8px 32px rgba(59, 130, 246, 0.2);
+    border-color: rgba(59, 130, 246, 0.35);
 }
 
 .bpc-3 {
@@ -578,7 +578,7 @@ nav.scrolled {
 }
 
 .bpc-1:hover { box-shadow: 0 0 40px rgba(255, 71, 87, 0.4), 0 12px 40px rgba(255, 71, 87, 0.25); }
-.bpc-2:hover { box-shadow: 0 0 40px rgba(108, 92, 231, 0.45), 0 12px 40px rgba(108, 92, 231, 0.25); }
+.bpc-2:hover { box-shadow: 0 0 40px rgba(59, 130, 246, 0.45), 0 12px 40px rgba(59, 130, 246, 0.25); }
 .bpc-3:hover { box-shadow: 0 0 40px rgba(255, 217, 61, 0.45), 0 12px 40px rgba(255, 217, 61, 0.25); }
 .bpc-4:hover { box-shadow: 0 0 40px rgba(0, 184, 148, 0.45), 0 12px 40px rgba(0, 184, 148, 0.25); }
 
@@ -811,7 +811,7 @@ nav.scrolled {
 }
 
 .bar-gold { background: var(--gold); }
-.bar-blue { background: var(--blue); }
+.bar-blue { background: #3b82f6; }
 .bar-green { background: var(--green); }
 
 .demo-embed-content {
@@ -867,8 +867,8 @@ nav.scrolled {
 }
 
 .showcase-label-blue {
-    background: rgba(108, 92, 231, 0.1);
-    color: var(--blue);
+    background: rgba(59, 130, 246, 0.15);
+    color: #60a5fa;
 }
 
 .showcase-label-green {
@@ -1320,9 +1320,14 @@ nav.scrolled {
     box-shadow: 0 0 40px rgba(255, 217, 61, 0.08);
 }
 
+.price-card-gavel {
+    border-color: rgba(255, 71, 87, 0.4);
+    box-shadow: 0 0 40px rgba(255, 71, 87, 0.2);
+}
+
 .price-card-tickets {
-    border-color: rgba(108, 92, 231, 0.4);
-    box-shadow: 0 0 40px rgba(108, 92, 231, 0.2);
+    border-color: rgba(59, 130, 246, 0.4);
+    box-shadow: 0 0 40px rgba(59, 130, 246, 0.2);
 }
 
 .price-card-host {
