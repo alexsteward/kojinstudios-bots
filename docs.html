@@ -38,7 +38,7 @@
     <main class="section">
         <div class="container">
             <h1 class="section-title" style="margin-bottom: 0.5rem;">Docs & Help</h1>
-            <p class="section-desc" style="margin-bottom: 3rem;">Step-by-step guides for Tickets, Gavel, and Host.</p>
+            <p class="section-desc" style="margin-bottom: 3rem;">Step-by-step guides for Tickets, Gavel, Host, and Intella.</p>
 
             <div class="docs-layout">
                 <aside class="docs-sidebar">
@@ -60,6 +60,11 @@
                         <span class="dot host"></span>
                         <span class="name">Host</span>
                         <span class="role">Engagement</span>
+                    </button>
+                    <button class="docs-tab" data-bot="intella">
+                        <span class="dot intella"></span>
+                        <span class="name">Intella</span>
+                        <span class="role">Trading</span>
                     </button>
 
                     <div class="docs-sidebar-meta">
@@ -331,6 +336,89 @@
                             </ul>
                         </section>
                     </article>
+
+                    <!-- Intella Docs -->
+                    <article class="docs-panel" data-bot="intella">
+                        <h2>Intella — Market Intel Bot</h2>
+                        <p class="lead">
+                            Intella delivers economic calendar events, market news, and trading-related data inside Discord. One command gives you a dashboard; subscribe to alerts so you never miss Fed decisions, earnings, or breaking news. <strong>Free until August 1st, 2026.</strong>
+                        </p>
+
+                        <section class="docs-block">
+                            <h3>1. Adding Intella to your server</h3>
+                            <p>Intella is free to add—no purchase required.</p>
+                            <ol>
+                                <li>Click <strong>Add Bot</strong> on the <a href="index.html#showcase-intella">Intella section</a> on the main page, or use the invite link from our Discord support server.</li>
+                                <li>Select the server you want to add Intella to.</li>
+                                <li>Grant the requested permissions (View Channels, Send Messages, Embed Links, Read Message History, Use Slash Commands, etc.).</li>
+                                <li>Click <strong>Authorize</strong> and complete any verification.</li>
+                            </ol>
+                            <p>Once added, anyone with permission can use <code>/intella</code> in your server.</p>
+                        </section>
+
+                        <section class="docs-block">
+                            <h3>2. Main command — Dashboard</h3>
+                            <p>The main entry point is:</p>
+                            <pre><code>/intella</code></pre>
+                            <p>This opens an interactive dashboard showing:</p>
+                            <ul>
+                                <li><strong>Upcoming economic events</strong> — Fed decisions, GDP, NFP, and more, with impact levels (High/Medium/Low).</li>
+                                <li><strong>Top market news</strong> — headlines from multiple sources.</li>
+                                <li>Buttons to open the <strong>full economic calendar</strong>, <strong>news feed</strong>, and <strong>settings</strong>.</li>
+                            </ul>
+                            <p>Replies are ephemeral by default—only the user who ran the command sees the response.</p>
+                        </section>
+
+                        <section class="docs-block">
+                            <h3>3. Economic calendar</h3>
+                            <p>View and filter economic events:</p>
+                            <ul>
+                                <li>Events are loaded from a configurable source with timezone support (e.g. US/Eastern).</li>
+                                <li>Impact levels (High, Medium, Low) help you prioritize.</li>
+                                <li>You can set up <strong>economic event alerts</strong> so the bot notifies a channel or users when high-impact events are approaching.</li>
+                            </ul>
+                        </section>
+
+                        <section class="docs-block">
+                            <h3>4. Market news</h3>
+                            <p>Intella aggregates news from multiple sources (Yahoo Finance, Finnhub, NewsAPI):</p>
+                            <ul>
+                                <li>Optional symbol or topic filtering.</li>
+                                <li><strong>News alerts</strong> — subscribe to updates for specific symbols or topics and get notified in Discord.</li>
+                                <li>News is cached to respect rate limits and keep responses fast.</li>
+                            </ul>
+                        </section>
+
+                        <section class="docs-block">
+                            <h3>5. User and server configuration</h3>
+                            <ul>
+                                <li><strong>Per-user settings</strong> — preferences and timezone for each user.</li>
+                                <li><strong>Server-wide config</strong> — admins can set default timezone, alert channels, and which features are enabled.</li>
+                                <li>Optional <strong>analytics or status channels</strong> for server admins to monitor bot health.</li>
+                            </ul>
+                        </section>
+
+                        <section class="docs-block">
+                            <h3>6. Alerts and reminders</h3>
+                            <p>Intella runs background jobs to:</p>
+                            <ul>
+                                <li>Refresh news and economic data on a schedule.</li>
+                                <li>Check alert subscriptions and send notifications when events or news match.</li>
+                                <li>Send event reminders (e.g. before high-impact releases).</li>
+                            </ul>
+                            <p>Configure check intervals and alert channels via the bot’s settings or admin commands.</p>
+                        </section>
+
+                        <section class="docs-block">
+                            <h3>7. Support and status</h3>
+                            <p>
+                                Intella is in active development (v0.1.0-alpha). For help or feature requests, join our
+                                <a href="https://discord.gg/pGJkjshMWe" target="_blank">Discord support server</a> or email
+                                <a href="mailto:kojinstudios@gmail.com">kojinstudios@gmail.com</a>.
+                            </p>
+                            <p><strong>Free until 8/1/26</strong> — add the bot with no subscription. Pricing after that date will be announced later.</p>
+                        </section>
+                    </article>
                 </div>
             </div>
         </div>
@@ -351,6 +439,7 @@
                     <a href="index.html#showcase-gavel">Gavel</a>
                     <a href="index.html#showcase-tickets">Tickets</a>
                     <a href="index.html#showcase-host">Host</a>
+                    <a href="index.html#showcase-intella">Intella</a>
                     <a href="index.html#pricing">Bundle</a>
                 </div>
                 <div class="footer-col">
@@ -418,6 +507,7 @@
         .docs-tab .dot.tickets { background: var(--gold); }
         .docs-tab .dot.gavel { background: var(--red); }
         .docs-tab .dot.host { background: var(--blue); }
+        .docs-tab .dot.intella { background: var(--green); }
         .docs-tab .name {
             font-weight: 600;
         }
