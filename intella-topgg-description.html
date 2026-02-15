@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intella — Discord Trading Bot</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { font-size: 16px; scroll-behavior: smooth; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif;
+            background: #0d1117;
+            color: #e6edf3;
+            line-height: 1.6;
+            min-height: 100vh;
+            width: 100%;
+        }
+        .page {
+            width: 100%;
+            max-width: 800px;
+            min-height: 100vh;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            background: #161b22;
+            border-left: 1px solid #21262d;
+            border-right: 1px solid #21262d;
+        }
+        .hero {
+            background: linear-gradient(180deg, #0a1f14 0%, #0d2818 50%, #0f2d1a 100%);
+            padding: 48px 40px 56px;
+            text-align: center;
+            border-bottom: 1px solid rgba(0, 184, 148, 0.25);
+        }
+        .hero-badge {
+            display: inline-block;
+            padding: 8px 18px;
+            background: #00b894;
+            color: #0d1117;
+            border-radius: 24px;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+        }
+        .hero h1 {
+            font-size: 40px;
+            font-weight: 900;
+            color: #fff;
+            margin-bottom: 10px;
+            letter-spacing: -0.02em;
+        }
+        .hero .tagline {
+            font-size: 20px;
+            color: #8b949e;
+            margin-bottom: 20px;
+        }
+        .hero-desc {
+            font-size: 16px;
+            color: #c9d1d9;
+            line-height: 1.65;
+            max-width: 540px;
+            margin: 0 auto 24px;
+        }
+        .highlight {
+            background: rgba(0, 184, 148, 0.12);
+            border: 1px solid rgba(0, 184, 148, 0.25);
+            border-radius: 12px;
+            padding: 18px 24px;
+            margin-bottom: 32px;
+            max-width: 560px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .highlight p {
+            color: #c9d1d9;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+        .highlight strong { color: #00d4aa; }
+        .btn-add {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 16px 32px;
+            background: #00b894;
+            color: #0d1117;
+            text-decoration: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 700;
+            box-shadow: 0 4px 20px rgba(0, 184, 148, 0.4);
+            transition: background 0.2s, box-shadow 0.2s, transform 0.2s;
+        }
+        .btn-add:hover {
+            background: #00d4aa;
+            box-shadow: 0 6px 28px rgba(0, 184, 148, 0.5);
+            transform: translateY(-2px);
+        }
+        .btn-add svg { width: 22px; height: 17px; flex-shrink: 0; }
+        .section {
+            padding: 40px 40px 48px;
+            flex: 1;
+        }
+        .section-title {
+            font-size: 22px;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 24px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #00b894;
+        }
+        .command-box {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-left: 4px solid #00b894;
+            border-radius: 8px;
+            padding: 16px 20px;
+            font-family: ui-monospace, 'Cascadia Code', monospace;
+            font-size: 14px;
+            color: #8b949e;
+            margin-bottom: 28px;
+        }
+        .command-box strong { color: #00b894; }
+        .features {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        .card {
+            background: #21262d;
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid #30363d;
+        }
+        .card-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+        }
+        .card-icon {
+            width: 24px;
+            height: 24px;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        .card-text { min-width: 0; }
+        .card h3 {
+            font-size: 15px;
+            font-weight: 700;
+            color: #00b894;
+            margin-bottom: 6px;
+        }
+        .card p {
+            font-size: 13px;
+            color: #8b949e;
+            line-height: 1.55;
+        }
+        .cta-section {
+            padding: 40px 40px 48px;
+            text-align: center;
+            background: #161b22;
+            border-top: 1px solid #21262d;
+        }
+        .footer {
+            padding: 24px 40px;
+            background: #0d1117;
+            text-align: center;
+            border-top: 1px solid #21262d;
+        }
+        .footer p {
+            font-size: 13px;
+            color: #6e7681;
+        }
+        .footer strong { color: #00b894; }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <header class="hero">
+            <div class="hero-badge">FREE UNTIL 8/1/26</div>
+            <h1>Intella</h1>
+            <p class="hero-desc">Market intel in Discord—economic calendar, news, and trading data in your server. One command: dashboard, upcoming events, and alerts so you never miss the big releases.</p>
+            <div class="highlight">
+                <p><strong>For traders, investors, and finance communities.</strong> Fed decisions, earnings, NFP, GDP—get alerts and a single dashboard so nothing slips by.</p>
+            </div>
+            <a href="https://discord.com/oauth2/authorize?client_id=1393695244976918588&permissions=1126967206737984&integration_type=0&scope=bot+applications.commands" class="btn-add" target="_blank">
+                <svg viewBox="0 0 71 55" fill="currentColor">
+                    <path d="M60.1 4.9C55.6 2.8 50.7 1.3 45.7.4c-.1 0-.2 0-.2.1-.6 1.1-1.3 2.6-1.8 3.7-5.5-.8-10.9-.8-16.3 0-.5-1.2-1.2-2.6-1.8-3.7 0-.1-.1-.1-.2-.1-5.1.9-9.9 2.4-14.4 4.5 0 0 0 0-.1.1C1.6 18.7-.9 32.1.3 45.4v.2c6.1 4.5 12 7.2 17.7 9 .1 0 .2 0 .2-.1 1.4-1.9 2.6-3.8 3.6-5.9.1-.1 0-.3-.1-.3-2-.7-3.8-1.6-5.6-2.7-.1-.1-.1-.3 0-.4.4-.3.8-.6 1.1-.9.1-.1.1-.1.2-.1 10.9 5 22.7 5 33.5 0h.2c.4.3.7.6 1.1.9.1.1.1.3 0 .4-1.7 1-3.5 1.9-5.6 2.7-.1.1-.2.2-.1.3 1.1 2.1 2.3 4.1 3.6 5.9.1.1.2.1.2.1 5.8-1.8 11.6-4.5 17.7-9 0 0 .1-.1.1-.2 1.5-15.3-2.5-28.6-10.5-40.4 0 0 0 0-.1-.1zM23.7 37.3c-3.5 0-6.4-3.2-6.4-7.2s2.8-7.2 6.4-7.2c3.6 0 6.4 3.2 6.4 7.2 0 4-2.9 7.2-6.4 7.2zm17.6 0c-3.5 0-6.4-3.2-6.4-7.2s2.8-7.2 6.4-7.2c3.6 0 6.4 3.2 6.4 7.2 0 4-2.9 7.2-6.4 7.2z"/>
+                </svg>
+                Add Intella to Discord
+            </a>
+        </header>
+
+        <section class="section">
+            <h2 class="section-title">What you get</h2>
+            <div class="command-box"><strong>/intella</strong> — One command. Dashboard with upcoming events and top news. Quick access to calendar, news feed, and settings.</div>
+            <div class="features">
+                <div class="card">
+                    <div class="card-row">
+                        <svg class="card-icon" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="10" fill="rgba(0,184,148,0.2)"/><path d="M6 10l3 3 5-5" stroke="#00b894" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        <div class="card-text">
+                            <h3>Economic Calendar</h3>
+                            <p>Events with impact levels (High/Medium/Low), timezones, and alerts for Fed decisions, GDP, NFP, and more.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-row">
+                        <svg class="card-icon" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="10" fill="rgba(0,184,148,0.2)"/><path d="M6 10l3 3 5-5" stroke="#00b894" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        <div class="card-text">
+                            <h3>Market News</h3>
+                            <p>Yahoo Finance, Finnhub, NewsAPI—multi-source aggregation with optional alerts by topic or symbol.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-row">
+                        <svg class="card-icon" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="10" fill="rgba(0,184,148,0.2)"/><path d="M6 10l3 3 5-5" stroke="#00b894" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        <div class="card-text">
+                            <h3>Dashboard & Alerts</h3>
+                            <p>Single view for quick previews. Subscribe to event and news alerts so you never miss a release.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-row">
+                        <svg class="card-icon" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="10" fill="rgba(0,184,148,0.2)"/><path d="M6 10l3 3 5-5" stroke="#00b894" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        <div class="card-text">
+                            <h3>Config & Privacy</h3>
+                            <p>Per-user and server-wide settings, timezones, channels. Ephemeral responses by default—only you see replies.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="cta-section">
+            <a href="https://discord.com/oauth2/authorize?client_id=1393695244976918588&permissions=1126967206737984&integration_type=0&scope=bot+applications.commands" class="btn-add" target="_blank">
+                <svg viewBox="0 0 71 55" fill="currentColor">
+                    <path d="M60.1 4.9C55.6 2.8 50.7 1.3 45.7.4c-.1 0-.2 0-.2.1-.6 1.1-1.3 2.6-1.8 3.7-5.5-.8-10.9-.8-16.3 0-.5-1.2-1.2-2.6-1.8-3.7 0-.1-.1-.1-.2-.1-5.1.9-9.9 2.4-14.4 4.5 0 0 0 0-.1.1C1.6 18.7-.9 32.1.3 45.4v.2c6.1 4.5 12 7.2 17.7 9 .1 0 .2 0 .2-.1 1.4-1.9 2.6-3.8 3.6-5.9.1-.1 0-.3-.1-.3-2-.7-3.8-1.6-5.6-2.7-.1-.1-.1-.3 0-.4.4-.3.8-.6 1.1-.9.1-.1.1-.1.2-.1 10.9 5 22.7 5 33.5 0h.2c.4.3.7.6 1.1.9.1.1.1.3 0 .4-1.7 1-3.5 1.9-5.6 2.7-.1.1-.2.2-.1.3 1.1 2.1 2.3 4.1 3.6 5.9.1.1.2.1.2.1 5.8-1.8 11.6-4.5 17.7-9 0 0 .1-.1.1-.2 1.5-15.3-2.5-28.6-10.5-40.4 0 0 0 0-.1-.1zM23.7 37.3c-3.5 0-6.4-3.2-6.4-7.2s2.8-7.2 6.4-7.2c3.6 0 6.4 3.2 6.4 7.2 0 4-2.9 7.2-6.4 7.2zm17.6 0c-3.5 0-6.4-3.2-6.4-7.2s2.8-7.2 6.4-7.2c3.6 0 6.4 3.2 6.4 7.2 0 4-2.9 7.2-6.4 7.2z"/>
+                </svg>
+                Add Intella to Discord
+            </a>
+        </section>
+
+        <footer class="footer">
+            <p>Built by <strong>KojinStudios</strong> · Free until August 1st, 2026</p>
+        </footer>
+    </div>
+</body>
+</html>

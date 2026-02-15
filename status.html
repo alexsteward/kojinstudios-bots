@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Status &amp; Uptime — KojinStudios Bots</title>
+    <meta name="description" content="Live-style status board for Gavel, Tickets, and Host — uptime, latency, servers, and users across KojinStudios bots.">
+    <meta name="theme-color" content="#0a0e12">
+    <link rel="icon" href="images/logo.png" type="image/png">
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+    <div class="ambient-bg">
+        <div class="ambient-orb orb-1"></div>
+        <div class="ambient-orb orb-2"></div>
+    </div>
+
+    <nav id="navbar">
+        <div class="nav-inner">
+            <a href="index.html" class="nav-brand">
+                <img src="images/logo.png" alt="KojinStudios" class="nav-logo">
+                <span class="nav-wordmark">Kojin<span class="accent">Bots</span></span>
+            </a>
+            <div class="nav-links">
+                <a href="index.html#bots" class="nav-link">Bots</a>
+                <a href="index.html#features" class="nav-link">Features</a>
+                <a href="index.html#pricing" class="nav-link">Pricing</a>
+                <a href="docs.html" class="nav-link">Docs</a>
+                <a href="status.html" class="nav-link">Status</a>
+                <a href="https://kojinstudios.com" class="nav-link" target="_blank">Studio</a>
+            </div>
+            <div class="nav-actions">
+                <a href="index.html#pricing" class="nav-cta">Get Started</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="section">
+        <div class="container">
+            <h1 class="section-title" style="margin-bottom: 0.5rem;">Status &amp; Uptime</h1>
+            <p class="section-desc" style="margin-bottom: 3rem;">Minimal, real-time style metrics for every KojinStudios bot.</p>
+
+            <section aria-label="Bot status overview">
+                <div class="status-grid">
+                    <div class="status-card">
+                        <div class="status-card-header">
+                            <div class="status-title">
+                                <span class="status-dot status-dot-green"></span>
+                                <h3>Gavel</h3>
+                            </div>
+                            <span class="status-pill">Moderation</span>
+                        </div>
+                        <div class="status-metrics">
+                            <div class="metric">
+                                <span class="metric-label">Latency</span>
+                                <span class="metric-value status-latency" data-base="12.4">12.4 ms</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Servers</span>
+                                <span class="metric-value">87</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Users</span>
+                                <span class="metric-value">4,785</span>
+                            </div>
+                        </div>
+                        <div class="status-footer">
+                            <span>Uptime 99.97%</span>
+                            <span>0 incidents · 30 days</span>
+                        </div>
+                    </div>
+
+                    <div class="status-card">
+                        <div class="status-card-header">
+                            <div class="status-title">
+                                <span class="status-dot status-dot-amber"></span>
+                                <h3>Tickets</h3>
+                            </div>
+                            <span class="status-pill status-pill-gold">Support</span>
+                        </div>
+                        <div class="status-metrics">
+                            <div class="metric">
+                                <span class="metric-label">Latency</span>
+                                <span class="metric-value status-latency" data-base="15.6">15.6 ms</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Servers</span>
+                                <span class="metric-value">600</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Users</span>
+                                <span class="metric-value">63,422</span>
+                            </div>
+                        </div>
+                        <div class="status-footer">
+                            <span>Uptime 99.9%</span>
+                            <span>1 minor · 30 days</span>
+                        </div>
+                    </div>
+
+                    <div class="status-card">
+                        <div class="status-card-header">
+                            <div class="status-title">
+                                <span class="status-dot status-dot-blue"></span>
+                                <h3>Host</h3>
+                            </div>
+                            <span class="status-pill status-pill-blue">Engagement</span>
+                        </div>
+                        <div class="status-metrics">
+                            <div class="metric">
+                                <span class="metric-label">Latency</span>
+                                <span class="metric-value status-latency" data-base="34.0">34.0 ms</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Servers</span>
+                                <span class="metric-value">65</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Users</span>
+                                <span class="metric-value">3,720</span>
+                            </div>
+                        </div>
+                        <div class="status-footer">
+                            <span>Uptime 99.92%</span>
+                            <span>0 incidents · 30 days</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="status-meta">
+                    <div class="status-meta-left">
+                        <span class="status-live-dot"></span>
+                        <span class="status-meta-label">Metrics auto-refreshed</span>
+                    </div>
+                    <span class="status-updated" id="status-updated">Updated just now</span>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <div class="footer-logo">
+                        <img src="images/logo.png" alt="KojinStudios">
+                        <span>KojinBots</span>
+                    </div>
+                    <p>Premium Discord bots built by KojinStudios.</p>
+                </div>
+                <div class="footer-col">
+                    <h5>Bots</h5>
+                    <a href="index.html#showcase-gavel">Gavel</a>
+                    <a href="index.html#showcase-tickets">Tickets</a>
+                    <a href="index.html#showcase-host">Host</a>
+                    <a href="index.html#pricing">Bundle</a>
+                </div>
+                <div class="footer-col">
+                    <h5>Resources</h5>
+                    <a href="index.html#faq">FAQ</a>
+                    <a href="docs.html">Docs</a>
+                    <a href="status.html">Status</a>
+                    <a href="https://discord.gg/pGJkjshMWe" target="_blank">Discord</a>
+                    <a href="mailto:kojinstudios@gmail.com">Support</a>
+                    <a href="https://kojinstudios.com" target="_blank">Main Site</a>
+                </div>
+                <div class="footer-col">
+                    <h5>Legal</h5>
+                    <a href="terms.html">Terms of Service</a>
+                    <a href="privacy.html">Privacy Policy</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 KojinStudios. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="index.js"></script>
+</body>
+</html>
+

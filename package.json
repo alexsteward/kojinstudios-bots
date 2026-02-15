@@ -1,0 +1,8 @@
+{
+  "name": "kojinstudios-bots",
+  "version": "1.0.0",
+  "description": "KojinStudios Discord Bots - Premium bot subscriptions at bots.kojinstudios.com",
+  "dependencies": {
+    "stripe": "^14.0.0"
+  }
+}

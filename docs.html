@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Docs & Help â€” KojinStudios Bots</title>
+    <meta name="description" content="How to buy, set up, and use KojinStudios Discord bots. Finding your Server ID, payment, and support.">
+    <meta name="theme-color" content="#0a0e12">
+    <link rel="icon" href="images/logo.png" type="image/png">
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+    <div class="ambient-bg">
+        <div class="ambient-orb orb-1"></div>
+        <div class="ambient-orb orb-2"></div>
+    </div>
+
+    <nav id="navbar">
+        <div class="nav-inner">
+            <a href="index.html" class="nav-brand">
+                <img src="images/logo.png" alt="KojinStudios" class="nav-logo">
+                <span class="nav-wordmark">Kojin<span class="accent">Bots</span></span>
+            </a>
+            <div class="nav-links">
+                <a href="index.html#bots" class="nav-link">Bots</a>
+                <a href="index.html#features" class="nav-link">Features</a>
+                <a href="index.html#pricing" class="nav-link">Pricing</a>
+                <a href="docs.html" class="nav-link">Docs</a>
+                <a href="status.html" class="nav-link">Status</a>
+                <a href="https://kojinstudios.com" class="nav-link" target="_blank">Studio</a>
+            </div>
+            <div class="nav-actions">
+                <a href="index.html#pricing" class="nav-cta">Get Started</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="section">
+        <div class="container">
+            <h1 class="section-title" style="margin-bottom: 0.5rem;">Docs & Help</h1>
+            <p class="section-desc" style="margin-bottom: 3rem;">Step-by-step guides for Tickets, Gavel, Host, and Intella.</p>
+
+            <div class="docs-layout">
+                <aside class="docs-sidebar">
+                    <div class="docs-sidebar-header">
+                        <span class="section-tag" style="margin-bottom: 1rem;">Bots Docs</span>
+                        <p>Choose a bot to view setup and commands.</p>
+                    </div>
+                    <button class="docs-tab active" data-bot="tickets">
+                        <span class="dot tickets"></span>
+                        <span class="name">Tickets</span>
+                        <span class="role">Support</span>
+                    </button>
+                    <button class="docs-tab" data-bot="gavel">
+                        <span class="dot gavel"></span>
+                        <span class="name">Gavel</span>
+                        <span class="role">Moderation</span>
+                    </button>
+                    <button class="docs-tab" data-bot="host">
+                        <span class="dot host"></span>
+                        <span class="name">Host</span>
+                        <span class="role">Engagement</span>
+                    </button>
+                    <button class="docs-tab" data-bot="intella">
+                        <span class="dot intella"></span>
+                        <span class="name">Intella</span>
+                        <span class="role">Trading</span>
+                    </button>
+
+                    <div class="docs-sidebar-meta">
+                        <div class="meta-row">
+                            <span class="label">Status</span>
+                            <span class="value">All bots online</span>
+                        </div>
+                        <div class="meta-row">
+                            <span class="label">Uptime</span>
+                            <span class="value">99.9% last 30 days</span>
+                        </div>
+                        <div class="meta-row">
+                            <span class="label">Support</span>
+                            <span class="value"><a href="https://discord.gg/pGJkjshMWe" target="_blank">Discord server</a></span>
+                        </div>
+                    </div>
+                </aside>
+
+                <div class="docs-main">
+                    <!-- Tickets Docs -->
+                    <article class="docs-panel active" data-bot="tickets">
+                        <h2>Tickets — Support Bot</h2>
+                        <p class="lead">
+                            Tickets is your dedicated support desk for Discord. It handles private support channels, staff workflows,
+                            and logs so you can focus on helping your community.
+                        </p>
+
+                        <section class="docs-block">
+                            <h3>1. Inviting Tickets to your server</h3>
+                            <ol>
+                                <li>Use the invite link provided after purchase or from our Discord support server.</li>
+                                <li>Select the server you want to add Tickets to.</li>
+                                <li>Grant the requested permissions (Manage Channels, Manage Roles, View Channels, Send Messages, Read Message History).</li>
+                                <li>Click <strong>Authorize</strong> and complete any verification.</li>
+                            </ol>
+                            <p>
+                                Once added, make sure Tickets has permission to see the category where you want tickets to be created.
+                            </p>
+                        </section>
+
+                        <section class="docs-block">
+                            <h3>2. Basic configuration</h3>
+                            <p>Run the base setup command in a staff channel:</p>
+                            <pre><code>/tickets setup</code></pre>
+                            <p>You’ll be guided through:</p>
+                            <ul>
+                                <li><strong>Support role</strong> — who should see and reply to tickets.</li>
+                                <li><strong>Ticket category</strong> — where ticket channels are created.</li>
+                                <li><strong>Transcript channel</strong> (optional) — where closed ticket logs are sent.</li>
+                            </ul>
+                        </section>
+
+                        <section class="docs-block">
+                            <h3>3. Creating ticket panels</h3>
+                            <p>
+                                Panels are the messages your users click to open a ticket (buttons, dropdowns, or emoji).
+                            </p>
+                            <ol>
+                                <li>Go to the channel where you want the panel.</li>
+                                <li>Run:
+                                    <pre><code>/tickets panel create</code></pre>
+                                </li>
+                                <li>Choose a <strong>panel style</strong> (buttons or select menu).</li>
+                                <li>Configure:
+                                    <ul>
+                                        <li><strong>Title</strong> — what the panel is called.</li>
+                                        <li><strong>Description</strong> — short explanation for users.</li>
+                                        <li><strong>Category</strong> — which category new tickets should use.</li>
+                                        <li><strong>Button label &amp; emoji</strong> — e.g. “Create Ticket” with 🎫.</li>
+                                    </ul>
+                                </li>
+                            </ol>
+                            <p>
+                                Tickets will send a panel embed with your buttons. When a user clicks, a private channel is created
+                                that only staff and the user can see.
+                            </p>
+                        </section>
+
+                        <section class="docs-block">
+                            <h3>4. Ticket workflow</h3>
+                            <p>Inside a ticket channel you’ll typically use:</p>
+                            <ul>
+                                <li><code>/ticket claim</code> — mark the ticket as taken by a staff member.</li>
+                                <li><code>/ticket add &lt;user&gt;</code> — add additional members to the ticket.</li>
+                                <li><code>/ticket remove &lt;user&gt;</code> — remove a member from the ticket.</li>
+                                <li><code>/ticket rename &lt;name&gt;</code> — rename the ticket channel.</li>
+                                <li><code>/ticket close</code> — close the ticket and optionally send a transcript.</li>
+                            </ul>
+                        </section>
+
+                        <section class="docs-block">
+                            <h3>5. Categories &amp; departments</h3>
+                            <p>Use categories to route different types of requests:</p>
+                            <ul>
+                                <li><code>/tickets category create</code> — add a new category (e.g. “Billing”, “Appeals”, “Partnerships”).</li>
+                                <li><code>/tickets category edit</code> — change staff role, default transcripts, or naming scheme.</li>
+                                <li><code>/tickets category delete</code> — remove a category you no longer use.</li>
+                            </ul>
+                            <p>
+                                Each category can have its own staff role and panel, so tickets always go to the right team.
+                            </p>
+                        </section>
+
+                        <section class="docs-block">
+                            <h3>6. Logging &amp; transcripts</h3>
+                            <p>
+                                When a ticket is closed, Tickets can generate a transcript and send it to a log channel.
+                            </p>
+                            <ul>
+                                <li>Set a global log channel with <code>/tickets logs set</code>.</li>
+                                <li>Enable or disable transcripts per category with <code>/tickets category edit</code>.</li>
+                                <li>Staff can re-open or re-send a transcript if needed.</li>
+                            </ul>
+                        </section>
+
+                        <section class="docs-block">
+                            <h3>7. Permissions checklist</h3>
+                            <p>If something isn’t working, check:</p>
+                            <ul>
+                                <li>Tickets has <strong>Manage Channels</strong> and <strong>View Channels</strong>.</li>
+                                <li>Tickets can see the ticket category and the panel channel.</li>
+                                <li>Your staff role is selected in the Tickets configuration.</li>
+                            </ul>
+                        </section>
+
+                        <section class="docs-block">
+                            <h3>8. Billing, upgrades, and support</h3>
+                            <p>
+                                Billing is handled through Stripe. Subscriptions renew monthly and you can cancel anytime via your
+                                Stripe customer portal (link in your receipt).
+                            </p>
+                            <p>
+                                For help, join our <a href="https://discord.gg/pGJkjshMWe" target="_blank">Discord support server</a>
+                                or email <a href="mailto:kojinstudios@gmail.com">kojinstudios@gmail.com</a>.
+                            </p>
+                        </section>
+                    </article>
+
+                    <!-- Gavel Docs -->
+                    <article class="docs-panel" data-bot="gavel">
+                        <h2>Gavel — Moderation Bot</h2>
+                        <p class="lead">
+                            Gavel is your moderation backbone: warnings, mutes, bans, cases, and detailed logging for serious servers.
+                        </p>
+
+                        <section class="docs-block">
+                            <h3>1. Inviting Gavel</h3>
+                            <p>Use the invite link provided after purchase or in our Discord support server, then:</p>
+                            <ol>
+                                <li>Select your server and grant the requested permissions (Manage Members, Manage Roles, Ban Members, Kick Members, View Channels, Send Messages).</li>
+                                <li>Place Gavel’s role <strong>above</strong> the roles you want it to manage.</li>
+                            </ol>
+                        </section>
+
+                        <section class="docs-block">
+                            <h3>2. Core moderation commands</h3>
+                            <ul>
+                                <li><code>/warn &lt;user&gt; &lt;reason&gt;</code> — create a warning and case entry.</li>
+                                <li><code>/mute &lt;user&gt; [duration] [reason]</code> — temporary or permanent text mute.</li>
+                                <li><code>/kick &lt;user&gt; [reason]</code> — remove a member from the server.</li>
+                                <li><code>/ban &lt;user&gt; [reason]</code> — ban a member and log the case.</li>
+                                <li><code>/cases &lt;user&gt;</code> — view a user’s full moderation history.</li>
+                            </ul>
+                        </section>
+
+                        <section class="docs-block">
+                            <h3>3. Auto-moderation</h3>
+                            <p>Configure your automod rules to match your community:</p>
+                            <ul>
+                                <li><code>/gavel automod enable</code> — turn automod on.</li>
+                                <li><code>/gavel automod spam</code> — configure raid/spam thresholds.</li>
+                                <li><code>/gavel automod filters</code> — word filters, links, media, and more.</li>
+                                <li><code>/gavel automod logs</code> — pick which channel to use for automod logs.</li>
+                            </ul>
+                        </section>
+
+                        <section class="docs-block">
+                            <h3>4. Case management &amp; appeals</h3>
+                            <ul>
+                                <li><code>/case view &lt;id&gt;</code> — show a single case with full context.</li>
+                                <li><code>/case edit &lt;id&gt;</code> — update the reason or notes.</li>
+                                <li><code>/case delete &lt;id&gt;</code> — remove a case (owner-only, for mistakes).</li>
+                                <li>
+                                    Connect Gavel to your appeals flow by sending case links in a private appeals channel
+                                    so staff can review decisions quickly.
+                                </li>
+                            </ul>
+                        </section>
+
+                        <section class="docs-block">
+                            <h3>5. Logging &amp; audit trail</h3>
+                            <p>Set a dedicated moderation log channel:</p>
+                            <pre><code>/gavel logs set</code></pre>
+                            <p>Gavel can log:</p>
+                            <ul>
+                                <li>Warnings, mutes, kicks, bans, and unbans.</li>
+                                <li>Edited and deleted messages (with configurable sensitivity).</li>
+                                <li>Join/leave events and nickname changes.</li>
+                            </ul>
+                        </section>
+
+                        <section class="docs-block">
+                            <h3>6. Customization &amp; branding</h3>
+                            <ul>
+                                <li><code>/gavel config embeds</code> — choose colors and footer style.</li>
+                                <li><code>/gavel config locale</code> — select language or tone of messages.</li>
+                                <li><code>/gavel config dm</code> — decide when users get DM notifications.</li>
+                            </ul>
+                        </section>
+                    </article>
+
+                    <!-- Host Docs -->
+                    <article class="docs-panel" data-bot="host">
+                        <h2>Host — Engagement Bot</h2>
+                        <p class="lead">
+                            Host powers events, reaction roles, utilities, and small quality-of-life features that make your server feel alive.
+                        </p>
+
+                        <section class="docs-block">
+                            <h3>1. Inviting Host</h3>
+                            <p>
+                                Invite Host with the link you receive after purchase or from our Discord support server,
+                                then grant the default “bot” permissions (Manage Roles for reaction roles, View Channels, Send Messages,
+                                Read Message History, Use Application Commands).
+                            </p>
+                        </section>
+
+                        <section class="docs-block">
+                            <h3>2. Reaction roles</h3>
+                            <ol>
+                                <li>Go to the channel where you want the reaction roles message.</li>
+                                <li>Run:
+                                    <pre><code>/host reactionroles create</code></pre>
+                                </li>
+                                <li>Add each role/emoji pair (for example: 🎮 → @Gamer, 📢 → @Announcements).</li>
+                                <li>Save and let Host post the message.</li>
+                            </ol>
+                            <p>Members can now click to self-assign or remove roles.</p>
+                        </section>
+
+                        <section class="docs-block">
+                            <h3>3. Events</h3>
+                            <ul>
+                                <li><code>/host event create</code> — create an event with title, date, and description.</li>
+                                <li><code>/host event announce</code> — send an embed with RSVP buttons.</li>
+                                <li><code>/host event list</code> — view active upcoming events.</li>
+                                <li><code>/host event cancel</code> — cancel or archive an event.</li>
+                            </ul>
+                        </section>
+
+                        <section class="docs-block">
+                            <h3>4. Utility commands</h3>
+                            <ul>
+                                <li><code>/weather &lt;location&gt;</code> — quick weather lookups.</li>
+                                <li><code>/server</code> — basic server stats.</li>
+                                <li><code>/avatar &lt;user&gt;</code> — show a user’s avatar.</li>
+                            </ul>
+                        </section>
+
+                        <section class="docs-block">
+                            <h3>5. XP &amp; leveling</h3>
+                            <p>
+                                Host can optionally track message activity and reward members with levels and roles.
+                            </p>
+                            <ul>
+                                <li><code>/host levels enable</code> — turn leveling on.</li>
+                                <li><code>/host levels rewards</code> — configure role rewards per level.</li>
+                                <li><code>/rank</code> — show a member’s level card.</li>
+                            </ul>
+                        </section>
+                    </article>
+
+                    <!-- Intella Docs -->
+                    <article class="docs-panel" data-bot="intella">
+                        <h2>Intella — Market Intel Bot</h2>
+                        <p class="lead">
+                            Intella delivers economic calendar events, market news, and trading-related data inside Discord. One command gives you a dashboard; subscribe to alerts so you never miss Fed decisions, earnings, or breaking news. <strong>Free until August 1st, 2026.</strong>
+                        </p>
+
+                        <section class="docs-block">
+                            <h3>1. Adding Intella to your server</h3>
+                            <p>Intella is free to add—no purchase required.</p>
+                            <ol>
+                                <li>Click <strong>Add Bot</strong> on the <a href="index.html#showcase-intella">Intella section</a> on the main page, or use the invite link from our Discord support server.</li>
+                                <li>Select the server you want to add Intella to.</li>
+                                <li>Grant the requested permissions (View Channels, Send Messages, Embed Links, Read Message History, Use Slash Commands, etc.).</li>
+                                <li>Click <strong>Authorize</strong> and complete any verification.</li>
+                            </ol>
+                            <p>Once added, anyone with permission can use <code>/intella</code> in your server.</p>
+                        </section>
+
+                        <section class="docs-block">
+                            <h3>2. Main command — Dashboard</h3>
+                            <p>The main entry point is:</p>
+                            <pre><code>/intella</code></pre>
+                            <p>This opens an interactive dashboard showing:</p>
+                            <ul>
+                                <li><strong>Upcoming economic events</strong> — Fed decisions, GDP, NFP, and more, with impact levels (High/Medium/Low).</li>
+                                <li><strong>Top market news</strong> — headlines from multiple sources.</li>
+                                <li>Buttons to open the <strong>full economic calendar</strong>, <strong>news feed</strong>, and <strong>settings</strong>.</li>
+                            </ul>
+                            <p>Replies are ephemeral by default—only the user who ran the command sees the response.</p>
+                        </section>
+
+                        <section class="docs-block">
+                            <h3>3. Economic calendar</h3>
+                            <p>View and filter economic events:</p>
+                            <ul>
+                                <li>Events are loaded from a configurable source with timezone support (e.g. US/Eastern).</li>
+                                <li>Impact levels (High, Medium, Low) help you prioritize.</li>
+                                <li>You can set up <strong>economic event alerts</strong> so the bot notifies a channel or users when high-impact events are approaching.</li>
+                            </ul>
+                        </section>
+
+                        <section class="docs-block">
+                            <h3>4. Market news</h3>
+                            <p>Intella aggregates news from multiple sources (Yahoo Finance, Finnhub, NewsAPI):</p>
+                            <ul>
+                                <li>Optional symbol or topic filtering.</li>
+                                <li><strong>News alerts</strong> — subscribe to updates for specific symbols or topics and get notified in Discord.</li>
+                                <li>News is cached to respect rate limits and keep responses fast.</li>
+                            </ul>
+                        </section>
+
+                        <section class="docs-block">
+                            <h3>5. User and server configuration</h3>
+                            <ul>
+                                <li><strong>Per-user settings</strong> — preferences and timezone for each user.</li>
+                                <li><strong>Server-wide config</strong> — admins can set default timezone, alert channels, and which features are enabled.</li>
+                                <li>Optional <strong>analytics or status channels</strong> for server admins to monitor bot health.</li>
+                            </ul>
+                        </section>
+
+                        <section class="docs-block">
+                            <h3>6. Alerts and reminders</h3>
+                            <p>Intella runs background jobs to:</p>
+                            <ul>
+                                <li>Refresh news and economic data on a schedule.</li>
+                                <li>Check alert subscriptions and send notifications when events or news match.</li>
+                                <li>Send event reminders (e.g. before high-impact releases).</li>
+                            </ul>
+                            <p>Configure check intervals and alert channels via the bot’s settings or admin commands.</p>
+                        </section>
+
+                        <section class="docs-block">
+                            <h3>7. Support and status</h3>
+                            <p>
+                                Intella is in active development (v0.1.0-alpha). For help or feature requests, join our
+                                <a href="https://discord.gg/pGJkjshMWe" target="_blank">Discord support server</a> or email
+                                <a href="mailto:kojinstudios@gmail.com">kojinstudios@gmail.com</a>.
+                            </p>
+                            <p><strong>Free until 8/1/26</strong> — add the bot with no subscription. Pricing after that date will be announced later.</p>
+                        </section>
+                    </article>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <div class="footer-logo">
+                        <img src="images/logo.png" alt="KojinStudios">
+                        <span>KojinBots</span>
+                    </div>
+                    <p>Premium Discord bots built by KojinStudios.</p>
+                </div>
+                <div class="footer-col">
+                    <h5>Bots</h5>
+                    <a href="index.html#showcase-gavel">Gavel</a>
+                    <a href="index.html#showcase-tickets">Tickets</a>
+                    <a href="index.html#showcase-host">Host</a>
+                    <a href="index.html#showcase-intella">Intella</a>
+                    <a href="index.html#pricing">Bundle</a>
+                </div>
+                <div class="footer-col">
+                    <h5>Resources</h5>
+                    <a href="index.html#faq">FAQ</a>
+                    <a href="docs.html">Docs</a>
+                    <a href="https://discord.gg/pGJkjshMWe" target="_blank">Discord</a>
+                    <a href="mailto:kojinstudios@gmail.com">Support</a>
+                    <a href="https://kojinstudios.com" target="_blank">Main Site</a>
+                </div>
+                <div class="footer-col">
+                    <h5>Legal</h5>
+                    <a href="terms.html">Terms of Service</a>
+                    <a href="privacy.html">Privacy Policy</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 KojinStudios. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <style>
+        .docs-layout {
+            display: grid;
+            grid-template-columns: 280px minmax(0, 1fr);
+            gap: 2.5rem;
+        }
+        .docs-sidebar {
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        .docs-sidebar-header p {
+            font-size: 0.9rem;
+            color: var(--text-2);
+            margin-bottom: 1.25rem;
+        }
+        .docs-tab {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            padding: 0.6rem 0.75rem;
+            border-radius: 10px;
+            border: none;
+            background: transparent;
+            color: var(--text-2);
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+        .docs-tab .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 999px;
+            margin-right: 0.35rem;
+            background: var(--text-3);
+        }
+        .docs-tab .dot.tickets { background: var(--gold); }
+        .docs-tab .dot.gavel { background: var(--red); }
+        .docs-tab .dot.host { background: var(--blue); }
+        .docs-tab .dot.intella { background: var(--green); }
+        .docs-tab .name {
+            font-weight: 600;
+        }
+        .docs-tab .role {
+            font-size: 0.75rem;
+            color: var(--text-3);
+        }
+        .docs-tab.active {
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--text);
+            border: 1px solid var(--border-hover);
+        }
+        .docs-tab:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+        .docs-sidebar-meta {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .docs-sidebar-meta .meta-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: var(--text-3);
+        }
+        .docs-sidebar-meta .value {
+            color: var(--text-2);
+        }
+        .docs-main {
+            background: rgba(10, 14, 18, 0.8);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
+            padding: 2rem;
+        }
+        .docs-panel {
+            display: none;
+        }
+        .docs-panel.active {
+            display: block;
+        }
+        .docs-panel h2 {
+            font-size: 1.6rem;
+            margin-bottom: 0.75rem;
+        }
+        .docs-panel .lead {
+            color: var(--text-2);
+            margin-bottom: 1.75rem;
+        }
+        .docs-block { margin-bottom: 2rem; }
+        .docs-block h3 {
+            font-size: 1.05rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+        }
+        .docs-block p {
+            color: var(--text-2);
+            line-height: 1.75;
+            margin-bottom: 0.75rem;
+        }
+        .docs-block ol,
+        .docs-block ul {
+            color: var(--text-2);
+            line-height: 1.8;
+            margin: 0.5rem 0 1rem 1.5rem;
+            padding-left: 0.5rem;
+        }
+        .docs-block li {
+            margin-bottom: 0.5rem;
+        }
+        .docs-block code {
+            background: rgba(255, 255, 255, 0.06);
+            padding: 0.1rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+        .docs-block pre {
+            background: rgba(10, 14, 18, 0.7);
+            border-radius: 6px;
+            padding: 0.75rem 0.9rem;
+            border: 1px solid var(--border);
+            overflow-x: auto;
+            margin-bottom: 0.75rem;
+        }
+        .docs-block a {
+            color: var(--red);
+        }
+        .docs-block a:hover {
+            text-decoration: underline;
+        }
+        @media (max-width: 900px) {
+            .docs-layout {
+                grid-template-columns: 1fr;
+            }
+            .docs-sidebar {
+                order: -1;
+                flex-direction: row;
+                align-items: flex-start;
+                overflow-x: auto;
+                gap: 0.5rem;
+            }
+            .docs-sidebar-header {
+                display: none;
+            }
+            .docs-sidebar-meta {
+                display: none;
+            }
+        }
+    </style>
+
+    <script>
+        (function () {
+            const tabs = document.querySelectorAll('.docs-tab');
+            const panels = document.querySelectorAll('.docs-panel');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const bot = tab.getAttribute('data-bot');
+                    tabs.forEach(t => t.classList.remove('active'));
+                    panels.forEach(p => p.classList.remove('active'));
+                    tab.classList.add('active');
+                    const activePanel = document.querySelector('.docs-panel[data-bot=\"' + bot + '\"]');
+                    if (activePanel) activePanel.classList.add('active');
+                });
+            });
+        })();
+    </script>
+</body>
+</html>
