@@ -108,13 +108,8 @@
                         <section class="docs-block">
                             <h3>2. Basic configuration</h3>
                             <p>Run the base setup command in a staff channel:</p>
-                            <pre><code>/tickets setup</code></pre>
-                            <p>You’ll be guided through:</p>
-                            <ul>
-                                <li><strong>Support role</strong> — who should see and reply to tickets.</li>
-                                <li><strong>Ticket category</strong> — where ticket channels are created.</li>
-                                <li><strong>Transcript channel</strong> (optional) — where closed ticket logs are sent.</li>
-                            </ul>
+                            <pre><code>/setup</code></pre>
+                            <p>You’ll be guided through initial setup. Then use <code>/config</code> for log channels, staff roles, support roles, and quick responses; use <code>/logs</code> to set the ticket log channel.</p>
                         </section>
 
                         <section class="docs-block">
@@ -125,9 +120,9 @@
                             <ol>
                                 <li>Go to the channel where you want the panel.</li>
                                 <li>Run:
-                                    <pre><code>/tickets panel create</code></pre>
+                                    <pre><code>/panels</code></pre>
                                 </li>
-                                <li>Choose a <strong>panel style</strong> (buttons or select menu).</li>
+                                <li>Choose <strong>Ticket Panels</strong>, then create or manage a panel.</li>
                                 <li>Configure:
                                     <ul>
                                         <li><strong>Title</strong> — what the panel is called.</li>
@@ -147,11 +142,11 @@
                             <h3>4. Ticket workflow</h3>
                             <p>Inside a ticket channel you’ll typically use:</p>
                             <ul>
-                                <li><code>/ticket claim</code> — mark the ticket as taken by a staff member.</li>
-                                <li><code>/ticket add &lt;user&gt;</code> — add additional members to the ticket.</li>
-                                <li><code>/ticket remove &lt;user&gt;</code> — remove a member from the ticket.</li>
-                                <li><code>/ticket rename &lt;name&gt;</code> — rename the ticket channel.</li>
-                                <li><code>/ticket close</code> — close the ticket and optionally send a transcript.</li>
+                                <li><code>/close</code> — close the current ticket (premium); optionally with reason and transcript.</li>
+                                <li><code>/response</code> — send a quick response in this ticket (staff only).</li>
+                                <li><code>/mytickets</code> — view assigned/claimed tickets (staff) or your open tickets (users).</li>
+                                <li><code>/merge</code> — merge two tickets together.</li>
+                                <li>Claiming, add/remove users, and rename are available via the ticket channel’s control buttons.</li>
                             </ul>
                         </section>
 
@@ -159,12 +154,11 @@
                             <h3>5. Categories &amp; departments</h3>
                             <p>Use categories to route different types of requests:</p>
                             <ul>
-                                <li><code>/tickets category create</code> — add a new category (e.g. “Billing”, “Appeals”, “Partnerships”).</li>
-                                <li><code>/tickets category edit</code> — change staff role, default transcripts, or naming scheme.</li>
-                                <li><code>/tickets category delete</code> — remove a category you no longer use.</li>
+                                <li>In <code>/panels</code> → Ticket Panels, add and edit <strong>categories</strong> (e.g. Billing, Appeals); each can have its own label, emoji, and optional ping role.</li>
+                                <li><code>/applications</code> and <code>/appeal</code> manage application and appeal panels (also from <code>/panels</code>).</li>
                             </ul>
                             <p>
-                                Each category can have its own staff role and panel, so tickets always go to the right team.
+                                Each category can have its own ping role and panel settings so tickets go to the right team.
                             </p>
                         </section>
 
@@ -174,8 +168,8 @@
                                 When a ticket is closed, Tickets can generate a transcript and send it to a log channel.
                             </p>
                             <ul>
-                                <li>Set a global log channel with <code>/tickets logs set</code>.</li>
-                                <li>Enable or disable transcripts per category with <code>/tickets category edit</code>.</li>
+                                <li>Set a global log channel with <code>/logs</code> or <code>/config</code>.</li>
+                                <li>Configure log channels and transcript options in <code>/config</code>.</li>
                                 <li>Staff can re-open or re-send a transcript if needed.</li>
                             </ul>
                         </section>
@@ -220,44 +214,39 @@
                         </section>
 
                         <section class="docs-block">
-                            <h3>2. Core moderation commands</h3>
+                            <h3>2. Setup and core moderation</h3>
                             <ul>
-                                <li><code>/warn &lt;user&gt; &lt;reason&gt;</code> — create a warning and case entry.</li>
-                                <li><code>/mute &lt;user&gt; [duration] [reason]</code> — temporary or permanent text mute.</li>
+                                <li><code>/setup</code> first; then <code>/modpanel</code>, <code>/ban</code>, <code>/kick</code>, <code>/warn</code>, <code>/timeout</code>, <code>/case</code>, <code>/logs</code></li>
+                                <li><code>/timeout</code> — timeout a user (replaces mute).</li>
                                 <li><code>/kick &lt;user&gt; [reason]</code> — remove a member from the server.</li>
                                 <li><code>/ban &lt;user&gt; [reason]</code> — ban a member and log the case.</li>
-                                <li><code>/cases &lt;user&gt;</code> — view a user’s full moderation history.</li>
+                                <li><code>/case</code> (by case number); <code>/modstats</code> — view a user’s full moderation history.</li>
                             </ul>
                         </section>
 
                         <section class="docs-block">
                             <h3>3. Auto-moderation</h3>
-                            <p>Configure your automod rules to match your community:</p>
+                            <p>Configure protection and emergency controls:</p>
                             <ul>
-                                <li><code>/gavel automod enable</code> — turn automod on.</li>
-                                <li><code>/gavel automod spam</code> — configure raid/spam thresholds.</li>
-                                <li><code>/gavel automod filters</code> — word filters, links, media, and more.</li>
-                                <li><code>/gavel automod logs</code> — pick which channel to use for automod logs.</li>
+                                <li><code>/automod</code> — turn automod on.</li>
+                                <li><code>/automod</code> (spam/raid) — configure raid/spam thresholds.</li>
+                                <li><code>/automod</code> (filters) — word filters, links, media, and more.</li>
+                                <li><code>/logs</code> — pick which channel to use for automod logs.</li>
                             </ul>
                         </section>
 
                         <section class="docs-block">
                             <h3>4. Case management &amp; appeals</h3>
                             <ul>
-                                <li><code>/case view &lt;id&gt;</code> — show a single case with full context.</li>
-                                <li><code>/case edit &lt;id&gt;</code> — update the reason or notes.</li>
-                                <li><code>/case delete &lt;id&gt;</code> — remove a case (owner-only, for mistakes).</li>
-                                <li>
-                                    Connect Gavel to your appeals flow by sending case links in a private appeals channel
-                                    so staff can review decisions quickly.
-                                </li>
+                                <li><code>/case</code> — look up a moderation case by number.</li>
+                                <li>Connect Gavel to your appeals flow by sharing case links in a private appeals channel so staff can review decisions quickly.</li>
                             </ul>
                         </section>
 
                         <section class="docs-block">
                             <h3>5. Logging &amp; audit trail</h3>
                             <p>Set a dedicated moderation log channel:</p>
-                            <pre><code>/gavel logs set</code></pre>
+                            <pre><code>/logs</code></pre>
                             <p>Gavel can log:</p>
                             <ul>
                                 <li>Warnings, mutes, kicks, bans, and unbans.</li>
@@ -267,11 +256,12 @@
                         </section>
 
                         <section class="docs-block">
-                            <h3>6. Customization &amp; branding</h3>
+                            <h3>6. Analytics, premium &amp; utilities</h3>
                             <ul>
-                                <li><code>/gavel config embeds</code> — choose colors and footer style.</li>
-                                <li><code>/gavel config locale</code> — select language or tone of messages.</li>
-                                <li><code>/gavel config dm</code> — decide when users get DM notifications.</li>
+                                <li><code>/dashboard</code>, <code>/serverstats</code>, <code>/analytics</code>, <code>/export</code> — server stats and data export.</li>
+                                <li><code>/premium</code> — check premium status; <code>/subscriptionadmin</code> — manage subscriptions (owner).</li>
+                                <li><code>/help</code>, <code>/info</code>, <code>/avatar</code>, <code>/serverinfo</code>, <code>/uptime</code>, <code>/stats</code> — utilities.</li>
+                                <li><code>/vote</code>, <code>/redeem</code> — vote for the bot and redeem votes for premium.</li>
                             </ul>
                         </section>
                     </article>
@@ -279,8 +269,11 @@
                     <!-- Host Docs -->
                     <article class="docs-panel" data-bot="host">
                         <h2>Host — Engagement Bot</h2>
+                        <div class="docs-wip" style="background: rgba(59, 130, 246, 0.12); border: 1px solid rgba(59, 130, 246, 0.35); border-radius: 8px; padding: 0.75rem 1rem; margin-bottom: 1.5rem; color: var(--text-2); font-size: 0.95rem;">
+                            <strong>Work in progress.</strong> Host documentation and features are still being developed. Check back later or join our <a href="https://discord.gg/pGJkjshMWe" target="_blank">Discord</a> for updates.
+                        </div>
                         <p class="lead">
-                            Host powers events, reaction roles, utilities, and small quality-of-life features that make your server feel alive.
+                            Host will power events, reaction roles, utilities, and small quality-of-life features that make your server feel alive.
                         </p>
 
                         <section class="docs-block">
