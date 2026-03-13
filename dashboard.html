@@ -78,10 +78,44 @@
                     </div>
                     <button type="button" class="btn btn-ghost" id="dashboard-logout">Log out</button>
                 </div>
-                <div class="dashboard-card">
+                <div class="dashboard-card" id="dashboard-servers-card">
                     <h2 class="dashboard-card-title">Your servers</h2>
-                    <p class="dashboard-card-desc">Servers you manage (with Manage Server permission). Select one to manage bots — more coming soon.</p>
+                    <p class="dashboard-card-desc">Click a server to see which bots are in it and manage subscription.</p>
                     <div id="dashboard-guild-list" class="dashboard-guild-list"></div>
+                </div>
+
+                <!-- Server detail (shown when a server is selected) -->
+                <div id="dashboard-server-detail" class="dashboard-card dashboard-server-detail" style="display: none;">
+                    <div class="dashboard-server-detail-header">
+                        <button type="button" class="btn btn-ghost btn-sm" id="dashboard-back-to-servers" aria-label="Back to servers">&larr; Back to servers</button>
+                        <div class="dashboard-server-detail-title-row">
+                            <img id="detail-server-icon" src="" alt="" class="dashboard-server-detail-icon" style="display: none;">
+                            <span class="dashboard-server-detail-initial" id="detail-server-initial">—</span>
+                            <div>
+                                <h2 class="dashboard-server-detail-name" id="detail-server-name">—</h2>
+                                <p class="dashboard-server-detail-id" id="detail-server-id"></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="detail-loading" class="dashboard-detail-loading" style="display: none;">
+                        <div class="loading-spinner"></div>
+                        <p>Loading server status...</p>
+                    </div>
+                    <div id="detail-content" class="dashboard-detail-content" style="display: none;">
+                        <h3 class="dashboard-detail-section-title">Bots in this server</h3>
+                        <div class="dashboard-bot-grid" id="detail-bot-grid"></div>
+                        <h3 class="dashboard-detail-section-title">Subscription</h3>
+                        <div class="dashboard-subscription-row" id="detail-subscription"></div>
+                        <div class="dashboard-detail-actions">
+                            <p class="dashboard-detail-actions-desc">Add or upgrade bots from the main site.</p>
+                            <div class="dashboard-detail-buttons">
+                                <a href="#" class="btn btn-outline dashboard-buy-btn" data-bot="gavel">Get Gavel</a>
+                                <a href="#" class="btn btn-outline dashboard-buy-btn" data-bot="tickets">Get Tickets</a>
+                                <a href="#" class="btn btn-outline dashboard-buy-btn" data-bot="kojinhost">Get Host</a>
+                                <a href="https://discord.com/oauth2/authorize?client_id=1393695244976918588&permissions=1126967206737984&integration_type=0&scope=bot+applications.commands" target="_blank" rel="noopener" class="btn btn-ghost dashboard-buy-btn">Add Intella (Free)</a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

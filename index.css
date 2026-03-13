@@ -2294,3 +2294,198 @@ footer {
     font-size: 0.9375rem;
     padding: 1.5rem 0;
 }
+
+/* Clickable guild card (server list → detail) */
+.dashboard-guild-card-clickable {
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+    font: inherit;
+    color: inherit;
+}
+
+.dashboard-guild-card-clickable:hover {
+    border-color: var(--accent);
+    background: rgba(255, 71, 87, 0.06);
+}
+
+.dashboard-guild-chevron {
+    color: var(--text-3);
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+
+/* Server detail panel */
+.dashboard-server-detail {
+    margin-top: 0;
+}
+
+.dashboard-server-detail-header {
+    margin-bottom: 1.5rem;
+}
+
+.dashboard-server-detail-header .btn {
+    margin-bottom: 1rem;
+}
+
+.dashboard-server-detail-title-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.dashboard-server-detail-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.dashboard-server-detail-initial {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--navy);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--text-2);
+    flex-shrink: 0;
+}
+
+.dashboard-server-detail-name {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0 0 0.25rem 0;
+}
+
+.dashboard-server-detail-id {
+    font-size: 0.8125rem;
+    color: var(--text-3);
+    margin: 0;
+}
+
+.dashboard-detail-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 2rem;
+    color: var(--text-2);
+}
+
+.loading-spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: dashboard-spin 0.8s linear infinite;
+}
+
+@keyframes dashboard-spin {
+    to { transform: rotate(360deg); }
+}
+
+.dashboard-detail-content {
+    margin-top: 0;
+}
+
+.dashboard-detail-section-title {
+    font-size: 1rem;
+    font-weight: 700;
+    margin: 0 0 0.75rem 0;
+    color: var(--text-2);
+}
+
+.dashboard-bot-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.dashboard-bot-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    background: rgba(10, 14, 18, 0.4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+}
+
+.dashboard-bot-item.in-server {
+    border-color: rgba(0, 184, 148, 0.4);
+    background: rgba(0, 184, 148, 0.06);
+}
+
+.dashboard-bot-status {
+    font-size: 1.125rem;
+    color: var(--text-3);
+    flex-shrink: 0;
+}
+
+.dashboard-bot-item.in-server .dashboard-bot-status {
+    color: var(--green);
+}
+
+.dashboard-bot-item strong {
+    display: block;
+    font-size: 0.9375rem;
+}
+
+.dashboard-bot-label {
+    font-size: 0.75rem;
+    color: var(--text-3);
+}
+
+.dashboard-subscription-row {
+    margin-bottom: 1.5rem;
+    font-size: 0.9375rem;
+    color: var(--text-2);
+}
+
+.dashboard-subscription-badge {
+    display: inline-block;
+    padding: 0.2em 0.5em;
+    border-radius: var(--radius);
+    font-weight: 600;
+    font-size: 0.8125rem;
+    margin-right: 0.5em;
+}
+
+.dashboard-subscription-badge.premium {
+    background: rgba(0, 184, 148, 0.2);
+    color: var(--green);
+}
+
+.dashboard-subscription-badge.free {
+    background: rgba(255, 71, 87, 0.15);
+    color: var(--accent);
+}
+
+.dashboard-subscription-badge.none {
+    background: var(--navy);
+    color: var(--text-3);
+}
+
+.dashboard-detail-actions {
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+}
+
+.dashboard-detail-actions-desc {
+    font-size: 0.875rem;
+    color: var(--text-3);
+    margin: 0 0 1rem 0;
+}
+
+.dashboard-detail-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}

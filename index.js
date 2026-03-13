@@ -104,6 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initStatusBoard();
     setupPurchaseForm();
     handleOAuthCallback();
+    applyPurchaseDeepLink();
 });
 
 // ============================================
@@ -406,6 +407,40 @@ function closePurchaseModal() {
         currentBot = null;
         selectedGuildId = null;
     }
+}
+
+// Deep-link from dashboard: index.html?buy=gavel|tickets|kojinhost&guild_id=XXX
+function applyPurchaseDeepLink() {
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get('code');
+    if (code) return; // OAuth return; let handleOAuthCallback handle it
+
+    const buy = params.get('buy');
+    const guildIdParam = params.get('guild_id');
+    if (!buy || !guildIdParam) return;
+
+    const bot = botData[buy];
+    if (!bot || buy === 'bundle' || buy === 'intella') return;
+
+    const guildId = guildIdParam.trim().replace(/\D/g, '').substring(0, 19);
+    if (!/^\d{17,19}$/.test(guildId)) return;
+
+    openPurchaseModal(buy);
+    const guildInput = document.getElementById('guild-id');
+    if (guildInput) {
+        guildInput.value = guildId;
+        guildInput.className = 'form-input valid';
+        guildInput.dispatchEvent(new Event('input'));
+    }
+    const validation = document.getElementById('guild-validation');
+    if (validation) {
+        validation.className = 'validation-msg valid';
+        validation.textContent = 'Valid Server ID';
+    }
+    selectedGuildId = guildId;
+    const purchaseBtn = document.getElementById('purchase-btn');
+    if (purchaseBtn) purchaseBtn.disabled = false;
+    window.history.replaceState({}, document.title, window.location.pathname + window.location.hash);
 }
 
 // ============================================
