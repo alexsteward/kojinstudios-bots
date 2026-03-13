@@ -221,6 +221,27 @@ exports.handler = async (event, context) => {
             const filteredIds = new Set(filteredGuilds.map(g => g.id));
             const otherGuilds = manageableGuilds.filter(g => !filteredIds.has(g.id)).map(toGuild);
 
+            // Optional: fetch user (identify scope) for dashboard display
+            let user = null;
+            try {
+                const userRes = await fetch('https://discord.com/api/users/@me', {
+                    headers: { 'Authorization': `Bearer ${accessToken}` },
+                });
+                if (userRes.ok) {
+                    const u = await userRes.json();
+                    user = {
+                        id: u.id,
+                        username: u.username,
+                        discriminator: u.discriminator,
+                        avatar: u.avatar
+                            ? `https://cdn.discordapp.com/avatars/${u.id}/${u.avatar}.png?size=80`
+                            : null,
+                    };
+                }
+            } catch (e) {
+                console.log('Could not fetch user:', e.message);
+            }
+
             return {
                 statusCode: 200,
                 headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
@@ -229,6 +250,7 @@ exports.handler = async (event, context) => {
                     guilds: guildsWithBot,
                     guildsWithBot,
                     otherGuilds,
+                    user,
                 }),
             };
         } catch (error) {
@@ -244,6 +266,7 @@ exports.handler = async (event, context) => {
     // Return OAuth URL
     if (event.httpMethod === 'GET' && !event.queryStringParameters?.code) {
         const botName = event.queryStringParameters?.bot_name;
+        const fromDashboard = event.queryStringParameters?.from_dashboard === '1' || event.queryStringParameters?.from_dashboard === 'true';
         const scopes = 'identify guilds';
 
         let finalRedirectUri = REDIRECT_URI;
@@ -257,7 +280,12 @@ exports.handler = async (event, context) => {
             };
         }
 
-        const state = botName ? encodeURIComponent(JSON.stringify({ bot_name: botName })) : '';
+        let state = '';
+        if (fromDashboard) {
+            state = encodeURIComponent(JSON.stringify({ from_dashboard: true }));
+        } else if (botName) {
+            state = encodeURIComponent(JSON.stringify({ bot_name: botName }));
+        }
         const authUrl = `https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(finalRedirectUri)}&response_type=code&scope=${encodeURIComponent(scopes)}${state ? `&state=${state}` : ''}`;
 
         return {

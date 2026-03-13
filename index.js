@@ -520,8 +520,44 @@ async function initDiscordOAuth() {
 async function handleOAuthCallback() {
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get('code');
+    const stateParam = urlParams.get('state');
 
     if (!code) return;
+
+    // Dashboard login callback: exchange code, store user + guilds, redirect to dashboard
+    let fromDashboard = false;
+    if (stateParam) {
+        try {
+            const state = JSON.parse(decodeURIComponent(stateParam));
+            if (state.from_dashboard) fromDashboard = true;
+        } catch (e) { /* ignore */ }
+    }
+
+    if (fromDashboard) {
+        try {
+            const response = await fetch(`/.netlify/functions/discord-oauth?code=${encodeURIComponent(code)}`);
+            const data = await response.json();
+            if (data.success && (data.user || data.guilds || data.guildsWithBot)) {
+                const user = data.user || null;
+                const guilds = {
+                    guildsWithBot: data.guildsWithBot || data.guilds || [],
+                    otherGuilds: data.otherGuilds || [],
+                };
+                if (window.kojinDashboardStoreAndRedirect) {
+                    window.kojinDashboardStoreAndRedirect(user, guilds);
+                } else {
+                    sessionStorage.setItem('kojin_dashboard_user', JSON.stringify(user));
+                    sessionStorage.setItem('kojin_dashboard_guilds', JSON.stringify(guilds));
+                    window.location.replace(window.location.origin + '/dashboard.html');
+                }
+            }
+        } catch (e) {
+            console.error('Dashboard OAuth error:', e);
+            window.location.replace(window.location.origin + '/dashboard.html');
+        }
+        window.history.replaceState({}, document.title, window.location.pathname);
+        return;
+    }
 
     const loadingState = document.getElementById('server-loading-state');
     const oauthSection = document.getElementById('discord-oauth-section');
