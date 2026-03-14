@@ -169,12 +169,8 @@ function selectServer(guild) {
     $('dash-welcome').style.display = 'none';
     $('dash-server').style.display  = 'block';
 
-    // Show the sub-header tabbar
-    const tabbar = $('dash-tabbar');
-    if (tabbar) tabbar.style.display = 'block';
-
     $('detail-server-name').textContent = guild.name;
-    $('detail-server-id').textContent   = guild.id;
+    $('detail-server-id').textContent   = `ID: ${guild.id}`;
 
     const icon = $('detail-server-icon');
     const ini  = $('detail-server-initial');
@@ -203,10 +199,6 @@ function backToServers() {
     $('dash-welcome').style.display = 'flex';
     $('dash-server').style.display  = 'none';
 
-    // Hide the sub-header tabbar
-    const tabbar = $('dash-tabbar');
-    if (tabbar) tabbar.style.display = 'none';
-
     document.querySelectorAll('.dash-guild-btn').forEach(b => b.classList.remove('active'));
 }
 
@@ -232,19 +224,33 @@ async function loadServerData() {
         if (c.classList.contains('active')) c.style.opacity = '0.5';
     });
     try {
-        const [status, config, channels, roles] = await Promise.all([
+        const [status, config, channels, roles] = await Promise.allSettled([
             api('server-status', { guild_id: selectedGuildId }),
             apiDash('config', 'GET', { guild_id: selectedGuildId }),
             api('channels', { guild_id: selectedGuildId }),
             apiDash('roles', 'GET', { guild_id: selectedGuildId }),
         ]);
-        cachedChannels = channels.channels || [];
-        cachedRoles    = roles.roles || [];
-        renderOverview(status);
-        renderConfig(config);
+
+        const statusData  = status.status === 'fulfilled' ? status.value : {};
+        const configData  = config.status === 'fulfilled' ? config.value : {};
+        const channelData = channels.status === 'fulfilled' ? channels.value : {};
+        const roleData    = roles.status === 'fulfilled' ? roles.value : {};
+
+        cachedChannels = channelData.channels || [];
+        cachedRoles    = roleData.roles || [];
+
+        renderOverview(statusData);
+        renderConfig(configData);
         fetchPanels();
         fetchQR();
         fetchAnalytics(selectedGuildId, 30);
+
+        const failed = [status, config, channels, roles].filter(r => r.status === 'rejected');
+        if (failed.length === 4) {
+            toast('Could not reach the bot server. Check that the bot is running.', 'error');
+        } else if (failed.length > 0) {
+            toast(`Loaded with ${failed.length} warning(s) — some data may be incomplete.`, 'error');
+        }
     } catch (e) {
         console.error(e);
         toast('Failed to load server data. Is the bot online?', 'error');
@@ -272,7 +278,7 @@ async function apiDash(endpoint, method, params, body) {
 function renderOverview(data) {
     const inServer = data.tickets === true;
     $('overview-bot-status').innerHTML = inServer
-        ? '<span class="dash-status-dot green"></span> In server'
+        ? '<span class="dash-status-dot green"></span> Online'
         : '<span class="dash-status-dot red"></span> Not in server';
 
     const sub = data.subscription;
@@ -280,21 +286,34 @@ function renderOverview(data) {
         ? '<span class="dash-badge-sm premium">Premium</span>'
         : sub === 'free'
             ? '<span class="dash-badge-sm free">Free</span>'
-            : '<span class="dash-badge-sm none">None</span>';
+            : '<span class="dash-badge-sm none">Unknown</span>';
 
-    $('overview-ticket-count').textContent = data.ticket_count || 0;
-    $('overview-open-tickets').textContent = data.open_tickets || 0;
+    $('overview-ticket-count').textContent = typeof data.ticket_count === 'number' ? data.ticket_count.toLocaleString() : '—';
+    $('overview-open-tickets').textContent = typeof data.open_tickets === 'number' ? data.open_tickets.toLocaleString() : '—';
+
+    const members = $('overview-members');
+    if (members) members.textContent = typeof data.member_count === 'number' ? data.member_count.toLocaleString() : '—';
+
+    const name = $('overview-guild-name');
+    if (name && data.guild_name) name.textContent = data.guild_name;
 
     const btn = $('detail-get-tickets-btn');
     if (btn && selectedGuildId) {
         btn.href = `${BASE}/index.html?buy=tickets&guild_id=${encodeURIComponent(selectedGuildId)}`;
-        btn.textContent = inServer ? 'Manage subscription' : 'Get Tickets';
+        btn.innerHTML = inServer
+            ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> Manage subscription'
+            : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg> Get Tickets';
     }
 }
 
 // ─── Configuration ───────────────────────────────────────────────────────────
 function renderConfig(cfg) {
-    if (!cfg || !cfg.configured) return;
+    if (!cfg || !cfg.configured) {
+        if (cfg && cfg.error) {
+            toast('Config: ' + cfg.error, 'error');
+        }
+        return;
+    }
     populateChannelSelect('cfg-log-channel', cachedChannels, cfg.log_channel_id);
     populateChannelSelect('cfg-app-log-channel', cachedChannels, cfg.application_log_channel_id);
     populateChannelSelect('cfg-appeal-log-channel', cachedChannels, cfg.appeal_log_channel_id);
@@ -303,6 +322,19 @@ function renderConfig(cfg) {
     populateRoleSelect('cfg-support-roles', cachedRoles, cfg.support_role_ids || []);
     $('cfg-ping-support').checked = !!cfg.ping_support_on_ticket;
     $('cfg-emoji-style').value = cfg.emoji_style || 'heavy';
+
+    if (!cachedChannels.length) {
+        ['cfg-log-channel', 'cfg-app-log-channel', 'cfg-appeal-log-channel'].forEach(id => {
+            const sel = $(id);
+            if (sel) sel.innerHTML = '<option value="">Bot unreachable — channels unavailable</option>';
+        });
+    }
+    if (!cachedRoles.length) {
+        ['cfg-staff-roles', 'cfg-admin-roles', 'cfg-support-roles'].forEach(id => {
+            const sel = $(id);
+            if (sel) sel.innerHTML = '<option value="">Bot unreachable — roles unavailable</option>';
+        });
+    }
 }
 
 function populateChannelSelect(id, channels, selected) {

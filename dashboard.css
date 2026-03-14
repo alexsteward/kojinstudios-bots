@@ -215,96 +215,51 @@ body.dashboard-page {
     padding-top: 64px;
 }
 
-/* ─── Sub-header tab bar ─────────────────────────────── */
-.dash-tabbar {
-    position: sticky;
-    top: 64px;
-    z-index: 900;
-    background: var(--d-surface);
-    border-bottom: 1px solid var(--d-border);
-    backdrop-filter: blur(16px);
-    animation: fadeSlideUp 0.25s var(--d-ease-out) both;
+/* ─── Server header (in-content) ────────────────────── */
+.dash-server-header {
+    margin-bottom: 1.5rem;
+    animation: fadeSlideUp 0.35s var(--d-ease-out) both;
 }
 
-.dash-tabbar-inner {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 2rem;
+.dash-server-header-top {
     display: flex;
     align-items: center;
-    gap: 1.5rem;
-    height: 48px;
+    gap: 0.875rem;
+    margin-bottom: 1.25rem;
 }
 
-.dash-tabbar-server {
-    display: flex;
-    align-items: center;
-    gap: 0.625rem;
-    flex-shrink: 0;
-    padding-right: 1.5rem;
-    border-right: 1px solid var(--d-border);
-}
-
-.dash-tabbar-avatar {
-    width: 28px;
-    height: 28px;
-    border-radius: 8px;
+.dash-server-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
     overflow: hidden;
     background: var(--d-surface-2);
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+    border: 1px solid var(--d-border);
 }
 
-.dash-tabbar-avatar img {
+.dash-server-avatar img {
     width: 100%;
     height: 100%;
     object-fit: cover;
 }
 
-.dash-tabbar-avatar .dash-server-initial {
-    font-size: 0.75rem;
-}
-
-.dash-tabbar-name {
+.dash-server-info h2 {
     font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: 0.875rem;
-    font-weight: 700;
-    color: var(--d-text);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 160px;
+    font-size: 1.375rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
 }
 
-.dash-tabbar-id {
-    font-size: 0.6875rem;
+.dash-server-meta {
+    font-size: 0.75rem;
     color: var(--d-text-3);
-    font-family: 'Consolas', monospace;
-    display: none;
+    font-family: 'Consolas', 'SF Mono', monospace;
 }
-
-.dash-tabbar .dash-tabs {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    gap: 0.25rem;
-    padding: 0;
-    background: none;
-    border: none;
-    border-radius: 0;
-    margin: 0;
-    animation: none;
-    overflow-x: auto;
-}
-
-.dash-tabbar .dash-back-btn {
-    width: 28px;
-    height: 28px;
-}
-
-.dash-tabbar .dash-back-btn svg { width: 14px; height: 14px; }
 
 .dash-layout {
     display: flex;
@@ -326,17 +281,6 @@ body.dashboard-page {
     overflow: hidden;
     animation: fadeSlideLeft 0.4s var(--d-ease-out) both;
     z-index: 800;
-}
-
-.dash-tabbar ~ .dash-layout .dash-sidebar {
-    top: 112px;
-    height: calc(100vh - 112px);
-}
-
-.dash-tabbar[style*="display:none"] ~ .dash-layout .dash-sidebar,
-.dash-tabbar[style*="display: none"] ~ .dash-layout .dash-sidebar {
-    top: 64px;
-    height: calc(100vh - 64px);
 }
 
 .dash-sidebar-top {
@@ -661,6 +605,11 @@ body.dashboard-page {
     display: flex;
     gap: 0.25rem;
     overflow-x: auto;
+    padding: 0.25rem;
+    background: var(--d-surface);
+    border: 1px solid var(--d-border);
+    border-radius: var(--d-radius);
+    width: fit-content;
 }
 
 .dash-tab {
@@ -1531,18 +1480,24 @@ body.dashboard-page {
 }
 
 @media (max-width: 768px) {
-    .dash-tabbar-inner {
-        padding: 0 1rem;
-        gap: 0.75rem;
+    .dash-server-header-top {
+        gap: 0.625rem;
     }
 
-    .dash-tabbar-server {
-        padding-right: 0.75rem;
+    .dash-server-avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
     }
 
-    .dash-tabbar-name { max-width: 80px; }
+    .dash-server-info h2 {
+        font-size: 1.125rem;
+    }
 
-    .dash-tabbar .dash-tabs { justify-content: flex-start; }
+    .dash-tabs {
+        width: 100%;
+        overflow-x: auto;
+    }
 
     .dash-tab {
         padding: 0.5rem 0.625rem;
