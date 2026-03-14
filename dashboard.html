@@ -281,12 +281,19 @@
                             </div>
                         </div>
                         <div class="dash-card anim-in dash-overview-trend" style="--delay:.1s">
-                            <div class="dash-card-head">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
-                                <h3>Tickets last 7 days</h3>
+                            <div class="dash-trend-header">
+                                <div class="dash-trend-title-row">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+                                    <h3>Ticket activity</h3>
+                                    <span class="dash-trend-period">Last 7 days</span>
+                                </div>
+                                <div class="dash-trend-total" id="overview-trend-total">—</div>
                             </div>
                             <div id="overview-trend-chart" class="dash-overview-chart"></div>
-                            <p class="dash-overview-trend-hint" id="overview-trend-hint">Loading trend&hellip;</p>
+                            <div class="dash-trend-footer">
+                                <span class="dash-trend-hint" id="overview-trend-hint">Loading&hellip;</span>
+                                <a href="#" class="dash-trend-link" id="overview-trend-analytics-link">View full analytics →</a>
+                            </div>
                         </div>
                         <div class="dash-card anim-in" style="--delay:.15s">
                             <a href="#" class="dash-action-btn" id="detail-get-tickets-btn" data-bot="tickets">

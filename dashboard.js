@@ -324,27 +324,38 @@ function renderOverview(data) {
 function renderOverviewTrend(byDay, error) {
     const chart = $('overview-trend-chart');
     const hint = $('overview-trend-hint');
+    const totalEl = $('overview-trend-total');
+    const link = $('overview-trend-analytics-link');
     if (!chart) return;
+    if (link) {
+        link.href = '#';
+        link.onclick = (e) => { e.preventDefault(); document.querySelector('[data-tab="analytics"]')?.click(); };
+    }
     if (error) {
         chart.innerHTML = '';
+        if (totalEl) totalEl.textContent = '—';
         if (hint) hint.textContent = 'Could not load trend.';
         return;
     }
     if (!byDay || !byDay.length) {
-        chart.innerHTML = '';
-        if (hint) hint.textContent = 'No ticket activity in the last 7 days.';
+        chart.innerHTML = '<div class="dash-trend-empty"><span class="dash-trend-empty-icon">📊</span><p>No ticket activity yet</p><span class="dash-trend-empty-sub">Tickets will appear here once created</span></div>';
+        if (totalEl) totalEl.textContent = '0';
+        if (hint) hint.textContent = 'No tickets in the last 7 days.';
         return;
     }
+    const total = byDay.reduce((a, d) => a + d.count, 0);
     const max = Math.max(...byDay.map(d => d.count), 1);
-    chart.innerHTML = `<div class="dash-bar-chart dash-bar-chart-mini">${byDay.map(d => {
-        const pct = Math.max((d.count / max) * 100, 4);
-        return `<div class="dash-bar-col" title="${d.date}: ${d.count} ticket${d.count !== 1 ? 's' : ''}">
-            <div class="dash-bar" style="height:${pct}%"></div>
-            <span class="dash-bar-label">${d.date}</span>
+    if (totalEl) totalEl.textContent = total.toLocaleString();
+    chart.innerHTML = `<div class="dash-trend-bars">${byDay.map(d => {
+        const pct = Math.max((d.count / max) * 100, 6);
+        return `<div class="dash-trend-bar-wrap" title="${d.date}: ${d.count} ticket${d.count !== 1 ? 's' : ''}">
+            <div class="dash-trend-bar" style="--h:${pct}%">
+                <span class="dash-trend-bar-value">${d.count}</span>
+            </div>
+            <span class="dash-trend-bar-label">${d.date}</span>
         </div>`;
     }).join('')}</div>`;
-    const total = byDay.reduce((a, d) => a + d.count, 0);
-    if (hint) hint.textContent = total === 0 ? 'No tickets created in this period.' : `${total} ticket${total !== 1 ? 's' : ''} created in the last 7 days.`;
+    if (hint) hint.textContent = total === 0 ? 'No tickets created.' : `${total} ticket${total !== 1 ? 's' : ''} created this week.`;
 }
 
 // ─── Searchable Select Component ─────────────────────────────────────────────
