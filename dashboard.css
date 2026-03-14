@@ -1449,10 +1449,47 @@ body.dashboard-page {
 
 .dash-cat-row {
     display: grid;
-    grid-template-columns: 80px 1fr 1fr 32px;
+    grid-template-columns: minmax(140px, 180px) 1fr 1fr 32px;
     gap: 0.5rem;
-    align-items: center;
+    align-items: start;
     animation: fadeSlideUp 0.2s var(--d-ease-out) both;
+}
+
+.dash-cat-emoji-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+}
+
+.dash-cat-emoji-cell .dash-cat-emoji {
+    width: 100%;
+}
+
+.dash-emoji-picks {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px;
+}
+
+.dash-emoji-pick {
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    background: var(--d-surface-3);
+    border: 1px solid var(--d-border);
+    border-radius: 4px;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.dash-emoji-pick:hover {
+    background: var(--d-accent-soft);
+    border-color: var(--d-accent);
+    transform: scale(1.08);
 }
 
 .dash-cat-row input {
@@ -1970,10 +2007,16 @@ body.dashboard-page {
     }
 
     .dash-cat-row {
-        grid-template-columns: 60px 1fr 32px;
+        grid-template-columns: 1fr 32px;
+        grid-template-areas: "emoji remove" "name name";
     }
 
+    .dash-cat-row .dash-cat-emoji-cell { grid-area: emoji; }
+    .dash-cat-row .dash-cat-name { grid-area: name; }
     .dash-cat-row .dash-cat-desc { display: none; }
+    .dash-cat-row .dash-cat-remove { grid-area: remove; }
+
+    .dash-emoji-picks { max-width: 100%; }
 
     .dash-qr-item {
         flex-direction: column;

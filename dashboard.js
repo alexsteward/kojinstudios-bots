@@ -644,18 +644,41 @@ function loadChannelSelect(selectedId) {
     }).join('');
 }
 
+const EMOJI_QUICK_PICKS = ['🎫', '🔧', '💬', '📋', '⚖️', '🐛', '❓', '💡', '🎮', '📝', '✅', '🔒'];
+
 function addCatRow(cat) {
     const container = $('panel-categories-container');
+    if (!container) return;
     const row = document.createElement('div');
     row.className = 'dash-cat-row';
     row.innerHTML = `
-        <input type="text" class="dash-cat-emoji" placeholder="🎫" value="${escA(cat?.emoji || '')}" maxlength="64" title="Unicode or Discord custom emoji">
+        <div class="dash-cat-emoji-cell">
+            <input type="text" class="dash-cat-emoji" placeholder="🎫" value="${escA(cat?.emoji || '')}" maxlength="64" title="Unicode or Discord custom emoji &lt;:name:id&gt;">
+            <div class="dash-emoji-picks">${EMOJI_QUICK_PICKS.map(e => `<button type="button" class="dash-emoji-pick" data-emoji="${escA(e)}" title="Insert ${escA(e)}">${e}</button>`).join('')}</div>
+        </div>
         <input type="text" class="dash-cat-name" placeholder="Button label" value="${escA(cat?.name || '')}" required>
         <input type="text" class="dash-cat-desc" placeholder="Description (optional)" value="${escA(cat?.description || '')}">
         <button type="button" class="dash-cat-remove">&times;</button>
     `;
+    bindEmojiPicks(row);
     row.querySelector('.dash-cat-remove').addEventListener('click', () => row.remove());
     container.appendChild(row);
+}
+
+function bindEmojiPicks(row) {
+    const emojiInput = row.querySelector('.dash-cat-emoji');
+    row.querySelectorAll('.dash-emoji-pick').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const emoji = btn.dataset.emoji;
+            const start = emojiInput.selectionStart || 0;
+            const end = emojiInput.selectionEnd || start;
+            const val = emojiInput.value;
+            emojiInput.value = val.slice(0, start) + emoji + val.slice(end);
+            emojiInput.focus();
+            emojiInput.selectionStart = emojiInput.selectionEnd = start + emoji.length;
+        });
+    });
 }
 
 async function submitPanel(e) {
@@ -796,6 +819,7 @@ function openAppPanelEditor() {
     $('app-panel-editor').style.display = 'flex';
     $('app-panel-title').value = '';
     $('app-panel-description').value = '';
+    $('app-panel-channel-id').value = '';
     const container = $('app-panel-types-container');
     container.innerHTML = '';
     addTypeRow('app-panel-types-container', { emoji: '📋', name: 'Staff Application', description: 'Apply for a staff position' });
@@ -806,8 +830,8 @@ function closeAppPanelEditor() { $('app-panel-editor').style.display = 'none'; }
 
 async function submitAppPanel(e) {
     e.preventDefault();
-    const channelId = $('app-panel-channel').value;
-    if (!channelId) { toast('Choose a channel.', 'error'); return; }
+    const channelId = $('app-panel-channel').value || ($('app-panel-channel-id')?.value?.trim().replace(/\D/g, '') || '');
+    if (!channelId || channelId.length < 17) { toast('Choose a channel or enter a valid Channel ID.', 'error'); return; }
     const title = $('app-panel-title').value.trim();
     if (!title) { toast('Enter a title.', 'error'); return; }
     const description = $('app-panel-description').value.trim();
@@ -877,6 +901,7 @@ function openAppealPanelEditor() {
     $('appeal-panel-editor').style.display = 'flex';
     $('appeal-panel-title').value = '';
     $('appeal-panel-description').value = '';
+    $('appeal-panel-channel-id').value = '';
     const container = $('appeal-panel-cats-container');
     container.innerHTML = '';
     addTypeRow('appeal-panel-cats-container', { emoji: '⚖️', name: 'Ban Appeal', description: 'Appeal a ban or punishment' });
@@ -887,8 +912,8 @@ function closeAppealPanelEditor() { $('appeal-panel-editor').style.display = 'no
 
 async function submitAppealPanel(e) {
     e.preventDefault();
-    const channelId = $('appeal-panel-channel').value;
-    if (!channelId) { toast('Choose a channel.', 'error'); return; }
+    const channelId = $('appeal-panel-channel').value || ($('appeal-panel-channel-id')?.value?.trim().replace(/\D/g, '') || '');
+    if (!channelId || channelId.length < 17) { toast('Choose a channel or enter a valid Channel ID.', 'error'); return; }
     const title = $('appeal-panel-title').value.trim();
     if (!title) { toast('Enter a title.', 'error'); return; }
     const description = $('appeal-panel-description').value.trim();
@@ -924,11 +949,15 @@ function addTypeRow(containerId, cat) {
     const row = document.createElement('div');
     row.className = 'dash-cat-row';
     row.innerHTML = `
-        <input type="text" class="dash-cat-emoji" placeholder="📋" value="${escA(cat?.emoji || '')}" maxlength="64">
+        <div class="dash-cat-emoji-cell">
+            <input type="text" class="dash-cat-emoji" placeholder="📋" value="${escA(cat?.emoji || '')}" maxlength="64" title="Unicode or Discord custom emoji &lt;:name:id&gt;">
+            <div class="dash-emoji-picks">${EMOJI_QUICK_PICKS.map(e => `<button type="button" class="dash-emoji-pick" data-emoji="${escA(e)}" title="Insert ${escA(e)}">${e}</button>`).join('')}</div>
+        </div>
         <input type="text" class="dash-cat-name" placeholder="Button label" value="${escA(cat?.name || '')}" required>
         <input type="text" class="dash-cat-desc" placeholder="Description (optional)" value="${escA(cat?.description || '')}">
         <button type="button" class="dash-cat-remove">&times;</button>
     `;
+    bindEmojiPicks(row);
     row.querySelector('.dash-cat-remove').addEventListener('click', () => row.remove());
     container.appendChild(row);
 }

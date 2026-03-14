@@ -545,6 +545,8 @@
                                 <div class="dash-field">
                                     <label for="app-panel-channel">Channel</label>
                                     <select id="app-panel-channel" class="dash-select"><option value="">Loading&hellip;</option></select>
+                                    <span class="dash-field-hint">Or enter Channel ID:</span>
+                                    <input type="text" id="app-panel-channel-id" class="dash-input" placeholder="Channel ID" maxlength="20">
                                 </div>
                                 <div class="dash-field">
                                     <label for="app-panel-title">Title</label>
@@ -555,7 +557,7 @@
                                     <textarea id="app-panel-description" class="dash-textarea" placeholder="Click a button below to apply." rows="2"></textarea>
                                 </div>
                                 <div class="dash-field">
-                                    <label>Application Types <span class="dash-field-hint-inline">Each becomes a button</span></label>
+                                    <label>Application Types <span class="dash-field-hint-inline">Each becomes a button. Emoji: Unicode or <code>&lt;:name:id&gt;</code></span></label>
                                     <div id="app-panel-types-container" class="dash-cat-rows"></div>
                                     <button type="button" class="dash-btn dash-btn-ghost dash-btn-sm" id="app-panel-add-type">
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -584,6 +586,8 @@
                                 <div class="dash-field">
                                     <label for="appeal-panel-channel">Channel</label>
                                     <select id="appeal-panel-channel" class="dash-select"><option value="">Loading&hellip;</option></select>
+                                    <span class="dash-field-hint">Or enter Channel ID:</span>
+                                    <input type="text" id="appeal-panel-channel-id" class="dash-input" placeholder="Channel ID" maxlength="20">
                                 </div>
                                 <div class="dash-field">
                                     <label for="appeal-panel-title">Title</label>
@@ -594,7 +598,7 @@
                                     <textarea id="appeal-panel-description" class="dash-textarea" placeholder="Click a button below to submit an appeal." rows="2"></textarea>
                                 </div>
                                 <div class="dash-field">
-                                    <label>Appeal Categories <span class="dash-field-hint-inline">Each becomes a button</span></label>
+                                    <label>Appeal Categories <span class="dash-field-hint-inline">Each becomes a button. Emoji: Unicode or <code>&lt;:name:id&gt;</code></span></label>
                                     <div id="appeal-panel-cats-container" class="dash-cat-rows"></div>
                                     <button type="button" class="dash-btn dash-btn-ghost dash-btn-sm" id="appeal-panel-add-cat">
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
