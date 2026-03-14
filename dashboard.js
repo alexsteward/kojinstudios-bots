@@ -171,15 +171,6 @@ function selectServer(guild) {
 
     $('detail-server-name').textContent = guild.name;
 
-    const icon = $('detail-server-icon');
-    const ini  = $('detail-server-initial');
-    if (guild.icon) {
-        icon.src = guild.icon; icon.style.display = 'block'; ini.style.display = 'none';
-    } else {
-        ini.textContent = (guild.name || '?')[0].toUpperCase();
-        ini.style.display = 'flex'; icon.style.display = 'none';
-    }
-
     document.querySelectorAll('.dash-guild-btn').forEach(b =>
         b.classList.toggle('active', b.dataset.id === guild.id)
     );
