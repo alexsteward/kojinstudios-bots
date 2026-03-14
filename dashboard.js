@@ -87,7 +87,7 @@ function showLogin() {
 
 function showDashboard(user, guilds) {
     $('dashboard-login').style.display = 'none';
-    $('dashboard-content').style.display = 'flex';
+    $('dashboard-content').style.display = 'block';
     const av  = $('dashboard-user-avatar');
     const ini = $('dashboard-user-initial');
     const nm  = $('dashboard-user-name');
@@ -168,6 +168,11 @@ function selectServer(guild) {
 
     $('dash-welcome').style.display = 'none';
     $('dash-server').style.display  = 'block';
+
+    // Show the sub-header tabbar
+    const tabbar = $('dash-tabbar');
+    if (tabbar) tabbar.style.display = 'block';
+
     $('detail-server-name').textContent = guild.name;
     $('detail-server-id').textContent   = guild.id;
 
@@ -197,6 +202,11 @@ function backToServers() {
     selectedGuild   = null;
     $('dash-welcome').style.display = 'flex';
     $('dash-server').style.display  = 'none';
+
+    // Hide the sub-header tabbar
+    const tabbar = $('dash-tabbar');
+    if (tabbar) tabbar.style.display = 'none';
+
     document.querySelectorAll('.dash-guild-btn').forEach(b => b.classList.remove('active'));
 }
 
