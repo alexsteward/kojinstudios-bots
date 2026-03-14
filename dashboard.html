@@ -280,16 +280,16 @@
                             <p class="dash-card-desc">Where the bot sends logs for tickets, applications, and appeals.</p>
                             <div class="dash-form-grid">
                                 <div class="dash-field">
-                                    <label for="cfg-log-channel">Ticket logs</label>
-                                    <select id="cfg-log-channel" class="dash-select"><option value="">None</option></select>
+                                    <label>Ticket logs <span class="dash-help" data-tip="Channel where ticket transcripts, open/close events, and staff actions are logged. Only staff &amp; admins need access to this channel.">?</span></label>
+                                    <div class="dash-ss" id="cfg-log-channel" data-mode="single" data-placeholder="Search channels..."></div>
                                 </div>
                                 <div class="dash-field">
-                                    <label for="cfg-app-log-channel">Application logs</label>
-                                    <select id="cfg-app-log-channel" class="dash-select"><option value="">None</option></select>
+                                    <label>Application logs <span class="dash-help" data-tip="Channel where application submissions and review decisions are posted. Set this if you use the /apply system.">?</span></label>
+                                    <div class="dash-ss" id="cfg-app-log-channel" data-mode="single" data-placeholder="Search channels..."></div>
                                 </div>
                                 <div class="dash-field">
-                                    <label for="cfg-appeal-log-channel">Appeal logs</label>
-                                    <select id="cfg-appeal-log-channel" class="dash-select"><option value="">None</option></select>
+                                    <label>Appeal logs <span class="dash-help" data-tip="Channel where ban appeal submissions and review decisions are posted. Set this if you use the appeal panel system.">?</span></label>
+                                    <div class="dash-ss" id="cfg-appeal-log-channel" data-mode="single" data-placeholder="Search channels..."></div>
                                 </div>
                             </div>
                         </div>
@@ -298,19 +298,19 @@
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                                 <h3>Roles</h3>
                             </div>
-                            <p class="dash-card-desc">Staff manage tickets. Admins configure the bot. Support roles get pinged on new tickets.</p>
+                            <p class="dash-card-desc">Assign roles to control who can manage tickets and receive notifications.</p>
                             <div class="dash-form-grid">
                                 <div class="dash-field">
-                                    <label for="cfg-staff-roles">Staff roles</label>
-                                    <select id="cfg-staff-roles" class="dash-select" multiple></select>
+                                    <label>Staff roles <span class="dash-help" data-tip="Can see tickets, claim them, close/reopen, add/remove users, use quick responses, and view transcripts. This is your main support team role.">?</span></label>
+                                    <div class="dash-ss" id="cfg-staff-roles" data-mode="multi" data-placeholder="Search roles..."></div>
                                 </div>
                                 <div class="dash-field">
-                                    <label for="cfg-admin-roles">Admin roles</label>
-                                    <select id="cfg-admin-roles" class="dash-select" multiple></select>
+                                    <label>Admin roles <span class="dash-help" data-tip="Full bot configuration access — can create/edit panels, change settings, manage roles, and delete tickets. Give this to server managers only.">?</span></label>
+                                    <div class="dash-ss" id="cfg-admin-roles" data-mode="multi" data-placeholder="Search roles..."></div>
                                 </div>
                                 <div class="dash-field">
-                                    <label for="cfg-support-roles">Support roles</label>
-                                    <select id="cfg-support-roles" class="dash-select" multiple></select>
+                                    <label>Support roles <span class="dash-help" data-tip="Get @pinged when a new ticket is created (if 'Ping support roles' is enabled below). Useful for on-call staff who need instant notification.">?</span></label>
+                                    <div class="dash-ss" id="cfg-support-roles" data-mode="multi" data-placeholder="Search roles..."></div>
                                 </div>
                             </div>
                         </div>
@@ -325,10 +325,11 @@
                                     <span class="dash-toggle-track"><span class="dash-toggle-thumb"></span></span>
                                 </label>
                                 <span>Ping support roles when a ticket is created</span>
+                                <span class="dash-help" data-tip="When enabled, all Support Roles are @mentioned in the ticket channel when it's first created. Disable if you prefer silent ticket creation.">?</span>
                             </div>
                             <div class="dash-form-grid" style="margin-top:1rem;">
                                 <div class="dash-field">
-                                    <label for="cfg-emoji-style">Emoji style</label>
+                                    <label for="cfg-emoji-style">Emoji style <span class="dash-help" data-tip="'Heavy' adds emojis to embeds, buttons, and messages for visual flair. 'Minimal' strips most emojis for a cleaner look.">?</span></label>
                                     <select id="cfg-emoji-style" class="dash-select">
                                         <option value="heavy">Heavy (lots of emojis)</option>
                                         <option value="minimal">Minimal</option>

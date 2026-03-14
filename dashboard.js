@@ -296,77 +296,188 @@ function renderOverview(data) {
     }
 }
 
+// ─── Searchable Select Component ─────────────────────────────────────────────
+const ssInstances = {};
+
+function createSearchableSelect(id, options, selectedValue, mode) {
+    const container = $(id);
+    if (!container) return;
+    const isMulti = mode === 'multi';
+    const placeholder = container.dataset.placeholder || 'Search...';
+
+    let selected = isMulti
+        ? new Set((Array.isArray(selectedValue) ? selectedValue : []).map(String))
+        : (selectedValue ? String(selectedValue) : '');
+
+    container.innerHTML = '';
+    container.classList.remove('open');
+
+    const trigger = document.createElement('div');
+    trigger.className = 'dash-ss-trigger';
+    container.appendChild(trigger);
+
+    const dropdown = document.createElement('div');
+    dropdown.className = 'dash-ss-dropdown';
+    dropdown.innerHTML = `<input type="text" class="dash-ss-search" placeholder="${escA(placeholder)}"><div class="dash-ss-options"></div>`;
+    container.appendChild(dropdown);
+
+    const searchInput = dropdown.querySelector('.dash-ss-search');
+    const optionsContainer = dropdown.querySelector('.dash-ss-options');
+
+    function renderTrigger() {
+        if (isMulti) {
+            if (!selected.size) {
+                trigger.innerHTML = `<span class="dash-ss-placeholder">${esc(placeholder)}</span>`;
+            } else {
+                trigger.innerHTML = '';
+                selected.forEach(val => {
+                    const opt = options.find(o => String(o.id) === val);
+                    if (!opt) return;
+                    const chip = document.createElement('span');
+                    chip.className = 'dash-ss-chip';
+                    chip.innerHTML = `${esc(opt.name)} <span class="dash-ss-chip-x" data-val="${escA(val)}">&times;</span>`;
+                    chip.querySelector('.dash-ss-chip-x').addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        selected.delete(val);
+                        renderTrigger();
+                        renderOptions(searchInput.value);
+                    });
+                    trigger.appendChild(chip);
+                });
+            }
+        } else {
+            const opt = options.find(o => String(o.id) === selected);
+            trigger.innerHTML = opt
+                ? `<span class="dash-ss-value-text"><span class="dash-ss-opt-prefix">#</span> ${esc(opt.name)}</span>`
+                : `<span class="dash-ss-placeholder">None</span>`;
+        }
+    }
+
+    function renderOptions(filter) {
+        const q = (filter || '').toLowerCase();
+        const filtered = options.filter(o => o.name.toLowerCase().includes(q));
+        if (!filtered.length) {
+            optionsContainer.innerHTML = `<div class="dash-ss-empty">${q ? 'No matches' : 'No options available'}</div>`;
+            return;
+        }
+        optionsContainer.innerHTML = '';
+        if (!isMulti && !q) {
+            const noneOpt = document.createElement('div');
+            noneOpt.className = `dash-ss-opt${!selected ? ' selected' : ''}`;
+            noneOpt.innerHTML = `<span style="color:var(--d-text-3)">None</span>`;
+            noneOpt.addEventListener('click', () => {
+                selected = '';
+                renderTrigger();
+                renderOptions('');
+                closeDropdown();
+            });
+            optionsContainer.appendChild(noneOpt);
+        }
+        filtered.forEach(o => {
+            const isSelected = isMulti ? selected.has(String(o.id)) : String(o.id) === selected;
+            const el = document.createElement('div');
+            el.className = `dash-ss-opt${isSelected ? ' selected' : ''}`;
+            const prefix = o._type === 'role' ? '@' : '#';
+            el.innerHTML = isMulti
+                ? `<span class="dash-ss-opt-check">${isSelected ? '✓' : ''}</span><span class="dash-ss-opt-prefix">${prefix}</span> ${esc(o.name)}`
+                : `<span class="dash-ss-opt-prefix">${prefix}</span> ${esc(o.name)}`;
+            el.addEventListener('click', () => {
+                if (isMulti) {
+                    isSelected ? selected.delete(String(o.id)) : selected.add(String(o.id));
+                    renderTrigger();
+                    renderOptions(searchInput.value);
+                } else {
+                    selected = String(o.id);
+                    renderTrigger();
+                    closeDropdown();
+                }
+            });
+            optionsContainer.appendChild(el);
+        });
+    }
+
+    function openDropdown() {
+        container.classList.add('open');
+        searchInput.value = '';
+        renderOptions('');
+        setTimeout(() => searchInput.focus(), 50);
+    }
+
+    function closeDropdown() {
+        container.classList.remove('open');
+        searchInput.value = '';
+    }
+
+    trigger.addEventListener('click', () => {
+        container.classList.contains('open') ? closeDropdown() : openDropdown();
+    });
+
+    searchInput.addEventListener('input', () => renderOptions(searchInput.value));
+    searchInput.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeDropdown(); });
+
+    document.addEventListener('click', (e) => {
+        if (!container.contains(e.target)) closeDropdown();
+    });
+
+    renderTrigger();
+
+    ssInstances[id] = {
+        getValue: () => isMulti ? Array.from(selected) : selected,
+        setValue: (v) => {
+            selected = isMulti ? new Set((Array.isArray(v) ? v : []).map(String)) : (v ? String(v) : '');
+            renderTrigger();
+        },
+    };
+}
+
+function ssGetValue(id) {
+    return ssInstances[id] ? ssInstances[id].getValue() : (ssInstances[id]?.getValue?.() ?? null);
+}
+
 // ─── Configuration ───────────────────────────────────────────────────────────
 function renderConfig(cfg) {
     if (!cfg || !cfg.configured) {
-        if (cfg && cfg.error) {
-            toast('Config: ' + cfg.error, 'error');
-        }
+        if (cfg && cfg.error) toast('Config: ' + cfg.error, 'error');
         return;
     }
-    populateChannelSelect('cfg-log-channel', cachedChannels, cfg.log_channel_id);
-    populateChannelSelect('cfg-app-log-channel', cachedChannels, cfg.application_log_channel_id);
-    populateChannelSelect('cfg-appeal-log-channel', cachedChannels, cfg.appeal_log_channel_id);
-    populateRoleSelect('cfg-staff-roles', cachedRoles, cfg.staff_role_ids || []);
-    populateRoleSelect('cfg-admin-roles', cachedRoles, cfg.admin_role_ids || []);
-    populateRoleSelect('cfg-support-roles', cachedRoles, cfg.support_role_ids || []);
+
+    const chOpts = cachedChannels.map(ch => ({ id: ch.id, name: ch.name, _type: 'channel' }));
+    const rOpts  = cachedRoles.map(r => ({ id: r.id, name: r.name, _type: 'role' }));
+
+    createSearchableSelect('cfg-log-channel', chOpts, cfg.log_channel_id, 'single');
+    createSearchableSelect('cfg-app-log-channel', chOpts, cfg.application_log_channel_id, 'single');
+    createSearchableSelect('cfg-appeal-log-channel', chOpts, cfg.appeal_log_channel_id, 'single');
+    createSearchableSelect('cfg-staff-roles', rOpts, cfg.staff_role_ids || [], 'multi');
+    createSearchableSelect('cfg-admin-roles', rOpts, cfg.admin_role_ids || [], 'multi');
+    createSearchableSelect('cfg-support-roles', rOpts, cfg.support_role_ids || [], 'multi');
+
     $('cfg-ping-support').checked = !!cfg.ping_support_on_ticket;
     $('cfg-emoji-style').value = cfg.emoji_style || 'heavy';
-
-    if (!cachedChannels.length) {
-        ['cfg-log-channel', 'cfg-app-log-channel', 'cfg-appeal-log-channel'].forEach(id => {
-            const sel = $(id);
-            if (sel) sel.innerHTML = '<option value="">Bot unreachable — channels unavailable</option>';
-        });
-    }
-    if (!cachedRoles.length) {
-        ['cfg-staff-roles', 'cfg-admin-roles', 'cfg-support-roles'].forEach(id => {
-            const sel = $(id);
-            if (sel) sel.innerHTML = '<option value="">Bot unreachable — roles unavailable</option>';
-        });
-    }
-}
-
-function populateChannelSelect(id, channels, selected) {
-    const sel = $(id);
-    if (!sel) return;
-    sel.innerHTML = '<option value="">None</option>' + channels.map(ch =>
-        `<option value="${escA(ch.id)}"${selected && String(ch.id) === String(selected) ? ' selected' : ''}># ${esc(ch.name)}</option>`
-    ).join('');
-}
-
-function populateRoleSelect(id, roles, selectedIds) {
-    const sel = $(id);
-    if (!sel) return;
-    const set = new Set(selectedIds.map(String));
-    sel.innerHTML = roles.map(r =>
-        `<option value="${escA(r.id)}"${set.has(String(r.id)) ? ' selected' : ''}>${esc(r.name)}</option>`
-    ).join('');
 }
 
 async function saveConfig() {
     const btn    = $('cfg-save-btn');
     const status = $('cfg-save-status');
     btn.disabled = true;
-    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;animation:spin .7s linear infinite"><circle cx="12" cy="12" r="10"/></svg> Saving...';
+    btn.innerHTML = '<div class="dash-spinner-sm" style="width:16px;height:16px;border-width:2px"></div> Saving...';
     status.textContent = '';
 
     const body = {
-        log_channel_id:             $('cfg-log-channel').value || null,
-        application_log_channel_id: $('cfg-app-log-channel').value || null,
-        appeal_log_channel_id:      $('cfg-appeal-log-channel').value || null,
-        staff_role_ids:   getSelectedValues('cfg-staff-roles'),
-        admin_role_ids:   getSelectedValues('cfg-admin-roles'),
-        support_role_ids: getSelectedValues('cfg-support-roles'),
-        ping_support_on_ticket: $('cfg-ping-support').checked,
-        emoji_style: $('cfg-emoji-style').value,
+        log_channel_id:             ssGetValue('cfg-log-channel') || null,
+        application_log_channel_id: ssGetValue('cfg-app-log-channel') || null,
+        appeal_log_channel_id:      ssGetValue('cfg-appeal-log-channel') || null,
+        staff_role_ids:             ssGetValue('cfg-staff-roles') || [],
+        admin_role_ids:             ssGetValue('cfg-admin-roles') || [],
+        support_role_ids:           ssGetValue('cfg-support-roles') || [],
+        ping_support_on_ticket:     $('cfg-ping-support').checked,
+        emoji_style:                $('cfg-emoji-style').value,
     };
 
     try {
         const res = await apiDash('config', 'PATCH', { guild_id: selectedGuildId }, body);
         if (res.ok) {
-            toast('Configuration saved!');
-            status.textContent = 'Saved!';
+            toast('Configuration saved! A confirmation was sent to your server.', 'success');
+            status.textContent = '✓ Saved';
             status.className = 'dash-save-status success';
         } else {
             toast(res.error || 'Failed to save.', 'error');
@@ -382,12 +493,6 @@ async function saveConfig() {
     btn.disabled = false;
     btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Save configuration';
     setTimeout(() => { status.textContent = ''; }, 4000);
-}
-
-function getSelectedValues(id) {
-    const sel = $(id);
-    if (!sel) return [];
-    return Array.from(sel.selectedOptions).map(o => o.value);
 }
 
 // ─── Panels ──────────────────────────────────────────────────────────────────
@@ -463,6 +568,7 @@ function closePanelEditor() {
 
 function loadChannelSelect(selectedId) {
     const sel = $('panel-channel');
+    if (!sel) return;
     sel.innerHTML = '<option value="">— Choose a channel —</option>' + cachedChannels.map(ch => {
         const s = selectedId && String(ch.id) === selectedId ? ' selected' : '';
         return `<option value="${escA(ch.id)}"${s}># ${esc(ch.name)}</option>`;
