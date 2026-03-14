@@ -226,6 +226,15 @@
                                 </div>
                             </div>
                             <div class="dash-stat-card">
+                                <div class="dash-stat-icon" style="--c:#22c55e">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                                </div>
+                                <div>
+                                    <span class="dash-stat-label">Latency</span>
+                                    <div id="overview-latency" class="dash-stat-value">—</div>
+                                </div>
+                            </div>
+                            <div class="dash-stat-card">
                                 <div class="dash-stat-icon" style="--c:#f59e0b">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
                                 </div>
@@ -244,6 +253,15 @@
                                 </div>
                             </div>
                             <div class="dash-stat-card">
+                                <div class="dash-stat-icon" style="--c:#a78bfa">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                                </div>
+                                <div>
+                                    <span class="dash-stat-label">Open tickets</span>
+                                    <div id="overview-open-tickets" class="dash-stat-value">—</div>
+                                </div>
+                            </div>
+                            <div class="dash-stat-card">
                                 <div class="dash-stat-icon" style="--c:#34d399">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                                 </div>
@@ -253,14 +271,22 @@
                                 </div>
                             </div>
                             <div class="dash-stat-card">
-                                <div class="dash-stat-icon" style="--c:#a78bfa">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                                <div class="dash-stat-icon" style="--c:#0ea5e9">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 12l2 2 4-4"/></svg>
                                 </div>
                                 <div>
-                                    <span class="dash-stat-label">Open tickets</span>
-                                    <div id="overview-open-tickets" class="dash-stat-value">—</div>
+                                    <span class="dash-stat-label">Panels</span>
+                                    <div id="overview-panel-count" class="dash-stat-value">—</div>
                                 </div>
                             </div>
+                        </div>
+                        <div class="dash-card anim-in dash-overview-trend" style="--delay:.1s">
+                            <div class="dash-card-head">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+                                <h3>Tickets last 7 days</h3>
+                            </div>
+                            <div id="overview-trend-chart" class="dash-overview-chart"></div>
+                            <p class="dash-overview-trend-hint" id="overview-trend-hint">Loading trend&hellip;</p>
                         </div>
                         <div class="dash-card anim-in" style="--delay:.15s">
                             <a href="#" class="dash-action-btn" id="detail-get-tickets-btn" data-bot="tickets">

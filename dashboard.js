@@ -284,6 +284,15 @@ function renderOverview(data) {
         ? '<span class="dash-status-dot green"></span> Online'
         : '<span class="dash-status-dot red"></span> Not in server';
 
+    const lat = $('overview-latency');
+    if (lat) {
+        const ms = data.latency_ms;
+        if (typeof ms === 'number') {
+            const ok = ms < 150;
+            lat.innerHTML = `<span class="dash-latency-val ${ok ? 'good' : 'warn'}">${ms} ms</span>`;
+        } else lat.textContent = '—';
+    }
+
     const sub = data.subscription;
     $('overview-subscription').innerHTML = sub === 'premium'
         ? '<span class="dash-badge-sm premium">Premium</span>'
@@ -297,6 +306,9 @@ function renderOverview(data) {
     const members = $('overview-members');
     if (members) members.textContent = typeof data.member_count === 'number' ? data.member_count.toLocaleString() : '—';
 
+    const panels = $('overview-panel-count');
+    if (panels) panels.textContent = typeof data.panel_count === 'number' ? data.panel_count.toLocaleString() : '—';
+
     const name = $('overview-guild-name');
     if (name && data.guild_name) name.textContent = data.guild_name;
 
@@ -307,6 +319,32 @@ function renderOverview(data) {
             ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> Manage subscription'
             : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg> Get Tickets';
     }
+}
+
+function renderOverviewTrend(byDay, error) {
+    const chart = $('overview-trend-chart');
+    const hint = $('overview-trend-hint');
+    if (!chart) return;
+    if (error) {
+        chart.innerHTML = '';
+        if (hint) hint.textContent = 'Could not load trend.';
+        return;
+    }
+    if (!byDay || !byDay.length) {
+        chart.innerHTML = '';
+        if (hint) hint.textContent = 'No ticket activity in the last 7 days.';
+        return;
+    }
+    const max = Math.max(...byDay.map(d => d.count), 1);
+    chart.innerHTML = `<div class="dash-bar-chart dash-bar-chart-mini">${byDay.map(d => {
+        const pct = Math.max((d.count / max) * 100, 4);
+        return `<div class="dash-bar-col" title="${d.date}: ${d.count} ticket${d.count !== 1 ? 's' : ''}">
+            <div class="dash-bar" style="height:${pct}%"></div>
+            <span class="dash-bar-label">${d.date}</span>
+        </div>`;
+    }).join('')}</div>`;
+    const total = byDay.reduce((a, d) => a + d.count, 0);
+    if (hint) hint.textContent = total === 0 ? 'No tickets created in this period.' : `${total} ticket${total !== 1 ? 's' : ''} created in the last 7 days.`;
 }
 
 // ─── Searchable Select Component ─────────────────────────────────────────────
@@ -968,8 +1006,11 @@ async function fetchAnalytics(guildId, days) {
         $('analytics-categories').innerHTML = cats.length
             ? cats.map(c => `<div class="dash-cat-stat"><span>${esc(c.name)}</span><span class="dash-cat-count">${c.count}</span></div>`).join('')
             : '<p class="dash-empty">No data for this period.</p>';
+        const byDay = data.by_day || [];
+        renderOverviewTrend(byDay.slice(-7));
     } catch {
         $('analytics-stats').innerHTML = '<p class="dash-empty">Could not load analytics.</p>';
+        renderOverviewTrend(null, true);
     }
 }
 
