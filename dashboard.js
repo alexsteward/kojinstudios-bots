@@ -170,7 +170,6 @@ function selectServer(guild) {
     $('dash-server').style.display  = 'block';
 
     $('detail-server-name').textContent = guild.name;
-    $('detail-server-id').textContent   = `ID: ${guild.id}`;
 
     const icon = $('detail-server-icon');
     const ini  = $('detail-server-initial');
