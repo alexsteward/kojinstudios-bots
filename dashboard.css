@@ -1057,7 +1057,10 @@ body.dashboard-page {
 }
 
 .dash-ss-dropdown {
-    position: fixed;
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
     z-index: 9999;
     background: var(--d-surface);
     border: 1px solid var(--d-border-hover);
@@ -1066,6 +1069,11 @@ body.dashboard-page {
     display: none;
     animation: fadeSlideUp 0.15s var(--d-ease-out) both;
     overflow: hidden;
+}
+
+.dash-field:has(.dash-ss.open) {
+    z-index: 100;
+    position: relative;
 }
 
 .dash-ss.open .dash-ss-dropdown {

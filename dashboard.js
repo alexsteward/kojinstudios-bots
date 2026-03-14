@@ -409,20 +409,6 @@ function createSearchableSelect(id, options, selectedValue, mode) {
         });
     }
 
-    function positionDropdown() {
-        const rect = trigger.getBoundingClientRect();
-        dropdown.style.left = rect.left + 'px';
-        dropdown.style.width = rect.width + 'px';
-        const spaceBelow = window.innerHeight - rect.bottom;
-        if (spaceBelow < 260 && rect.top > 260) {
-            dropdown.style.top = '';
-            dropdown.style.bottom = (window.innerHeight - rect.top + 4) + 'px';
-        } else {
-            dropdown.style.top = (rect.bottom + 4) + 'px';
-            dropdown.style.bottom = '';
-        }
-    }
-
     function openDropdown() {
         document.querySelectorAll('.dash-ss.open').forEach(el => {
             if (el !== container) el.classList.remove('open');
@@ -430,17 +416,12 @@ function createSearchableSelect(id, options, selectedValue, mode) {
         container.classList.add('open');
         searchInput.value = '';
         renderOptions('');
-        positionDropdown();
         setTimeout(() => searchInput.focus(), 50);
-        window.addEventListener('scroll', positionDropdown, true);
-        window.addEventListener('resize', positionDropdown);
     }
 
     function closeDropdown() {
         container.classList.remove('open');
         searchInput.value = '';
-        window.removeEventListener('scroll', positionDropdown, true);
-        window.removeEventListener('resize', positionDropdown);
     }
 
     trigger.addEventListener('click', () => {
@@ -451,7 +432,7 @@ function createSearchableSelect(id, options, selectedValue, mode) {
     searchInput.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeDropdown(); });
 
     document.addEventListener('click', (e) => {
-        if (!container.contains(e.target) && !dropdown.contains(e.target)) closeDropdown();
+        if (!container.contains(e.target)) closeDropdown();
     });
 
     renderTrigger();
