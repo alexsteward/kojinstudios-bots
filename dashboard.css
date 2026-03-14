@@ -684,6 +684,7 @@ body.dashboard-page {
     padding: 1.5rem;
     margin-bottom: 1rem;
     transition: border-color 0.2s;
+    overflow: visible;
 }
 
 .dash-card:hover { border-color: var(--d-border-hover); }
@@ -824,6 +825,7 @@ body.dashboard-page {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
     gap: 1rem;
+    overflow: visible;
 }
 
 .dash-field {
@@ -968,6 +970,11 @@ body.dashboard-page {
 /* ─── Searchable Select ───────────────────────────── */
 .dash-ss {
     position: relative;
+    z-index: 1;
+}
+
+.dash-ss.open {
+    z-index: 50;
 }
 
 .dash-ss-trigger {
