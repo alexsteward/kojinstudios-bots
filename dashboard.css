@@ -974,11 +974,6 @@ body.dashboard-page {
 /* ─── Searchable Select ───────────────────────────── */
 .dash-ss {
     position: relative;
-    z-index: 1;
-}
-
-.dash-ss.open {
-    z-index: 50;
 }
 
 .dash-ss-trigger {
@@ -1062,15 +1057,12 @@ body.dashboard-page {
 }
 
 .dash-ss-dropdown {
-    position: absolute;
-    top: calc(100% + 4px);
-    left: 0;
-    right: 0;
+    position: fixed;
+    z-index: 9999;
     background: var(--d-surface);
     border: 1px solid var(--d-border-hover);
     border-radius: var(--d-radius-sm);
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
-    z-index: 200;
     display: none;
     animation: fadeSlideUp 0.15s var(--d-ease-out) both;
     overflow: hidden;
