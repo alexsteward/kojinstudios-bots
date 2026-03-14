@@ -692,9 +692,13 @@ body.dashboard-page {
 .dash-card-head {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
+    gap: 0.625rem;
     margin-bottom: 0.75rem;
+}
+
+.dash-card-head > button,
+.dash-card-head > .dash-btn {
+    margin-left: auto;
 }
 
 .dash-card-head > div {
