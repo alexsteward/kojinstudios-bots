@@ -205,19 +205,27 @@ async function fetchPanels(guildId) {
         if (panels.length === 0) {
             listEl.innerHTML = '<li class="discord-panels-empty">No panels yet. Create one to post a ticket panel in a channel.</li>';
         } else {
-            panels.forEach(p => {
-                const li = document.createElement('li');
-                li.className = 'discord-panels-item';
+            listEl.innerHTML = panels.map(p => {
                 const title = p.title || (typeof p.panel_data === 'string' ? (() => { try { const d = JSON.parse(p.panel_data); return d.title || 'Panel'; } catch { return 'Panel'; } })() : 'Panel');
-                li.innerHTML = `
+                let catCount = 0;
+                try {
+                    const d = typeof p.panel_data === 'string' ? JSON.parse(p.panel_data) : p.panel_data;
+                    catCount = (d.categories || []).length;
+                } catch (_) {}
+                const meta = p.channel_id
+                    ? (catCount ? `Channel ${p.channel_id} · ${catCount} button${catCount !== 1 ? 's' : ''}` : `Channel ${p.channel_id}`)
+                    : '—';
+                return `<li class="discord-panels-item">
                     <span class="discord-panels-item-title">${escapeHtml(title)}</span>
-                    <span class="discord-panels-item-meta">#${p.channel_id || '—'}</span>
+                    <span class="discord-panels-item-meta">${escapeHtml(meta)}</span>
                     <div class="discord-panels-item-actions">
                         <button type="button" class="discord-panels-btn discord-panels-edit" data-panel-id="${p.id}">Edit</button>
                     </div>
-                `;
-                li.querySelector('.discord-panels-edit').addEventListener('click', () => openPanelEditor(p));
-                listEl.appendChild(li);
+                </li>`;
+            }).join('');
+            listEl.querySelectorAll('.discord-panels-edit').forEach(btn => {
+                const p = panels.find(x => String(x.id) === btn.getAttribute('data-panel-id'));
+                if (p) btn.addEventListener('click', () => openPanelEditor(p));
             });
         }
     } catch (e) {
@@ -256,7 +264,7 @@ function openPanelEditor(panel) {
         addCategoryRow({ emoji: '🔧', name: 'Technical Support', description: 'Technical issues and bugs' });
     }
 
-    loadChannelsIntoSelect();
+    loadChannelsIntoSelect(panel ? String(panel.channel_id) : null);
 }
 
 function closePanelEditor() {
@@ -265,7 +273,7 @@ function closePanelEditor() {
     editingPanelId = null;
 }
 
-async function loadChannelsIntoSelect() {
+async function loadChannelsIntoSelect(selectedChannelId) {
     const select = document.getElementById('panel-channel');
     select.innerHTML = '<option value="">Loading...</option>';
     if (!selectedGuildId) { select.innerHTML = '<option value="">Select a server first</option>'; return; }
@@ -273,7 +281,10 @@ async function loadChannelsIntoSelect() {
         const res = await fetch(`/.netlify/functions/channels?guild_id=${encodeURIComponent(selectedGuildId)}`);
         const data = await res.json();
         const channels = data.channels || [];
-        select.innerHTML = '<option value="">— Choose a channel —</option>' + channels.map(ch => `<option value="${escapeAttr(ch.id)}"># ${escapeHtml(ch.name || ch.id)}</option>`).join('');
+        select.innerHTML = '<option value="">— Choose a channel —</option>' + channels.map(ch => {
+            const sel = selectedChannelId && String(ch.id) === String(selectedChannelId) ? ' selected' : '';
+            return `<option value="${escapeAttr(ch.id)}"${sel}># ${escapeHtml(ch.name || ch.id)}</option>`;
+        }).join('');
     } catch (_) {
         select.innerHTML = '<option value="">Could not load channels (use Channel ID below)</option>';
     }
@@ -286,8 +297,8 @@ function addCategoryRow(cat) {
     row.className = 'discord-category-row';
     row.dataset.id = id;
     row.innerHTML = `
-        <input type="text" class="discord-cat-emoji" placeholder="🎫" value="${escapeAttr((cat && cat.emoji) || '')}" maxlength="10" aria-label="Emoji">
-        <input type="text" class="discord-cat-name" placeholder="Category name" value="${escapeAttr((cat && cat.name) || '')}" required>
+        <input type="text" class="discord-cat-emoji" placeholder="🎫 or <:name:id>" value="${escapeAttr((cat && cat.emoji) || '')}" maxlength="64" aria-label="Emoji (Unicode or Discord custom)" title="Unicode emoji or Discord custom: &lt;:name:id&gt;">
+        <input type="text" class="discord-cat-name" placeholder="Button label" value="${escapeAttr((cat && cat.name) || '')}" required>
         <input type="text" class="discord-cat-desc" placeholder="Short description (optional)" value="${escapeAttr((cat && cat.description) || '')}">
         <button type="button" class="discord-cat-remove" aria-label="Remove category">&times;</button>
     `;
