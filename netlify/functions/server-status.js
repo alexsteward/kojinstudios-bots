@@ -47,14 +47,18 @@ exports.handler = async (event) => {
         };
     }
 
-    const backendUrl = process.env.BACKEND_API_URL || process.env.BOT_API_URL;
+    const backendUrl = process.env.DASHBOARD_BACKEND_URL || process.env.BACKEND_API_URL || process.env.BOT_API_URL;
     if (backendUrl) {
         try {
             const url = `${backendUrl.replace(/\/$/, '')}/server-status?guild_id=${encodeURIComponent(guildId)}`;
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 15000);
             const res = await fetch(url, {
                 method: 'GET',
                 headers: { 'Content-Type': 'application/json' },
+                signal: controller.signal,
             });
+            clearTimeout(timeoutId);
             if (res.ok) {
                 const data = await res.json();
                 return { statusCode: 200, headers, body: JSON.stringify({ guild_id: guildId, ...data }) };

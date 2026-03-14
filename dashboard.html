@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard — Tickets Bot</title>
+    <title>Dashboard — KojinStudios Bots</title>
     <meta name="description" content="Manage your Tickets bot and servers in one place.">
-    <meta name="theme-color" content="#1a1d21">
+    <meta name="theme-color" content="#0a0e12">
     <link rel="icon" href="images/logo.png" type="image/png">
     <link rel="stylesheet" href="index.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -13,150 +13,259 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
 <body class="dashboard-page">
-    <!-- Logged-out: full-page login (no Discord layout) -->
-    <div id="dashboard-login" class="dashboard-login-wrap">
-        <div class="ambient-bg ambient-bg-discord">
-            <div class="ambient-orb orb-1"></div>
-            <div class="ambient-orb orb-2"></div>
-        </div>
-        <nav class="dashboard-login-nav">
-            <a href="index.html" class="dashboard-login-brand">
-                <img src="images/logo.png" alt="Tickets" class="dashboard-login-logo">
-                <span>Tickets</span>
+    <!-- Same site nav as index.html -->
+    <nav id="navbar" class="dashboard-site-nav">
+        <div class="nav-inner">
+            <a href="index.html" class="nav-brand">
+                <img src="images/logo.png" alt="KojinStudios" class="nav-logo">
+                <span class="nav-wordmark">Kojin<span class="accent">Bots</span></span>
             </a>
-            <a href="index.html#pricing" class="dashboard-login-cta">Get Tickets</a>
-        </nav>
-        <div class="dashboard-login-card">
-            <div class="dashboard-login-content">
-                <span class="dashboard-login-badge">Dashboard</span>
-                <h1 class="dashboard-title">Tickets Dashboard</h1>
-                <p class="dashboard-desc">Sign in with Discord to manage your servers and the Tickets bot. One place for all your panels.</p>
-                <button type="button" class="btn btn-discord btn-lg" id="dashboard-login-btn">
-                    <svg width="20" height="15" viewBox="0 0 71 55" fill="currentColor"><path d="M60.1 4.9C55.6 2.8 50.7 1.3 45.7.4c-.1 0-.2 0-.2.1-.6 1.1-1.3 2.6-1.8 3.7-5.5-.8-10.9-.8-16.3 0-.5-1.2-1.2-2.6-1.8-3.7 0-.1-.1-.1-.2-.1-5.1.9-9.9 2.4-14.4 4.5 0 0 0 0-.1.1C1.6 18.7-.9 32.1.3 45.4v.2c6.1 4.5 12 7.2 17.7 9 .1 0 .2 0 .2-.1 1.4-1.9 2.6-3.8 3.6-5.9.1-.1 0-.3-.1-.3-2-.7-3.8-1.6-5.6-2.7-.1-.1-.1-.3 0-.4.4-.3.8-.6 1.1-.9.1-.1.1-.1.2-.1 10.9 5 22.7 5 33.5 0h.2c.4.3.7.6 1.1.9.1.1.1.3 0 .4-1.7 1-3.5 1.9-5.6 2.7-.1.1-.2.2-.1.3 1.1 2.1 2.3 4.1 3.6 5.9.1.1.2.1.2.1 5.8-1.8 11.6-4.5 17.7-9 0 0 .1-.1.1-.2 1.5-15.3-2.5-28.6-10.5-40.4 0 0 0 0-.1-.1zM23.7 37.3c-3.5 0-6.4-3.2-6.4-7.2s2.8-7.2 6.4-7.2c3.6 0 6.4 3.2 6.4 7.2 0 4-2.9 7.2-6.4 7.2zm17.6 0c-3.5 0-6.4-3.2-6.4-7.2s2.8-7.2 6.4-7.2c3.6 0 6.4 3.2 6.4 7.2 0 4-2.9 7.2-6.4 7.2z"/></svg>
-                    Login with Discord
+            <div class="nav-links" id="nav-links">
+                <a href="index.html#bots" class="nav-link">Bots</a>
+                <a href="index.html#features" class="nav-link">Features</a>
+                <a href="index.html#pricing" class="nav-link">Pricing</a>
+                <a href="docs.html" class="nav-link">Docs</a>
+                <a href="status.html" class="nav-link">Status</a>
+                <a href="https://kojinstudios.com" class="nav-link" target="_blank">Studio</a>
+                <a href="dashboard.html" class="nav-link nav-link-dashboard nav-link-active">Dashboard</a>
+            </div>
+            <div class="nav-actions">
+                <a href="index.html#pricing" class="nav-cta">Get Started</a>
+                <button class="mobile-toggle" id="mobile-toggle" aria-label="Toggle menu">
+                    <span></span><span></span><span></span>
                 </button>
             </div>
         </div>
+    </nav>
+    <div class="mobile-menu" id="mobile-menu">
+        <a href="index.html#bots" class="mobile-link">Bots</a>
+        <a href="index.html#features" class="mobile-link">Features</a>
+        <a href="index.html#pricing" class="mobile-link">Pricing</a>
+        <a href="docs.html" class="mobile-link">Docs</a>
+        <a href="status.html" class="mobile-link">Status</a>
+        <a href="https://kojinstudios.com" class="mobile-link" target="_blank">Studio</a>
+        <a href="dashboard.html" class="mobile-link mobile-link-dashboard">Dashboard</a>
+        <a href="index.html#pricing" class="mobile-cta">Get Started</a>
     </div>
 
-    <!-- Logged-in: Discord-style app layout -->
-    <div id="dashboard-content" class="discord-app" style="display: none;">
-        <!-- Left sidebar: server icons (Discord server list) -->
-        <aside class="discord-sidebar">
-            <a href="index.html" class="discord-sidebar-home" title="Tickets">
-                <img src="images/logo.png" alt="Tickets">
-            </a>
-            <div class="discord-sidebar-divider"></div>
-            <div id="discord-server-icons" class="discord-server-icons"></div>
-            <div class="discord-sidebar-spacer"></div>
-            <div class="discord-sidebar-user">
-                <img id="dashboard-user-avatar" src="" alt="" class="discord-user-avatar" style="display: none;">
-                <span class="discord-user-initial" id="dashboard-user-initial">?</span>
-                <button type="button" class="discord-logout-btn" id="dashboard-logout" title="Log out" aria-label="Log out">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-                </button>
+    <!-- Logged-out: login section (same site style) -->
+    <div id="dashboard-login" class="dashboard-login-wrap">
+        <div class="ambient-bg">
+            <div class="ambient-orb orb-1"></div>
+            <div class="ambient-orb orb-2"></div>
+            <div class="ambient-orb orb-3"></div>
+        </div>
+        <section class="section dashboard-login-section">
+            <div class="container">
+                <div class="dashboard-login-card site-card">
+                    <div class="dashboard-login-content">
+                        <span class="dashboard-login-badge">Dashboard</span>
+                        <h1 class="dashboard-title">Tickets Dashboard</h1>
+                        <p class="dashboard-desc">Sign in with Discord to manage your servers and ticket panels in one place. No Discord commands needed—create and edit panels from here.</p>
+                        <button type="button" class="btn btn-discord btn-lg dashboard-login-btn" id="dashboard-login-btn">
+                            <svg width="20" height="15" viewBox="0 0 71 55" fill="currentColor"><path d="M60.1 4.9C55.6 2.8 50.7 1.3 45.7.4c-.1 0-.2 0-.2.1-.6 1.1-1.3 2.6-1.8 3.7-5.5-.8-10.9-.8-16.3 0-.5-1.2-1.2-2.6-1.8-3.7 0-.1-.1-.1-.2-.1-5.1.9-9.9 2.4-14.4 4.5 0 0 0 0-.1.1C1.6 18.7-.9 32.1.3 45.4v.2c6.1 4.5 12 7.2 17.7 9 .1 0 .2 0 .2-.1 1.4-1.9 2.6-3.8 3.6-5.9.1-.1 0-.3-.1-.3-2-.7-3.8-1.6-5.6-2.7-.1-.1-.1-.3 0-.4.4-.3.8-.6 1.1-.9.1-.1.1-.1.2-.1 10.9 5 22.7 5 33.5 0h.2c.4.3.7.6 1.1.9.1.1.1.3 0 .4-1.7 1-3.5 1.9-5.6 2.7-.1.1-.2.2-.1.3 1.1 2.1 2.3 4.1 3.6 5.9.1.1.2.1.2.1 5.8-1.8 11.6-4.5 17.7-9 0 0 .1-.1.1-.2 1.5-15.3-2.5-28.6-10.5-40.4 0 0 0 0-.1-.1zM23.7 37.3c-3.5 0-6.4-3.2-6.4-7.2s2.8-7.2 6.4-7.2c3.6 0 6.4 3.2 6.4 7.2 0 4-2.9 7.2-6.4 7.2zm17.6 0c-3.5 0-6.4-3.2-6.4-7.2s2.8-7.2 6.4-7.2c3.6 0 6.4 3.2 6.4 7.2 0 4-2.9 7.2-6.4 7.2z"/></svg>
+                            Login with Discord
+                        </button>
+                    </div>
+                </div>
             </div>
-        </aside>
+        </section>
+        <!-- Same footer as index -->
+        <footer>
+            <div class="container">
+                <div class="footer-grid">
+                    <div class="footer-brand">
+                        <div class="footer-logo">
+                            <img src="images/logo.png" alt="KojinStudios">
+                            <span>KojinBots</span>
+                        </div>
+                        <p>Premium Discord bots built by KojinStudios. Designed for communities that demand quality.</p>
+                    </div>
+                    <div class="footer-col">
+                        <h5>Bots</h5>
+                        <a href="index.html#showcase-gavel">Gavel</a>
+                        <a href="index.html#showcase-tickets">Tickets</a>
+                        <a href="index.html#showcase-host">Host</a>
+                        <a href="index.html#pricing">Bundle</a>
+                    </div>
+                    <div class="footer-col">
+                        <h5>Resources</h5>
+                        <a href="index.html#faq">FAQ</a>
+                        <a href="docs.html">Docs</a>
+                        <a href="https://discord.gg/pGJkjshMWe" target="_blank">Discord Server</a>
+                        <a href="mailto:kojinstudios@gmail.com">Email Support</a>
+                        <a href="https://kojinstudios.com" target="_blank">Main Site</a>
+                    </div>
+                    <div class="footer-col">
+                        <h5>Legal</h5>
+                        <a href="terms.html">Terms of Service</a>
+                        <a href="privacy.html">Privacy Policy</a>
+                    </div>
+                </div>
+                <div class="footer-bottom">
+                    <p>&copy; 2025 KojinStudios. All rights reserved.</p>
+                </div>
+            </div>
+        </footer>
+    </div>
 
-        <!-- Second column: server list (like Discord channel list) -->
-        <aside class="discord-server-list">
-            <div class="discord-server-list-header">
-                <h2 id="discord-server-list-title">Tickets</h2>
-            </div>
-            <div class="discord-server-list-content">
-                <div id="dashboard-guild-list" class="discord-guild-list"></div>
-                <p id="discord-no-servers" class="discord-no-servers" style="display: none;">No servers found. You need "Manage Server" in at least one server.</p>
-            </div>
-        </aside>
+    <!-- Logged-in: same nav + sidebar app + footer -->
+    <div id="dashboard-content" class="dashboard-app-wrap" style="display: none;">
+        <div class="discord-app">
+            <aside class="dashboard-sidebar">
+                <a href="index.html" class="dashboard-sidebar-brand" title="KojinBots">
+                    <img src="images/logo.png" alt="KojinBots" class="dashboard-sidebar-logo">
+                    <span>KojinBots</span>
+                </a>
+                <div class="dashboard-sidebar-section">
+                    <h2 class="dashboard-sidebar-title">Your servers</h2>
+                    <div class="dashboard-sidebar-content">
+                        <div id="dashboard-guild-list" class="dashboard-guild-list"></div>
+                        <p id="discord-no-servers" class="dashboard-no-servers-msg" style="display: none;">No servers found. You need "Manage Server" in at least one server.</p>
+                    </div>
+                </div>
+                <div class="dashboard-sidebar-footer">
+                    <div class="dashboard-sidebar-user">
+                        <img id="dashboard-user-avatar" src="" alt="" class="dashboard-user-avatar" style="display: none;">
+                        <span class="dashboard-user-initial" id="dashboard-user-initial">?</span>
+                    </div>
+                    <button type="button" class="dashboard-sidebar-logout" id="dashboard-logout" title="Log out" aria-label="Log out">Log out</button>
+                </div>
+            </aside>
 
-        <!-- Main content -->
-        <main class="discord-main">
-            <!-- No server selected -->
-            <div id="discord-welcome" class="discord-welcome">
-                <div class="discord-welcome-icon-wrap">
-                    <svg class="discord-welcome-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="M12 18v-6"/><path d="M9 15h6"/></svg>
+            <main class="discord-main">
+                <div id="discord-welcome" class="discord-welcome">
+                    <div class="discord-welcome-icon-wrap">
+                        <svg class="discord-welcome-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="M12 18v-6"/><path d="M9 15h6"/></svg>
+                    </div>
+                    <h1>Tickets Dashboard</h1>
+                    <p>Select a server from the sidebar to manage ticket panels. Create panels, pick a channel, and the bot posts it in Discord for you.</p>
                 </div>
-                <h1>Tickets Dashboard</h1>
-                <p>Select a server to manage ticket panels from the web—no Discord commands needed. Create panels, pick a channel, and the bot posts it for you.</p>
-            </div>
 
-            <!-- Server detail (Tickets only) -->
-            <div id="dashboard-server-detail" class="discord-detail" style="display: none;">
-                <div class="discord-detail-header">
-                    <button type="button" class="discord-detail-back" id="dashboard-back-to-servers" aria-label="Back">&larr;</button>
-                    <img id="detail-server-icon" src="" alt="" class="discord-detail-server-icon" style="display: none;">
-                    <span class="discord-detail-server-initial" id="detail-server-initial">—</span>
-                    <div class="discord-detail-server-info">
-                        <h1 class="discord-detail-name" id="detail-server-name">—</h1>
-                        <span class="discord-detail-id" id="detail-server-id"></span>
+                <div id="dashboard-server-detail" class="discord-detail" style="display: none;">
+                    <div class="discord-detail-header">
+                        <button type="button" class="discord-detail-back" id="dashboard-back-to-servers" aria-label="Back">&larr;</button>
+                        <img id="detail-server-icon" src="" alt="" class="discord-detail-server-icon" style="display: none;">
+                        <span class="discord-detail-server-initial" id="detail-server-initial">—</span>
+                        <div class="discord-detail-server-info">
+                            <h1 class="discord-detail-name" id="detail-server-name">—</h1>
+                            <span class="discord-detail-id" id="detail-server-id"></span>
+                        </div>
+                    </div>
+                    <div id="detail-loading" class="discord-detail-loading" style="display: none;">
+                        <div class="loading-spinner discord-spinner"></div>
+                        <p>Loading...</p>
+                    </div>
+                    <div id="detail-content" class="discord-detail-content" style="display: none;">
+                        <section class="discord-detail-section">
+                            <h3>Tickets in this server</h3>
+                            <div id="detail-tickets-status" class="discord-status-row"></div>
+                        </section>
+                        <section class="discord-detail-section">
+                            <h3>Subscription</h3>
+                            <div class="discord-subscription-row" id="detail-subscription"></div>
+                        </section>
+                        <section class="discord-detail-section">
+                            <h3>Ticket Panels</h3>
+                            <p class="discord-detail-hint">Create and manage ticket panels from the web. Choose a channel and the bot will post the panel there.</p>
+                            <div id="detail-panels-loading" class="discord-panels-loading" style="display: none;">Loading panels...</div>
+                            <ul id="detail-panels-list" class="discord-panels-list"></ul>
+                            <button type="button" class="btn btn-primary btn-sm" id="detail-create-panel-btn">+ Create panel</button>
+                        </section>
+                        <section class="discord-detail-actions">
+                            <a href="#" class="btn btn-primary btn-lg dashboard-buy-btn" data-bot="tickets" id="detail-get-tickets-btn">Get Tickets</a>
+                        </section>
                     </div>
                 </div>
-                <div id="detail-loading" class="discord-detail-loading" style="display: none;">
-                    <div class="loading-spinner discord-spinner"></div>
-                    <p>Loading...</p>
-                </div>
-                <div id="detail-content" class="discord-detail-content" style="display: none;">
-                    <section class="discord-detail-section">
-                        <h3>Tickets in this server</h3>
-                        <div id="detail-tickets-status" class="discord-status-row"></div>
-                    </section>
-                    <section class="discord-detail-section">
-                        <h3>Subscription</h3>
-                        <div class="discord-subscription-row" id="detail-subscription"></div>
-                    </section>
-                    <section class="discord-detail-section">
-                        <h3>Ticket Panels</h3>
-                        <p class="discord-detail-hint">Create and manage ticket panels from the web. Choose a channel and the bot will post the panel there—no Discord commands needed.</p>
-                        <div id="detail-panels-loading" class="discord-panels-loading" style="display: none;">Loading panels...</div>
-                        <ul id="detail-panels-list" class="discord-panels-list"></ul>
-                        <button type="button" class="btn btn-discord btn-sm" id="detail-create-panel-btn">+ Create panel</button>
-                    </section>
-                    <section class="discord-detail-actions">
-                        <a href="#" class="btn btn-discord btn-lg dashboard-buy-btn" data-bot="tickets" id="detail-get-tickets-btn">Get Tickets</a>
-                    </section>
-                </div>
-            </div>
 
-            <!-- Panel editor (create or edit): same main area, swapped in -->
-            <div id="dashboard-panel-editor" class="discord-detail discord-panel-editor" style="display: none;">
-                <div class="discord-detail-header">
-                    <button type="button" class="discord-detail-back" id="panel-editor-back" aria-label="Back to server">&#8592;</button>
-                    <div class="discord-detail-server-info">
-                        <h1 class="discord-detail-name" id="panel-editor-title">Create panel</h1>
-                        <span class="discord-detail-id" id="panel-editor-subtitle">Configure and publish to Discord</span>
+                <div id="dashboard-panel-editor" class="discord-detail discord-panel-editor" style="display: none;">
+                    <div class="discord-detail-header">
+                        <button type="button" class="discord-detail-back" id="panel-editor-back" aria-label="Back to server">&#8592;</button>
+                        <div class="discord-detail-server-info">
+                            <h1 class="discord-detail-name" id="panel-editor-title">Create panel</h1>
+                            <span class="discord-detail-id" id="panel-editor-subtitle">Configure and publish to Discord</span>
+                        </div>
+                    </div>
+                    <form id="panel-editor-form" class="discord-panel-form">
+                        <div class="discord-form-group">
+                            <label for="panel-channel">Channel to post in</label>
+                            <select id="panel-channel" class="discord-form-select">
+                                <option value="">Loading channels...</option>
+                            </select>
+                            <span class="discord-form-hint">Or enter Channel ID below if the list is empty</span>
+                            <input type="text" id="panel-channel-id" class="discord-form-input" placeholder="Channel ID (e.g. 1234567890123456789)" maxlength="20">
+                        </div>
+                        <div class="discord-form-group">
+                            <label for="panel-title">Panel title</label>
+                            <input type="text" id="panel-title" class="discord-form-input" placeholder="e.g. Support Center" maxlength="256" required>
+                        </div>
+                        <div class="discord-form-group">
+                            <label for="panel-description">Panel description</label>
+                            <textarea id="panel-description" class="discord-form-textarea" placeholder="e.g. Click a button below to create a support ticket." rows="3"></textarea>
+                        </div>
+                        <div class="discord-form-group">
+                            <label>Categories (each becomes a button)</label>
+                            <div id="panel-categories-container" class="discord-categories-list"></div>
+                            <button type="button" class="btn btn-ghost btn-sm" id="panel-add-category">+ Add category</button>
+                        </div>
+                        <div class="discord-panel-form-actions">
+                            <button type="button" class="btn btn-ghost" id="panel-editor-cancel">Cancel</button>
+                            <button type="submit" class="btn btn-primary" id="panel-editor-submit">Publish to Discord</button>
+                        </div>
+                    </form>
+                </div>
+            </main>
+        </div>
+        <footer>
+            <div class="container">
+                <div class="footer-grid">
+                    <div class="footer-brand">
+                        <div class="footer-logo">
+                            <img src="images/logo.png" alt="KojinStudios">
+                            <span>KojinBots</span>
+                        </div>
+                        <p>Premium Discord bots built by KojinStudios. Designed for communities that demand quality.</p>
+                    </div>
+                    <div class="footer-col">
+                        <h5>Bots</h5>
+                        <a href="index.html#showcase-gavel">Gavel</a>
+                        <a href="index.html#showcase-tickets">Tickets</a>
+                        <a href="index.html#showcase-host">Host</a>
+                        <a href="index.html#pricing">Bundle</a>
+                    </div>
+                    <div class="footer-col">
+                        <h5>Resources</h5>
+                        <a href="index.html#faq">FAQ</a>
+                        <a href="docs.html">Docs</a>
+                        <a href="https://discord.gg/pGJkjshMWe" target="_blank">Discord Server</a>
+                        <a href="mailto:kojinstudios@gmail.com">Email Support</a>
+                        <a href="https://kojinstudios.com" target="_blank">Main Site</a>
+                    </div>
+                    <div class="footer-col">
+                        <h5>Legal</h5>
+                        <a href="terms.html">Terms of Service</a>
+                        <a href="privacy.html">Privacy Policy</a>
                     </div>
                 </div>
-                <form id="panel-editor-form" class="discord-panel-form">
-                    <div class="discord-form-group">
-                        <label for="panel-channel">Channel to post in</label>
-                        <select id="panel-channel" class="discord-form-select">
-                            <option value="">Loading channels...</option>
-                        </select>
-                        <span class="discord-form-hint">Or enter Channel ID below if the list is empty</span>
-                        <input type="text" id="panel-channel-id" class="discord-form-input" placeholder="Channel ID (e.g. 1234567890123456789)" maxlength="20">
-                    </div>
-                    <div class="discord-form-group">
-                        <label for="panel-title">Panel title</label>
-                        <input type="text" id="panel-title" class="discord-form-input" placeholder="e.g. Support Center" maxlength="256" required>
-                    </div>
-                    <div class="discord-form-group">
-                        <label for="panel-description">Panel description</label>
-                        <textarea id="panel-description" class="discord-form-textarea" placeholder="e.g. Click a button below to create a support ticket." rows="3"></textarea>
-                    </div>
-                    <div class="discord-form-group">
-                        <label>Categories (each becomes a button)</label>
-                        <div id="panel-categories-container" class="discord-categories-list"></div>
-                        <button type="button" class="btn btn-ghost btn-sm" id="panel-add-category">+ Add category</button>
-                    </div>
-                    <div class="discord-panel-form-actions">
-                        <button type="button" class="btn btn-ghost" id="panel-editor-cancel">Cancel</button>
-                        <button type="submit" class="btn btn-discord" id="panel-editor-submit">Publish to Discord</button>
-                    </div>
-                </form>
+                <div class="footer-bottom">
+                    <p>&copy; 2025 KojinStudios. All rights reserved.</p>
+                </div>
             </div>
-        </main>
+        </footer>
     </div>
 
     <script src="dashboard.js"></script>
+    <script>
+        // Mobile menu toggle on dashboard (same as index)
+        (function() {
+            var toggle = document.getElementById('mobile-toggle');
+            var menu = document.getElementById('mobile-menu');
+            if (toggle && menu) {
+                toggle.addEventListener('click', function() {
+                    menu.classList.toggle('open');
+                });
+            }
+        })();
+    </script>
 </body>
 </html>

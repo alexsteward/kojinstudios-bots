@@ -19,14 +19,22 @@ exports.handler = async (event) => {
         return { statusCode: 400, headers, body: JSON.stringify({ error: 'Valid guild_id required' }) };
     }
 
-    const backend = process.env.BACKEND_API_URL || process.env.BOT_API_URL;
+    const backend = process.env.DASHBOARD_BACKEND_URL || process.env.BACKEND_API_URL || process.env.BOT_API_URL;
     const path = (event.path || '').replace(/\.netlify\/functions\/panels/, '');
     const isList = event.httpMethod === 'GET' && !event.path.match(/\/panels\/[^/]+/);
 
+    const fetchOpts = (method, body) => {
+        const opts = { method, headers: { 'Content-Type': 'application/json' } };
+        if (body) opts.body = body;
+        const ctrl = new AbortController();
+        setTimeout(() => ctrl.abort(), 15000);
+        opts.signal = ctrl.signal;
+        return opts;
+    };
     if (backend && event.httpMethod === 'GET' && isList) {
         try {
             const url = `${backend.replace(/\/$/, '')}/panels?guild_id=${encodeURIComponent(guildId)}`;
-            const res = await fetch(url, { headers: { 'Content-Type': 'application/json' } });
+            const res = await fetch(url, fetchOpts('GET'));
             if (res.ok) {
                 const data = await res.json();
                 return { statusCode: 200, headers, body: JSON.stringify(data) };
@@ -38,21 +46,17 @@ exports.handler = async (event) => {
 
     if (event.httpMethod === 'POST') {
         if (!backend) {
-            return { statusCode: 503, headers, body: JSON.stringify({ error: 'Panel API not configured. Set BACKEND_API_URL and implement POST /panels.' }) };
+            return { statusCode: 503, headers, body: JSON.stringify({ error: 'Panel API not configured. Set DASHBOARD_BACKEND_URL (or BACKEND_API_URL) and implement POST /panels.' }) };
         }
         try {
             const body = typeof event.body === 'string' ? event.body : '{}';
             const url = `${backend.replace(/\/$/, '')}/panels`;
-            const res = await fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ guild_id: guildId, ...JSON.parse(body) }),
-            });
+            const res = await fetch(url, fetchOpts('POST', JSON.stringify({ guild_id: guildId, ...JSON.parse(body) })));
             const data = await res.json().catch(() => ({}));
             return { statusCode: res.status || 200, headers, body: JSON.stringify(data) };
         } catch (e) {
             console.error('Panels create proxy error:', e.message);
-            return { statusCode: 502, headers, body: JSON.stringify({ error: 'Backend unavailable.' }) };
+            return { statusCode: 502, headers, body: JSON.stringify({ error: 'Backend unavailable. Is the bot server running? Use http or https in DASHBOARD_BACKEND_URL.' }) };
         }
     }
 
@@ -62,15 +66,11 @@ exports.handler = async (event) => {
             return { statusCode: 400, headers, body: JSON.stringify({ error: 'panel_id required' }) };
         }
         if (!backend) {
-            return { statusCode: 503, headers, body: JSON.stringify({ error: 'Panel API not configured. Set BACKEND_API_URL.' }) };
+            return { statusCode: 503, headers, body: JSON.stringify({ error: 'Panel API not configured. Set DASHBOARD_BACKEND_URL (or BACKEND_API_URL).' }) };
         }
         try {
             const url = `${backend.replace(/\/$/, '')}/panels/${panelId}`;
-            const res = await fetch(url, {
-                method: event.httpMethod,
-                headers: { 'Content-Type': 'application/json' },
-                body: event.httpMethod === 'PATCH' && event.body ? event.body : undefined,
-            });
+            const res = await fetch(url, fetchOpts(event.httpMethod, event.httpMethod === 'PATCH' && event.body ? event.body : undefined));
             const data = await res.json().catch(() => ({}));
             return { statusCode: res.status || 200, headers, body: JSON.stringify(data) };
         } catch (e) {

@@ -77,27 +77,6 @@ function showDashboard(user, guilds) {
     const combined = [...allGuilds, ...other];
     const hasBotSet = new Set((allGuilds || []).map(g => g.id));
 
-    // Left sidebar: server icons (Discord-style)
-    const iconsEl = document.getElementById('discord-server-icons');
-    if (iconsEl) {
-        iconsEl.innerHTML = '';
-        combined.forEach(g => {
-            const btn = document.createElement('button');
-            btn.type = 'button';
-            btn.className = 'discord-server-icon-btn' + (selectedGuildId === g.id ? ' active' : '');
-            btn.setAttribute('data-guild-id', g.id);
-            btn.title = g.name;
-            if (g.icon) {
-                btn.innerHTML = `<img src="${escapeAttr(g.icon)}" alt="">`;
-            } else {
-                btn.innerHTML = `<span class="discord-server-icon-initial">${escapeHtml((g.name || '?').charAt(0))}</span>`;
-            }
-            btn.addEventListener('click', () => selectServer(g));
-            iconsEl.appendChild(btn);
-        });
-    }
-
-    // Second column: server names list
     const listEl = document.getElementById('dashboard-guild-list');
     const noServersEl = document.getElementById('discord-no-servers');
     if (combined.length === 0) {
@@ -109,13 +88,13 @@ function showDashboard(user, guilds) {
             listEl.innerHTML = combined.map(g => {
                 const hasBot = hasBotSet.has(g.id);
                 const active = selectedGuildId === g.id ? ' active' : '';
-                return `<button type="button" class="discord-guild-item${active}" data-guild-id="${escapeAttr(g.id)}" title="${escapeAttr(g.name)}">
-                    ${g.icon ? `<img src="${escapeAttr(g.icon)}" alt="">` : `<span class="discord-guild-item-initial">${escapeHtml((g.name || '?').charAt(0))}</span>`}
-                    <span class="discord-guild-item-name">${escapeHtml(g.name)}</span>
-                    ${hasBot ? '<span class="discord-guild-item-badge">Tickets</span>' : ''}
+                return `<button type="button" class="dashboard-guild-item${active}" data-guild-id="${escapeAttr(g.id)}" title="${escapeAttr(g.name)}">
+                    ${g.icon ? `<img src="${escapeAttr(g.icon)}" alt="">` : `<span class="dashboard-guild-initial">${escapeHtml((g.name || '?').charAt(0))}</span>`}
+                    <span class="dashboard-guild-name">${escapeHtml(g.name)}</span>
+                    ${hasBot ? '<span class="dashboard-guild-badge">Tickets</span>' : ''}
                 </button>`;
             }).join('');
-            listEl.querySelectorAll('.discord-guild-item').forEach(btn => {
+            listEl.querySelectorAll('.dashboard-guild-item').forEach(btn => {
                 const g = combined.find(x => x.id === btn.getAttribute('data-guild-id'));
                 if (g) btn.addEventListener('click', () => selectServer(g));
             });
@@ -152,11 +131,7 @@ function selectServer(guild) {
     document.getElementById('detail-loading').style.display = 'flex';
     fetchServerStatus(guild.id);
 
-    // Update active state in sidebar and list
-    document.querySelectorAll('.discord-server-icon-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.getAttribute('data-guild-id') === guild.id);
-    });
-    document.querySelectorAll('.discord-guild-item').forEach(btn => {
+    document.querySelectorAll('.dashboard-guild-item').forEach(btn => {
         btn.classList.toggle('active', btn.getAttribute('data-guild-id') === guild.id);
     });
 }
@@ -166,8 +141,7 @@ function backToServerList() {
     selectedGuild = null;
     document.getElementById('discord-welcome').style.display = 'flex';
     document.getElementById('dashboard-server-detail').style.display = 'none';
-    document.querySelectorAll('.discord-server-icon-btn').forEach(btn => btn.classList.remove('active'));
-    document.querySelectorAll('.discord-guild-item').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('.dashboard-guild-item').forEach(btn => btn.classList.remove('active'));
 }
 
 async function fetchServerStatus(guildId) {

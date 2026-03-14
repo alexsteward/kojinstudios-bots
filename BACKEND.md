@@ -13,7 +13,8 @@ Set these in **Netlify → Site → Environment variables** (or in a `.env` file
 | `DISCORD_CLIENT_ID` | Yes (for OAuth) | Discord Application (OAuth2) Client ID |
 | `DISCORD_CLIENT_SECRET` | Yes (for OAuth) | Discord Application Client Secret |
 | `DISCORD_REDIRECT_URI` | Yes (for OAuth) | Must match a Redirect URL in the Discord app (e.g. `https://bots.kojinstudios.com/.netlify/functions/discord-oauth` or your Netlify deploy URL) |
-| `BACKEND_API_URL` or `BOT_API_URL` | No | Base URL of your backend API. If set, the **server-status** Netlify function will proxy to it (see contract below). If unset, the dashboard still works with mock data. |
+| `DASHBOARD_BACKEND_URL` | No | Base URL for **dashboard** only (server-status, panels, channels). Checked first; avoids touching existing `BOT_API_URL`. See NETLIFY.md. |
+| `BACKEND_API_URL` or `BOT_API_URL` | No | Fallback backend URL if `DASHBOARD_BACKEND_URL` is not set. If set, server-status (and panels/channels when implemented) proxy to it. If unset, dashboard still works with mock data. |
 | Stripe keys | Yes (for payments) | The site uses Stripe publishable key in the frontend; use your own keys and ensure the Netlify/backend flow for checkout uses the matching secret. |
 
 ---

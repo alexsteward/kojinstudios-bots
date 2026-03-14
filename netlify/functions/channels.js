@@ -18,11 +18,17 @@ exports.handler = async (event) => {
         return { statusCode: 400, headers, body: JSON.stringify({ error: 'Valid guild_id required', channels: [] }) };
     }
 
-    const backend = process.env.BACKEND_API_URL || process.env.BOT_API_URL;
+    const backend = process.env.DASHBOARD_BACKEND_URL || process.env.BACKEND_API_URL || process.env.BOT_API_URL;
     if (backend) {
         try {
             const url = `${backend.replace(/\/$/, '')}/channels?guild_id=${encodeURIComponent(guildId)}`;
-            const res = await fetch(url, { headers: { 'Content-Type': 'application/json' } });
+            const controller = new AbortController();
+            setTimeout(() => controller.abort(), 15000);
+            const res = await fetch(url, {
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json' },
+                signal: controller.signal,
+            });
             if (res.ok) {
                 const data = await res.json();
                 return { statusCode: 200, headers, body: JSON.stringify(data) };
