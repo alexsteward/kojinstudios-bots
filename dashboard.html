@@ -11,10 +11,11 @@
     <link rel="stylesheet" href="dashboard.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body class="dashboard-page">
-    <!-- Site nav -->
+
+    <!-- ─── Nav ──────────────────────────────────────────── -->
     <nav id="navbar" class="dashboard-site-nav">
         <div class="nav-inner">
             <a href="index.html" class="nav-brand">
@@ -26,9 +27,12 @@
                 <a href="index.html#pricing" class="nav-link">Pricing</a>
                 <a href="docs.html" class="nav-link">Docs</a>
                 <a href="status.html" class="nav-link">Status</a>
-                <a href="dashboard.html" class="nav-link nav-link-dashboard nav-link-active">Dashboard</a>
             </div>
             <div class="nav-actions">
+                <a href="dashboard.html" class="nav-login-btn nav-login-active">
+                    <svg width="20" height="15" viewBox="0 0 71 55" fill="currentColor"><path d="M60.1 4.9C55.6 2.8 50.7 1.3 45.7.4c-.1 0-.2 0-.2.1-.6 1.1-1.3 2.6-1.8 3.7-5.5-.8-10.9-.8-16.3 0-.5-1.2-1.2-2.6-1.8-3.7 0-.1-.1-.1-.2-.1-5.1.9-9.9 2.4-14.4 4.5 0 0 0 0-.1.1C1.6 18.7-.9 32.1.3 45.4v.2c6.1 4.5 12 7.2 17.7 9 .1 0 .2 0 .2-.1 1.4-1.9 2.6-3.8 3.6-5.9.1-.1 0-.3-.1-.3-2-.7-3.8-1.6-5.6-2.7-.1-.1-.1-.3 0-.4.4-.3.8-.6 1.1-.9.1-.1.1-.1.2-.1 10.9 5 22.7 5 33.5 0h.2c.4.3.7.6 1.1.9.1.1.1.3 0 .4-1.7 1-3.5 1.9-5.6 2.7-.1.1-.2.2-.1.3 1.1 2.1 2.3 4.1 3.6 5.9.1.1.2.1.2.1 5.8-1.8 11.6-4.5 17.7-9 0 0 .1-.1.1-.2 1.5-15.3-2.5-28.6-10.5-40.4 0 0 0 0-.1-.1zM23.7 37.3c-3.5 0-6.4-3.2-6.4-7.2s2.8-7.2 6.4-7.2c3.6 0 6.4 3.2 6.4 7.2 0 4-2.9 7.2-6.4 7.2zm17.6 0c-3.5 0-6.4-3.2-6.4-7.2s2.8-7.2 6.4-7.2c3.6 0 6.4 3.2 6.4 7.2 0 4-2.9 7.2-6.4 7.2z"/></svg>
+                    Dashboard
+                </a>
                 <a href="index.html#pricing" class="nav-cta">Get Started</a>
                 <button class="mobile-toggle" id="mobile-toggle" aria-label="Toggle menu"><span></span><span></span><span></span></button>
             </div>
@@ -39,35 +43,417 @@
         <a href="index.html#pricing" class="mobile-link">Pricing</a>
         <a href="docs.html" class="mobile-link">Docs</a>
         <a href="status.html" class="mobile-link">Status</a>
-        <a href="dashboard.html" class="mobile-link mobile-link-dashboard">Dashboard</a>
+        <a href="dashboard.html" class="mobile-link mobile-link-login">
+            <svg width="18" height="14" viewBox="0 0 71 55" fill="currentColor"><path d="M60.1 4.9C55.6 2.8 50.7 1.3 45.7.4c-.1 0-.2 0-.2.1-.6 1.1-1.3 2.6-1.8 3.7-5.5-.8-10.9-.8-16.3 0-.5-1.2-1.2-2.6-1.8-3.7 0-.1-.1-.1-.2-.1-5.1.9-9.9 2.4-14.4 4.5 0 0 0 0-.1.1C1.6 18.7-.9 32.1.3 45.4v.2c6.1 4.5 12 7.2 17.7 9 .1 0 .2 0 .2-.1 1.4-1.9 2.6-3.8 3.6-5.9.1-.1 0-.3-.1-.3-2-.7-3.8-1.6-5.6-2.7-.1-.1-.1-.3 0-.4.4-.3.8-.6 1.1-.9.1-.1.1-.1.2-.1 10.9 5 22.7 5 33.5 0h.2c.4.3.7.6 1.1.9.1.1.1.3 0 .4-1.7 1-3.5 1.9-5.6 2.7-.1.1-.2.2-.1.3 1.1 2.1 2.3 4.1 3.6 5.9.1.1.2.1.2.1 5.8-1.8 11.6-4.5 17.7-9 0 0 .1-.1.1-.2 1.5-15.3-2.5-28.6-10.5-40.4 0 0 0 0-.1-.1zM23.7 37.3c-3.5 0-6.4-3.2-6.4-7.2s2.8-7.2 6.4-7.2c3.6 0 6.4 3.2 6.4 7.2 0 4-2.9 7.2-6.4 7.2zm17.6 0c-3.5 0-6.4-3.2-6.4-7.2s2.8-7.2 6.4-7.2c3.6 0 6.4 3.2 6.4 7.2 0 4-2.9 7.2-6.4 7.2z"/></svg>
+            Dashboard
+        </a>
         <a href="index.html#pricing" class="mobile-cta">Get Started</a>
     </div>
 
-    <!-- Work in progress -->
-    <div class="dash-wip">
-        <div class="ambient-bg"><div class="ambient-orb orb-1"></div><div class="ambient-orb orb-2"></div><div class="ambient-orb orb-3"></div></div>
-        <div class="dash-wip-content">
-            <div class="dash-wip-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+    <!-- ─── Login View ───────────────────────────────────── -->
+    <div id="dashboard-login" class="dash-login">
+        <div class="ambient-bg">
+            <div class="ambient-orb orb-1"></div>
+            <div class="ambient-orb orb-2"></div>
+            <div class="ambient-orb orb-3"></div>
+        </div>
+        <section class="dash-login-hero">
+            <div class="container">
+                <div class="dash-login-grid">
+                    <div class="dash-login-copy">
+                        <span class="dash-pill">Web Dashboard</span>
+                        <h1>Manage <span class="text-gradient">Tickets</span> from your browser</h1>
+                        <p>Everything you can do in Discord, you can do here. Configure panels, set roles, create quick responses, and track analytics — no commands needed.</p>
+                        <button type="button" class="dash-login-cta" id="dashboard-login-btn">
+                            <svg width="24" height="18" viewBox="0 0 71 55" fill="currentColor"><path d="M60.1 4.9C55.6 2.8 50.7 1.3 45.7.4c-.1 0-.2 0-.2.1-.6 1.1-1.3 2.6-1.8 3.7-5.5-.8-10.9-.8-16.3 0-.5-1.2-1.2-2.6-1.8-3.7 0-.1-.1-.1-.2-.1-5.1.9-9.9 2.4-14.4 4.5 0 0 0 0-.1.1C1.6 18.7-.9 32.1.3 45.4v.2c6.1 4.5 12 7.2 17.7 9 .1 0 .2 0 .2-.1 1.4-1.9 2.6-3.8 3.6-5.9.1-.1 0-.3-.1-.3-2-.7-3.8-1.6-5.6-2.7-.1-.1-.1-.3 0-.4.4-.3.8-.6 1.1-.9.1-.1.1-.1.2-.1 10.9 5 22.7 5 33.5 0h.2c.4.3.7.6 1.1.9.1.1.1.3 0 .4-1.7 1-3.5 1.9-5.6 2.7-.1.1-.2.2-.1.3 1.1 2.1 2.3 4.1 3.6 5.9.1.1.2.1.2.1 5.8-1.8 11.6-4.5 17.7-9 0 0 .1-.1.1-.2 1.5-15.3-2.5-28.6-10.5-40.4 0 0 0 0-.1-.1zM23.7 37.3c-3.5 0-6.4-3.2-6.4-7.2s2.8-7.2 6.4-7.2c3.6 0 6.4 3.2 6.4 7.2 0 4-2.9 7.2-6.4 7.2zm17.6 0c-3.5 0-6.4-3.2-6.4-7.2s2.8-7.2 6.4-7.2c3.6 0 6.4 3.2 6.4 7.2 0 4-2.9 7.2-6.4 7.2z"/></svg>
+                            Login with Discord
+                        </button>
+                        <span class="dash-login-hint">Free &middot; No credit card required</span>
+                    </div>
+                    <div class="dash-login-features">
+                        <div class="dash-feature-card" style="--delay:.1s">
+                            <div class="dash-feature-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 12l2 2 4-4"/></svg>
+                            </div>
+                            <div>
+                                <h3>Ticket Panels</h3>
+                                <p>Create, edit, and publish ticket panels with custom categories and emojis</p>
+                            </div>
+                        </div>
+                        <div class="dash-feature-card" style="--delay:.2s">
+                            <div class="dash-feature-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+                            </div>
+                            <div>
+                                <h3>Server Config</h3>
+                                <p>Set log channels, staff roles, and toggle settings without any commands</p>
+                            </div>
+                        </div>
+                        <div class="dash-feature-card" style="--delay:.3s">
+                            <div class="dash-feature-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                            </div>
+                            <div>
+                                <h3>Quick Responses</h3>
+                                <p>Build canned replies your staff can send with a single command</p>
+                            </div>
+                        </div>
+                        <div class="dash-feature-card" style="--delay:.4s">
+                            <div class="dash-feature-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+                            </div>
+                            <div>
+                                <h3>Analytics</h3>
+                                <p>Track ticket volume, category breakdown, and daily trends</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <span class="dash-badge">Coming soon</span>
-            <h1>Dashboard</h1>
-            <p>We're building a full web dashboard to configure the Tickets bot — manage panels, set log channels and roles, create quick responses, and view analytics. All from your browser.</p>
-            <p class="dash-wip-sub">Work in progress. Check back soon.</p>
-            <a href="index.html" class="btn btn-primary btn-lg">Back to Home</a>
+        </section>
+        <footer>
+            <div class="container">
+                <div class="footer-grid">
+                    <div class="footer-brand"><div class="footer-logo"><img src="images/logo.png" alt="KojinStudios"><span>KojinBots</span></div><p>Premium Discord bots built by KojinStudios.</p></div>
+                    <div class="footer-col"><h5>Bots</h5><a href="index.html#showcase-gavel">Gavel</a><a href="index.html#showcase-tickets">Tickets</a><a href="index.html#showcase-host">Host</a></div>
+                    <div class="footer-col"><h5>Resources</h5><a href="docs.html">Docs</a><a href="https://discord.gg/pGJkjshMWe" target="_blank">Discord</a><a href="mailto:kojinstudios@gmail.com">Email</a></div>
+                    <div class="footer-col"><h5>Legal</h5><a href="terms.html">Terms</a><a href="privacy.html">Privacy</a></div>
+                </div>
+                <div class="footer-bottom"><p>&copy; 2025 KojinStudios. All rights reserved.</p></div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- ─── Dashboard App ────────────────────────────────── -->
+    <div id="dashboard-content" class="dash-app" style="display:none;">
+        <div class="dash-layout">
+
+            <!-- Sidebar -->
+            <aside class="dash-sidebar">
+                <div class="dash-sidebar-top">
+                    <a href="index.html" class="dash-sidebar-brand">
+                        <img src="images/logo.png" alt="">
+                        <span>Kojin<strong>Bots</strong></span>
+                    </a>
+                    <div class="dash-sidebar-servers">
+                        <span class="dash-sidebar-label">Your servers</span>
+                        <div id="dashboard-guild-list" class="dash-guild-list"></div>
+                        <p id="discord-no-servers" class="dash-no-servers" style="display:none;">No servers with manage permissions found.</p>
+                    </div>
+                </div>
+                <div class="dash-sidebar-bottom">
+                    <div class="dash-user-card">
+                        <div class="dash-user-avatar-wrap">
+                            <img id="dashboard-user-avatar" src="" alt="" class="dash-user-avatar" style="display:none;">
+                            <span class="dash-user-initial" id="dashboard-user-initial">?</span>
+                        </div>
+                        <span class="dash-user-name" id="dashboard-user-name"></span>
+                        <button type="button" class="dash-logout-btn" id="dashboard-logout" title="Log out">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                        </button>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Main content -->
+            <main class="dash-main">
+
+                <!-- Toast container -->
+                <div id="dash-toasts" class="dash-toasts"></div>
+
+                <!-- Welcome (no server selected) -->
+                <div id="dash-welcome" class="dash-welcome">
+                    <div class="dash-welcome-inner">
+                        <div class="dash-welcome-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="M12 18v-6"/><path d="M9 15h6"/></svg>
+                        </div>
+                        <h1>Welcome to your Dashboard</h1>
+                        <p>Select a server from the sidebar to start configuring your Tickets bot.</p>
+                    </div>
+                </div>
+
+                <!-- Server detail (tabs) -->
+                <div id="dash-server" style="display:none;">
+
+                    <!-- Server header -->
+                    <header class="dash-server-header">
+                        <button type="button" class="dash-back-btn" id="dashboard-back-to-servers">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                        </button>
+                        <div class="dash-server-avatar">
+                            <img id="detail-server-icon" src="" alt="" style="display:none;">
+                            <span class="dash-server-initial" id="detail-server-initial">—</span>
+                        </div>
+                        <div class="dash-server-info">
+                            <h1 id="detail-server-name">—</h1>
+                            <span id="detail-server-id" class="dash-server-id"></span>
+                        </div>
+                    </header>
+
+                    <!-- Tabs -->
+                    <nav class="dash-tabs">
+                        <button class="dash-tab active" data-tab="overview">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                            Overview
+                        </button>
+                        <button class="dash-tab" data-tab="config">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+                            Configuration
+                        </button>
+                        <button class="dash-tab" data-tab="panels">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 12l2 2 4-4"/></svg>
+                            Panels
+                        </button>
+                        <button class="dash-tab" data-tab="responses">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                            Responses
+                        </button>
+                        <button class="dash-tab" data-tab="analytics">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+                            Analytics
+                        </button>
+                    </nav>
+
+                    <!-- Loading -->
+                    <div id="dash-loading" class="dash-loading" style="display:none;">
+                        <div class="dash-spinner"></div>
+                        <p>Loading server data&hellip;</p>
+                    </div>
+
+                    <!-- Tab: Overview -->
+                    <div class="dash-tab-content active" data-tab="overview" id="tab-overview">
+                        <div class="dash-overview-grid">
+                            <div class="dash-stat-card">
+                                <div class="dash-stat-icon" style="--c:#5865f2">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                                </div>
+                                <div>
+                                    <span class="dash-stat-label">Bot status</span>
+                                    <div id="overview-bot-status" class="dash-stat-value">—</div>
+                                </div>
+                            </div>
+                            <div class="dash-stat-card">
+                                <div class="dash-stat-icon" style="--c:#f59e0b">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                                </div>
+                                <div>
+                                    <span class="dash-stat-label">Subscription</span>
+                                    <div id="overview-subscription" class="dash-stat-value">—</div>
+                                </div>
+                            </div>
+                            <div class="dash-stat-card">
+                                <div class="dash-stat-icon" style="--c:#ff4757">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
+                                </div>
+                                <div>
+                                    <span class="dash-stat-label">Total tickets</span>
+                                    <div id="overview-ticket-count" class="dash-stat-value">—</div>
+                                </div>
+                            </div>
+                            <div class="dash-stat-card">
+                                <div class="dash-stat-icon" style="--c:#34d399">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                                </div>
+                                <div>
+                                    <span class="dash-stat-label">Open tickets</span>
+                                    <div id="overview-open-tickets" class="dash-stat-value">—</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="dash-card anim-in" style="--delay:.15s">
+                            <a href="#" class="dash-action-btn" id="detail-get-tickets-btn" data-bot="tickets">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                Get Tickets
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Tab: Configuration -->
+                    <div class="dash-tab-content" data-tab="config" id="tab-config">
+                        <div class="dash-card anim-in" style="--delay:0s">
+                            <div class="dash-card-head">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                                <h3>Log Channels</h3>
+                            </div>
+                            <p class="dash-card-desc">Where the bot sends logs for tickets, applications, and appeals.</p>
+                            <div class="dash-form-grid">
+                                <div class="dash-field">
+                                    <label for="cfg-log-channel">Ticket logs</label>
+                                    <select id="cfg-log-channel" class="dash-select"><option value="">None</option></select>
+                                </div>
+                                <div class="dash-field">
+                                    <label for="cfg-app-log-channel">Application logs</label>
+                                    <select id="cfg-app-log-channel" class="dash-select"><option value="">None</option></select>
+                                </div>
+                                <div class="dash-field">
+                                    <label for="cfg-appeal-log-channel">Appeal logs</label>
+                                    <select id="cfg-appeal-log-channel" class="dash-select"><option value="">None</option></select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="dash-card anim-in" style="--delay:.08s">
+                            <div class="dash-card-head">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                                <h3>Roles</h3>
+                            </div>
+                            <p class="dash-card-desc">Staff manage tickets. Admins configure the bot. Support roles get pinged on new tickets.</p>
+                            <div class="dash-form-grid">
+                                <div class="dash-field">
+                                    <label for="cfg-staff-roles">Staff roles</label>
+                                    <select id="cfg-staff-roles" class="dash-select" multiple></select>
+                                </div>
+                                <div class="dash-field">
+                                    <label for="cfg-admin-roles">Admin roles</label>
+                                    <select id="cfg-admin-roles" class="dash-select" multiple></select>
+                                </div>
+                                <div class="dash-field">
+                                    <label for="cfg-support-roles">Support roles</label>
+                                    <select id="cfg-support-roles" class="dash-select" multiple></select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="dash-card anim-in" style="--delay:.16s">
+                            <div class="dash-card-head">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/></svg>
+                                <h3>Settings</h3>
+                            </div>
+                            <div class="dash-toggle-row">
+                                <label class="dash-toggle">
+                                    <input type="checkbox" id="cfg-ping-support">
+                                    <span class="dash-toggle-track"><span class="dash-toggle-thumb"></span></span>
+                                </label>
+                                <span>Ping support roles when a ticket is created</span>
+                            </div>
+                            <div class="dash-form-grid" style="margin-top:1rem;">
+                                <div class="dash-field">
+                                    <label for="cfg-emoji-style">Emoji style</label>
+                                    <select id="cfg-emoji-style" class="dash-select">
+                                        <option value="heavy">Heavy (lots of emojis)</option>
+                                        <option value="minimal">Minimal</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="dash-actions">
+                            <button type="button" class="dash-btn dash-btn-primary" id="cfg-save-btn">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                                Save configuration
+                            </button>
+                            <span class="dash-save-status" id="cfg-save-status"></span>
+                        </div>
+                    </div>
+
+                    <!-- Tab: Panels -->
+                    <div class="dash-tab-content" data-tab="panels" id="tab-panels">
+                        <div class="dash-card anim-in">
+                            <div class="dash-card-head">
+                                <div>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 12l2 2 4-4"/></svg>
+                                    <h3>Ticket Panels</h3>
+                                </div>
+                                <button type="button" class="dash-btn dash-btn-primary dash-btn-sm" id="detail-create-panel-btn">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                    Create panel
+                                </button>
+                            </div>
+                            <p class="dash-card-desc">Each panel is a message with buttons posted in a channel. Users click to open a ticket. Custom emojis supported (Unicode or <code>&lt;:name:id&gt;</code>).</p>
+                            <div id="detail-panels-loading" class="dash-loading-inline" style="display:none;">
+                                <div class="dash-spinner-sm"></div> Loading panels&hellip;
+                            </div>
+                            <div id="detail-panels-list" class="dash-panels-grid"></div>
+                        </div>
+                    </div>
+
+                    <!-- Tab: Quick Responses -->
+                    <div class="dash-tab-content" data-tab="responses" id="tab-responses">
+                        <div class="dash-card anim-in">
+                            <div class="dash-card-head">
+                                <div>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                                    <h3>Quick Responses</h3>
+                                </div>
+                                <button type="button" class="dash-btn dash-btn-primary dash-btn-sm" id="qr-add-btn">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                    Add response
+                                </button>
+                            </div>
+                            <p class="dash-card-desc">Canned replies staff can send with <code>/response</code>. Supports <code>{customer}</code> and <code>{user}</code> placeholders.</p>
+                            <div id="qr-list" class="dash-qr-list"></div>
+                        </div>
+                        <div class="dash-card anim-in" id="qr-form-card" style="display:none;">
+                            <h3>Add quick response</h3>
+                            <div class="dash-field"><label for="qr-label">Label</label><input type="text" id="qr-label" class="dash-input" placeholder="e.g. Greeting" maxlength="100"></div>
+                            <div class="dash-field"><label for="qr-message">Message</label><textarea id="qr-message" class="dash-textarea" placeholder="Hi {customer}, thanks for reaching out!" rows="3"></textarea></div>
+                            <div class="dash-actions">
+                                <button type="button" class="dash-btn dash-btn-primary dash-btn-sm" id="qr-save-btn">Save</button>
+                                <button type="button" class="dash-btn dash-btn-ghost dash-btn-sm" id="qr-cancel-btn">Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab: Analytics -->
+                    <div class="dash-tab-content" data-tab="analytics" id="tab-analytics">
+                        <div class="dash-analytics-period">
+                            <button class="dash-period-btn active" data-days="7">7 days</button>
+                            <button class="dash-period-btn" data-days="30">30 days</button>
+                            <button class="dash-period-btn" data-days="90">90 days</button>
+                        </div>
+                        <div class="dash-overview-grid" id="analytics-stats"></div>
+                        <div class="dash-card anim-in" id="analytics-chart-card">
+                            <h3>Tickets per day</h3>
+                            <div id="analytics-chart" class="dash-chart"></div>
+                        </div>
+                        <div class="dash-card anim-in" id="analytics-categories-card">
+                            <h3>By category</h3>
+                            <div id="analytics-categories" class="dash-cat-list"></div>
+                        </div>
+                    </div>
+
+                    <!-- Panel editor (overlay) -->
+                    <div id="dash-panel-editor" class="dash-panel-editor" style="display:none;">
+                        <div class="dash-panel-editor-backdrop"></div>
+                        <div class="dash-panel-editor-dialog">
+                            <div class="dash-card-head">
+                                <h3 id="panel-editor-title">Create panel</h3>
+                                <button type="button" class="dash-close-btn" id="panel-editor-close">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                                </button>
+                            </div>
+                            <form id="panel-editor-form" class="dash-editor-form">
+                                <div class="dash-field">
+                                    <label for="panel-channel">Channel</label>
+                                    <select id="panel-channel" class="dash-select"><option value="">Loading&hellip;</option></select>
+                                    <span class="dash-field-hint">Or enter Channel ID directly:</span>
+                                    <input type="text" id="panel-channel-id" class="dash-input" placeholder="Channel ID" maxlength="20">
+                                </div>
+                                <div class="dash-field">
+                                    <label for="panel-title">Title</label>
+                                    <input type="text" id="panel-title" class="dash-input" placeholder="e.g. Support Center" maxlength="256" required>
+                                </div>
+                                <div class="dash-field">
+                                    <label for="panel-description">Description</label>
+                                    <textarea id="panel-description" class="dash-textarea" placeholder="Click a button below to open a ticket." rows="2"></textarea>
+                                </div>
+                                <div class="dash-field">
+                                    <label>Categories <span class="dash-field-hint-inline">Each becomes a button. Emoji: Unicode or <code>&lt;:name:id&gt;</code></span></label>
+                                    <div id="panel-categories-container" class="dash-cat-rows"></div>
+                                    <button type="button" class="dash-btn dash-btn-ghost dash-btn-sm" id="panel-add-category">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                        Add category
+                                    </button>
+                                </div>
+                                <div class="dash-actions">
+                                    <button type="submit" class="dash-btn dash-btn-primary" id="panel-editor-submit">Publish to Discord</button>
+                                    <button type="button" class="dash-btn dash-btn-ghost" id="panel-editor-cancel">Cancel</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </main>
         </div>
     </div>
 
-    <footer>
-        <div class="container">
-            <div class="footer-grid">
-                <div class="footer-brand"><div class="footer-logo"><img src="images/logo.png" alt="KojinStudios"><span>KojinBots</span></div><p>Premium Discord bots built by KojinStudios.</p></div>
-                <div class="footer-col"><h5>Bots</h5><a href="index.html#showcase-gavel">Gavel</a><a href="index.html#showcase-tickets">Tickets</a><a href="index.html#showcase-host">Host</a></div>
-                <div class="footer-col"><h5>Resources</h5><a href="docs.html">Docs</a><a href="https://discord.gg/pGJkjshMWe" target="_blank">Discord</a><a href="mailto:kojinstudios@gmail.com">Email</a></div>
-                <div class="footer-col"><h5>Legal</h5><a href="terms.html">Terms</a><a href="privacy.html">Privacy</a></div>
-            </div>
-            <div class="footer-bottom"><p>&copy; 2025 KojinStudios. All rights reserved.</p></div>
-        </div>
-    </footer>
+    <script src="dashboard.js"></script>
 </body>
 </html>

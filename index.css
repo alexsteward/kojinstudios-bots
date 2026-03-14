@@ -247,25 +247,39 @@ nav.scrolled {
     background: rgba(255, 255, 255, 0.08);
 }
 
-/* Dashboard link: Discord-style blue so it stands out */
-.nav-link-dashboard {
-    color: var(--discord, #5865f2);
+/* Nav Login with Discord button */
+.nav-login-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 1rem;
+    background: rgba(88, 101, 242, 0.12);
+    border: 1px solid rgba(88, 101, 242, 0.3);
+    border-radius: 8px;
+    color: #8b9bff;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    white-space: nowrap;
+}
+.nav-login-btn svg { flex-shrink: 0; }
+.nav-login-btn:hover {
+    background: rgba(88, 101, 242, 0.22);
+    border-color: rgba(88, 101, 242, 0.5);
+    color: #a5b4fc;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(88, 101, 242, 0.2);
+}
+.mobile-link-login {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #8b9bff;
     font-weight: 600;
 }
-.nav-link-dashboard:hover {
-    color: #7983f5;
-    background: rgba(88, 101, 242, 0.15);
-}
-.nav-link-dashboard.nav-link-active {
-    color: #a5aeff;
-    background: rgba(88, 101, 242, 0.2);
-}
-.mobile-link-dashboard {
-    color: var(--discord, #5865f2);
-    font-weight: 600;
-}
-.mobile-link-dashboard:hover {
-    color: #7983f5;
+.mobile-link-login:hover {
+    color: #a5b4fc;
     background: rgba(88, 101, 242, 0.15);
 }
 
