@@ -1811,6 +1811,102 @@ body.dashboard-page {
     }
 }
 
+/* ─── Panel limits banner ──────────────────────────── */
+.dash-panel-limits {
+    background: var(--d-surface-2);
+    border: 1px solid var(--d-border);
+    border-radius: var(--d-radius);
+    padding: 0.75rem 1.25rem;
+    margin-bottom: 1rem;
+    animation: fadeSlideUp 0.3s var(--d-ease-out) both;
+}
+
+.dash-limits-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.dash-plan-tag {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 0.25rem 0.6rem;
+    border-radius: 999px;
+}
+
+.dash-plan-tag.free {
+    background: rgba(148, 163, 184, 0.15);
+    color: #94a3b8;
+}
+
+.dash-plan-tag.premium {
+    background: linear-gradient(135deg, rgba(251, 191, 36, 0.2), rgba(245, 158, 11, 0.2));
+    color: #fbbf24;
+}
+
+.dash-limit-badge {
+    font-size: 0.8125rem;
+    color: var(--d-text-2);
+    padding: 0.2rem 0.5rem;
+    background: var(--d-surface-3);
+    border-radius: var(--d-radius-sm);
+}
+
+.dash-limit-badge.at-limit {
+    color: #f87171;
+    background: rgba(248, 113, 113, 0.1);
+}
+
+.dash-upgrade-link {
+    margin-left: auto;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--d-accent);
+    text-decoration: none;
+    transition: opacity 0.15s;
+}
+
+.dash-upgrade-link:hover { opacity: 0.8; }
+
+.dash-panel-count {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--d-text-3);
+    background: var(--d-surface-3);
+    padding: 0.15rem 0.5rem;
+    border-radius: 999px;
+    margin-left: 0.5rem;
+}
+
+.dash-panel-count.at-limit {
+    color: #f87171;
+    background: rgba(248, 113, 113, 0.12);
+}
+
+.dash-panel-badge {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    padding: 0.15rem 0.45rem;
+    border-radius: var(--d-radius-sm);
+    background: rgba(52, 211, 153, 0.15);
+    color: #34d399;
+    flex-shrink: 0;
+}
+
+.dash-panel-card.app-type {
+    border-left: 3px solid #5865f2;
+}
+
+.dash-panel-card.appeal-type {
+    border-left: 3px solid #f59e0b;
+}
+
 /* Scrollbar for sidebar on desktop */
 @media (min-width: 769px) {
     .dash-sidebar-top::-webkit-scrollbar { width: 4px; }

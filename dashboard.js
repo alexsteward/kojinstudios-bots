@@ -28,6 +28,16 @@ document.addEventListener('DOMContentLoaded', () => {
     on('panel-editor-cancel',       'click', closePanelEditor);
     on('panel-add-category',        'click', () => addCatRow());
     on('panel-editor-form',         'submit', submitPanel);
+    on('create-app-panel-btn',      'click', () => openAppPanelEditor());
+    on('app-panel-editor-close',    'click', closeAppPanelEditor);
+    on('app-panel-editor-cancel',   'click', closeAppPanelEditor);
+    on('app-panel-add-type',        'click', () => addTypeRow('app-panel-types-container'));
+    on('app-panel-editor-form',     'submit', submitAppPanel);
+    on('create-appeal-panel-btn',   'click', () => openAppealPanelEditor());
+    on('appeal-panel-editor-close', 'click', closeAppealPanelEditor);
+    on('appeal-panel-editor-cancel','click', closeAppealPanelEditor);
+    on('appeal-panel-add-cat',      'click', () => addTypeRow('appeal-panel-cats-container'));
+    on('appeal-panel-editor-form',  'submit', submitAppealPanel);
     on('cfg-save-btn',              'click', saveConfig);
     on('qr-add-btn',               'click', showQRForm);
     on('qr-save-btn',              'click', saveQR);
@@ -231,7 +241,10 @@ async function loadServerData() {
 
         renderOverview(statusData);
         renderConfig(configData);
+        fetchPanelLimits();
         fetchPanels();
+        fetchAppPanels();
+        fetchAppealPanels();
         fetchQR();
         fetchAnalytics(selectedGuildId, 30);
 
@@ -535,6 +548,10 @@ async function fetchPanels() {
 }
 
 function openPanelEditor(panel) {
+    if (!panel && !canCreatePanel('ticket_panels')) {
+        toast('Ticket panel limit reached. Upgrade to Premium for unlimited panels!', 'error');
+        return;
+    }
     editingPanelId = panel ? panel.id : null;
     $('dash-panel-editor').style.display = 'flex';
     $('panel-editor-title').textContent  = panel ? 'Edit panel' : 'Create panel';
@@ -628,12 +645,249 @@ async function submitPanel(e) {
         if (data.error) throw new Error(data.error);
         closePanelEditor();
         fetchPanels();
+        fetchPanelLimits();
         toast(editingPanelId ? 'Panel updated!' : 'Panel published to Discord!');
     } catch (err) {
         toast(err.message || 'Failed to save panel.', 'error');
     }
     btn.disabled    = false;
     btn.textContent = editingPanelId ? 'Update in Discord' : 'Publish to Discord';
+}
+
+// ─── Panel Limits ────────────────────────────────────────────────────────────
+let panelLimits = null;
+
+async function fetchPanelLimits() {
+    try {
+        panelLimits = await apiDash('panel-limits', 'GET', { guild_id: selectedGuildId });
+    } catch { panelLimits = null; }
+    renderPanelLimits();
+}
+
+function renderPanelLimits() {
+    const banner = $('panel-limits-banner');
+    if (!banner || !panelLimits) { if (banner) banner.style.display = 'none'; return; }
+    const l = panelLimits;
+    const isPremium = l.premium;
+    const mkBadge = (info, label) => {
+        const max = info.max === -1 ? '∞' : info.max;
+        const atLimit = info.max !== -1 && info.count >= info.max;
+        return `<span class="dash-limit-badge${atLimit ? ' at-limit' : ''}">${label}: <strong>${info.count}</strong> / <strong>${max}</strong></span>`;
+    };
+    banner.innerHTML = `
+        <div class="dash-limits-row">
+            <span class="dash-plan-tag ${isPremium ? 'premium' : 'free'}">${isPremium ? '⭐ Premium' : 'Free Plan'}</span>
+            ${mkBadge(l.ticket_panels, 'Ticket')}
+            ${mkBadge(l.application_panels, 'Application')}
+            ${mkBadge(l.appeal_panels, 'Appeal')}
+            ${!isPremium ? '<a href="/#pricing" class="dash-upgrade-link">Upgrade for unlimited panels →</a>' : ''}
+        </div>`;
+    banner.style.display = '';
+
+    const setCount = (id, info) => {
+        const el = $(id);
+        if (!el) return;
+        const max = info.max === -1 ? '∞' : info.max;
+        el.textContent = `${info.count} / ${max}`;
+        el.className = 'dash-panel-count' + (info.max !== -1 && info.count >= info.max ? ' at-limit' : '');
+    };
+    setCount('ticket-panel-count', l.ticket_panels);
+    setCount('app-panel-count', l.application_panels);
+    setCount('appeal-panel-count', l.appeal_panels);
+}
+
+function canCreatePanel(type) {
+    if (!panelLimits) return true;
+    const info = panelLimits[type];
+    if (!info || info.max === -1) return true;
+    return info.count < info.max;
+}
+
+// ─── Application Panels ─────────────────────────────────────────────────────
+async function fetchAppPanels() {
+    const loading = $('app-panels-loading');
+    const list    = $('app-panels-list');
+    if (loading) loading.style.display = 'flex';
+    if (list) list.innerHTML = '';
+    try {
+        const data   = await apiDash('app-panels', 'GET', { guild_id: selectedGuildId });
+        const panels = data.panels || [];
+        if (!panels.length) {
+            list.innerHTML = '<p class="dash-empty">No application panels yet.</p>';
+        } else {
+            list.innerHTML = panels.map(p => {
+                const title = p.title || 'Untitled';
+                let typeCount = 0;
+                try { typeCount = (JSON.parse(p.panel_data).application_types || []).length; } catch {}
+                const ch     = cachedChannels.find(c => String(c.id) === String(p.channel_id));
+                const chName = ch ? `# ${esc(ch.name)}` : `Channel ${p.channel_id}`;
+                return `<div class="dash-panel-card app-type" data-id="${p.id}">
+                    <div class="dash-panel-card-top">
+                        <h4>📋 ${esc(title)}</h4>
+                        <span class="dash-panel-badge">${p.is_active ? 'Active' : 'Inactive'}</span>
+                    </div>
+                    <div class="dash-panel-card-meta">${chName} · ${typeCount} type${typeCount !== 1 ? 's' : ''}</div>
+                </div>`;
+            }).join('');
+        }
+    } catch {
+        if (list) list.innerHTML = '<p class="dash-empty">Could not load application panels.</p>';
+    }
+    if (loading) loading.style.display = 'none';
+}
+
+function openAppPanelEditor() {
+    if (!canCreatePanel('application_panels')) {
+        toast('Application panel limit reached. Upgrade to Premium for unlimited panels!', 'error');
+        return;
+    }
+    $('app-panel-editor').style.display = 'flex';
+    $('app-panel-title').value = '';
+    $('app-panel-description').value = '';
+    const container = $('app-panel-types-container');
+    container.innerHTML = '';
+    addTypeRow('app-panel-types-container', { emoji: '📋', name: 'Staff Application', description: 'Apply for a staff position' });
+    loadEditorChannelSelect('app-panel-channel', null);
+}
+
+function closeAppPanelEditor() { $('app-panel-editor').style.display = 'none'; }
+
+async function submitAppPanel(e) {
+    e.preventDefault();
+    const channelId = $('app-panel-channel').value;
+    if (!channelId) { toast('Choose a channel.', 'error'); return; }
+    const title = $('app-panel-title').value.trim();
+    if (!title) { toast('Enter a title.', 'error'); return; }
+    const description = $('app-panel-description').value.trim();
+    const categories = [];
+    $('app-panel-types-container').querySelectorAll('.dash-cat-row').forEach(r => {
+        const name = r.querySelector('.dash-cat-name').value.trim();
+        if (!name) return;
+        categories.push({
+            emoji: r.querySelector('.dash-cat-emoji').value.trim() || '📋',
+            name,
+            description: r.querySelector('.dash-cat-desc')?.value.trim() || '',
+        });
+    });
+    if (!categories.length) { toast('Add at least one application type.', 'error'); return; }
+
+    const btn = $('app-panel-editor-submit');
+    btn.disabled = true; btn.textContent = 'Publishing...';
+    try {
+        const data = await apiDash('app-panels', 'POST', { guild_id: selectedGuildId }, { guild_id: selectedGuildId, channel_id: channelId, title, description, categories });
+        if (data.error) throw new Error(data.error);
+        closeAppPanelEditor();
+        fetchAppPanels();
+        fetchPanelLimits();
+        toast('Application panel published to Discord!');
+    } catch (err) { toast(err.message || 'Failed to create application panel.', 'error'); }
+    btn.disabled = false; btn.textContent = 'Publish to Discord';
+}
+
+// ─── Appeal Panels ───────────────────────────────────────────────────────────
+async function fetchAppealPanels() {
+    const loading = $('appeal-panels-loading');
+    const list    = $('appeal-panels-list');
+    if (loading) loading.style.display = 'flex';
+    if (list) list.innerHTML = '';
+    try {
+        const data   = await apiDash('appeal-panels', 'GET', { guild_id: selectedGuildId });
+        const panels = data.panels || [];
+        if (!panels.length) {
+            list.innerHTML = '<p class="dash-empty">No appeal panels yet.</p>';
+        } else {
+            list.innerHTML = panels.map(p => {
+                const title = p.title || 'Untitled';
+                let catCount = 0;
+                try { catCount = (JSON.parse(p.panel_data).appeal_categories || []).length; } catch {}
+                const ch     = cachedChannels.find(c => String(c.id) === String(p.channel_id));
+                const chName = ch ? `# ${esc(ch.name)}` : `Channel ${p.channel_id}`;
+                return `<div class="dash-panel-card appeal-type" data-id="${p.id}">
+                    <div class="dash-panel-card-top">
+                        <h4>⚖️ ${esc(title)}</h4>
+                        <span class="dash-panel-badge">${p.is_active ? 'Active' : 'Inactive'}</span>
+                    </div>
+                    <div class="dash-panel-card-meta">${chName} · ${catCount} categor${catCount !== 1 ? 'ies' : 'y'}</div>
+                </div>`;
+            }).join('');
+        }
+    } catch {
+        if (list) list.innerHTML = '<p class="dash-empty">Could not load appeal panels.</p>';
+    }
+    if (loading) loading.style.display = 'none';
+}
+
+function openAppealPanelEditor() {
+    if (!canCreatePanel('appeal_panels')) {
+        toast('Appeal panel limit reached. Upgrade to Premium for unlimited panels!', 'error');
+        return;
+    }
+    $('appeal-panel-editor').style.display = 'flex';
+    $('appeal-panel-title').value = '';
+    $('appeal-panel-description').value = '';
+    const container = $('appeal-panel-cats-container');
+    container.innerHTML = '';
+    addTypeRow('appeal-panel-cats-container', { emoji: '⚖️', name: 'Ban Appeal', description: 'Appeal a ban or punishment' });
+    loadEditorChannelSelect('appeal-panel-channel', null);
+}
+
+function closeAppealPanelEditor() { $('appeal-panel-editor').style.display = 'none'; }
+
+async function submitAppealPanel(e) {
+    e.preventDefault();
+    const channelId = $('appeal-panel-channel').value;
+    if (!channelId) { toast('Choose a channel.', 'error'); return; }
+    const title = $('appeal-panel-title').value.trim();
+    if (!title) { toast('Enter a title.', 'error'); return; }
+    const description = $('appeal-panel-description').value.trim();
+    const categories = [];
+    $('appeal-panel-cats-container').querySelectorAll('.dash-cat-row').forEach(r => {
+        const name = r.querySelector('.dash-cat-name').value.trim();
+        if (!name) return;
+        categories.push({
+            emoji: r.querySelector('.dash-cat-emoji').value.trim() || '⚖️',
+            name,
+            description: r.querySelector('.dash-cat-desc')?.value.trim() || '',
+        });
+    });
+    if (!categories.length) { toast('Add at least one appeal category.', 'error'); return; }
+
+    const btn = $('appeal-panel-editor-submit');
+    btn.disabled = true; btn.textContent = 'Publishing...';
+    try {
+        const data = await apiDash('appeal-panels', 'POST', { guild_id: selectedGuildId }, { guild_id: selectedGuildId, channel_id: channelId, title, description, categories });
+        if (data.error) throw new Error(data.error);
+        closeAppealPanelEditor();
+        fetchAppealPanels();
+        fetchPanelLimits();
+        toast('Appeal panel published to Discord!');
+    } catch (err) { toast(err.message || 'Failed to create appeal panel.', 'error'); }
+    btn.disabled = false; btn.textContent = 'Publish to Discord';
+}
+
+// ─── Shared panel editor helpers ─────────────────────────────────────────────
+function addTypeRow(containerId, cat) {
+    const container = $(containerId);
+    if (!container) return;
+    const row = document.createElement('div');
+    row.className = 'dash-cat-row';
+    row.innerHTML = `
+        <input type="text" class="dash-cat-emoji" placeholder="📋" value="${escA(cat?.emoji || '')}" maxlength="64">
+        <input type="text" class="dash-cat-name" placeholder="Button label" value="${escA(cat?.name || '')}" required>
+        <input type="text" class="dash-cat-desc" placeholder="Description (optional)" value="${escA(cat?.description || '')}">
+        <button type="button" class="dash-cat-remove">&times;</button>
+    `;
+    row.querySelector('.dash-cat-remove').addEventListener('click', () => row.remove());
+    container.appendChild(row);
+}
+
+function loadEditorChannelSelect(selectId, selectedId) {
+    const sel = $(selectId);
+    if (!sel) return;
+    sel.innerHTML = '<option value="">— Choose a channel —</option>' + cachedChannels.map(ch => {
+        const s = selectedId && String(ch.id) === selectedId ? ' selected' : '';
+        return `<option value="${escA(ch.id)}"${s}># ${esc(ch.name)}</option>`;
+    }).join('');
 }
 
 // ─── Quick Responses ─────────────────────────────────────────────────────────
