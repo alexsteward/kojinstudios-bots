@@ -1076,6 +1076,11 @@ body.dashboard-page {
     position: relative;
 }
 
+.dash-card:has(.dash-ss.open) {
+    z-index: 100;
+    position: relative;
+}
+
 .dash-ss.open .dash-ss-dropdown {
     display: block;
 }
