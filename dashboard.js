@@ -17,7 +17,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const user   = stored(STORAGE_USER);
     const guilds = stored(STORAGE_GUILDS);
-    if (user && guilds) showDashboard(user, guilds);
+    const wip = true;
+    if (wip) {
+        showLogin();
+        $('dashboard-content').style.display = 'none';
+    } else if (user && guilds) showDashboard(user, guilds);
     else showLogin();
 
     on('dashboard-login-btn',       'click', redirectToDiscordLogin);
