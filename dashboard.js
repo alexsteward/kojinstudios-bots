@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const user   = stored(STORAGE_USER);
     const guilds = stored(STORAGE_GUILDS);
-    const wip = true;
+    const wip = false;
     if (wip) {
         showLogin();
         $('dashboard-content').style.display = 'none';
