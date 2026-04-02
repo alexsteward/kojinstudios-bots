@@ -7,8 +7,8 @@ const headers = {
     'Access-Control-Allow-Origin': '*',
 };
 
-function fetchOpts(method, body) {
-    const opts = { method, headers: { 'Content-Type': 'application/json' } };
+function fetchOpts(method, body, passthroughHeaders) {
+    const opts = { method, headers: { 'Content-Type': 'application/json', ...(passthroughHeaders || {}) } };
     if (body) opts.body = body;
     const ctrl = new AbortController();
     setTimeout(() => ctrl.abort(), 15000);
@@ -44,7 +44,13 @@ exports.handler = async (event) => {
     try {
         const method = event.httpMethod;
         const body = (method === 'POST' || method === 'PATCH' || method === 'DELETE') && event.body ? event.body : undefined;
-        const res = await fetch(url, fetchOpts(method, body));
+        const passthrough = {};
+        for (const [k, v] of Object.entries(event.headers || {})) {
+            if (!k) continue;
+            const key = String(k).toLowerCase();
+            if (key.startsWith('x-kojin-')) passthrough[key] = v;
+        }
+        const res = await fetch(url, fetchOpts(method, body, passthrough));
         const data = await res.json().catch(() => ({}));
         return { statusCode: res.status || 200, headers, body: JSON.stringify(data) };
     } catch (e) {

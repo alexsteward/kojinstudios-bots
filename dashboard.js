@@ -276,7 +276,13 @@ async function api(endpoint, params) {
 async function apiDash(endpoint, method, params, body) {
     const p   = { endpoint, ...params };
     const qs  = new URLSearchParams(p).toString();
+    const user = stored(STORAGE_USER) || null;
     const opts = { method, headers: { 'Content-Type': 'application/json' } };
+    if (user && user.id) {
+        opts.headers['X-Kojin-Actor-Id'] = String(user.id);
+        if (user.username) opts.headers['X-Kojin-Actor-Name'] = String(user.username);
+        opts.headers['X-Kojin-Source'] = 'dashboard';
+    }
     if (body) opts.body = JSON.stringify(body);
     const res = await fetch(`${BASE}/.netlify/functions/dashboard-api?${qs}`, opts);
     return res.json();
@@ -517,11 +523,11 @@ function renderConfig(cfg) {
     createSearchableSelect('cfg-log-channel', chOpts, cfg.log_channel_id, 'single');
     createSearchableSelect('cfg-app-log-channel', chOpts, cfg.application_log_channel_id, 'single');
     createSearchableSelect('cfg-appeal-log-channel', chOpts, cfg.appeal_log_channel_id, 'single');
+    createSearchableSelect('cfg-admin-log-channel', chOpts, cfg.admin_logs_channel_id, 'single');
     createSearchableSelect('cfg-staff-roles', rOpts, cfg.staff_role_ids || [], 'multi');
     createSearchableSelect('cfg-admin-roles', rOpts, cfg.admin_role_ids || [], 'multi');
     createSearchableSelect('cfg-support-roles', rOpts, cfg.support_role_ids || [], 'multi');
 
-    $('cfg-ping-support').checked = !!cfg.ping_support_on_ticket;
     $('cfg-emoji-style').value = cfg.emoji_style || 'heavy';
 }
 
@@ -536,10 +542,10 @@ async function saveConfig() {
         log_channel_id:             ssGetValue('cfg-log-channel') || null,
         application_log_channel_id: ssGetValue('cfg-app-log-channel') || null,
         appeal_log_channel_id:      ssGetValue('cfg-appeal-log-channel') || null,
+        admin_logs_channel_id:      ssGetValue('cfg-admin-log-channel') || null,
         staff_role_ids:             ssGetValue('cfg-staff-roles') || [],
         admin_role_ids:             ssGetValue('cfg-admin-roles') || [],
         support_role_ids:           ssGetValue('cfg-support-roles') || [],
-        ping_support_on_ticket:     $('cfg-ping-support').checked,
         emoji_style:                $('cfg-emoji-style').value,
     };
 
