@@ -1391,6 +1391,24 @@ body.dashboard-page {
 
 .dash-panel-edit-btn:hover { background: var(--d-accent-glow); }
 
+.dash-panel-del-btn {
+    flex-shrink: 0;
+    padding: 0.25rem 0.625rem;
+    background: rgba(248, 113, 113, 0.12);
+    border: 1px solid rgba(248, 113, 113, 0.25);
+    border-radius: var(--d-radius-xs);
+    color: #f87171;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.dash-panel-del-btn:hover {
+    background: rgba(248, 113, 113, 0.18);
+    border-color: rgba(248, 113, 113, 0.4);
+}
+
 .dash-panel-card-meta {
     font-size: 0.8125rem;
     color: var(--d-text-3);
@@ -1418,7 +1436,7 @@ body.dashboard-page {
 .dash-panel-editor-dialog {
     position: relative;
     width: 100%;
-    max-width: 560px;
+    max-width: 920px;
     max-height: 80vh;
     overflow-y: auto;
     background: var(--d-surface);
@@ -1466,16 +1484,38 @@ body.dashboard-page {
 
 .dash-cat-row {
     display: grid;
-    grid-template-columns: minmax(140px, 180px) 1fr 1fr 1fr 1fr 32px;
-    gap: 0.5rem;
+    grid-template-columns: minmax(160px, 200px) 1fr 32px;
+    grid-template-rows: auto auto auto;
+    grid-template-areas:
+        "emoji name remove"
+        "emoji desc remove"
+        "emoji extras remove";
+    gap: 0.5rem 0.75rem;
     align-items: start;
     animation: fadeSlideUp 0.2s var(--d-ease-out) both;
 }
 
 .dash-cat-emoji-cell {
+    grid-area: emoji;
     display: flex;
     flex-direction: column;
     gap: 0.375rem;
+}
+
+.dash-cat-name { grid-area: name; }
+.dash-cat-desc { grid-area: desc; }
+.dash-cat-remove { grid-area: remove; }
+
+.dash-cat-extras {
+    grid-area: extras;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+}
+
+.dash-cat-extras .dash-cat-ping-role,
+.dash-cat-extras .dash-cat-welcome {
+    width: 100%;
 }
 
 .dash-cat-emoji-cell .dash-cat-emoji {

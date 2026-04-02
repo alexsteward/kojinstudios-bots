@@ -600,7 +600,10 @@ async function fetchPanels() {
                 return `<div class="dash-panel-card" data-id="${p.id}">
                     <div class="dash-panel-card-top">
                         <h4>${esc(title)}</h4>
-                        <button class="dash-panel-edit-btn" data-id="${p.id}">Edit</button>
+                        <div style="display:flex; gap:.5rem; align-items:center;">
+                            <button class="dash-panel-edit-btn" data-id="${p.id}">Edit</button>
+                            <button class="dash-panel-del-btn" data-id="${p.id}" title="Delete panel">Delete</button>
+                        </div>
                     </div>
                     <div class="dash-panel-card-meta">${chName} · ${catCount} button${catCount !== 1 ? 's' : ''}</div>
                 </div>`;
@@ -610,11 +613,33 @@ async function fetchPanels() {
                 const p = panels.find(x => String(x.id) === btn.dataset.id);
                 if (p) btn.addEventListener('click', () => openPanelEditor(p));
             });
+            list.querySelectorAll('.dash-panel-del-btn').forEach(btn => {
+                const p = panels.find(x => String(x.id) === btn.dataset.id);
+                if (p) btn.addEventListener('click', () => deletePanel(p));
+            });
         }
     } catch {
         if (list) list.innerHTML = '<p class="dash-empty">Could not load panels.</p>';
     }
     if (loading) loading.style.display = 'none';
+}
+
+async function deletePanel(panel) {
+    if (!panel || !selectedGuildId) return;
+    const title = panel.title || 'Untitled Panel';
+    if (!confirm(`Delete panel "${title}"?\n\nThis will disable it in the database. (It may not remove the Discord message automatically.)`)) return;
+    try {
+        const res = await api('panels', { guild_id: selectedGuildId, panel_id: panel.id });
+        if (res && res.ok) {
+            toast('Panel deleted.', 'success');
+            fetchPanels();
+            fetchPanelLimits();
+        } else {
+            toast(res?.error || 'Failed to delete panel.', 'error');
+        }
+    } catch {
+        toast('Failed to delete panel.', 'error');
+    }
 }
 
 function openPanelEditor(panel) {
@@ -676,10 +701,12 @@ function addCatRow(cat) {
         </div>
         <input type="text" class="dash-cat-name" placeholder="Button label" value="${escA(cat?.name || '')}" required>
         <input type="text" class="dash-cat-desc" placeholder="Description (optional)" value="${escA(cat?.description || '')}">
-        <select class="dash-cat-ping-role dash-select" title="Role to ping for tickets created with this category">
-            <option value="">— Ping role (optional) —</option>
-        </select>
-        <textarea class="dash-cat-welcome dash-textarea" placeholder="Customer welcome message (Discord markdown allowed). Optional." rows="2"></textarea>
+        <div class="dash-cat-extras">
+            <select class="dash-cat-ping-role dash-select" title="Role to ping for tickets created with this category">
+                <option value="">— Ping role (optional) —</option>
+            </select>
+            <textarea class="dash-cat-welcome dash-textarea" placeholder="Customer welcome message (Discord markdown allowed). Optional." rows="2"></textarea>
+        </div>
         <button type="button" class="dash-cat-remove">&times;</button>
     `;
     bindEmojiPicks(row);
