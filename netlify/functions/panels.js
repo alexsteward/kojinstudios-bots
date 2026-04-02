@@ -50,7 +50,7 @@ exports.handler = async (event) => {
         }
         try {
             const body = typeof event.body === 'string' ? event.body : '{}';
-            const url = `${backend.replace(/\/$/, '')}/panels`;
+            const url = `${backend.replace(/\/$/, '')}/panels?guild_id=${encodeURIComponent(guildId)}`;
             const res = await fetch(url, fetchOpts('POST', JSON.stringify({ guild_id: guildId, ...JSON.parse(body) })));
             const data = await res.json().catch(() => ({}));
             return { statusCode: res.status || 200, headers, body: JSON.stringify(data) };
@@ -69,7 +69,7 @@ exports.handler = async (event) => {
             return { statusCode: 503, headers, body: JSON.stringify({ error: 'Panel API not configured. Set DASHBOARD_BACKEND_URL (or BACKEND_API_URL).' }) };
         }
         try {
-            const url = `${backend.replace(/\/$/, '')}/panels/${panelId}`;
+            const url = `${backend.replace(/\/$/, '')}/panels/${panelId}?guild_id=${encodeURIComponent(guildId)}`;
             const res = await fetch(url, fetchOpts(event.httpMethod, event.httpMethod === 'PATCH' && event.body ? event.body : undefined));
             const data = await res.json().catch(() => ({}));
             return { statusCode: res.status || 200, headers, body: JSON.stringify(data) };
