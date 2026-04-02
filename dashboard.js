@@ -17,7 +17,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const user   = stored(STORAGE_USER);
     const guilds = stored(STORAGE_GUILDS);
-    const wip = true;
+    // Default: dashboard enabled. Add `?wip=1` to re-hide quickly.
+    const wip = new URLSearchParams(window.location.search).get('wip') === '1';
     if (wip) {
         showLogin();
         $('dashboard-content').style.display = 'none';
