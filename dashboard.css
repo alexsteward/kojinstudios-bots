@@ -1466,7 +1466,7 @@ body.dashboard-page {
 
 .dash-cat-row {
     display: grid;
-    grid-template-columns: minmax(140px, 180px) 1fr 1fr 32px;
+    grid-template-columns: minmax(140px, 180px) 1fr 1fr 1fr 1fr 32px;
     gap: 0.5rem;
     align-items: start;
     animation: fadeSlideUp 0.2s var(--d-ease-out) both;
@@ -1519,6 +1519,24 @@ body.dashboard-page {
     font-family: inherit;
     outline: none;
     transition: border-color 0.15s;
+}
+
+.dash-cat-row select,
+.dash-cat-row textarea {
+    padding: 0.4rem 0.625rem;
+    background: var(--d-bg);
+    border: 1px solid var(--d-border);
+    border-radius: var(--d-radius-xs);
+    color: var(--d-text);
+    font-size: 0.8125rem;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.15s;
+}
+
+.dash-cat-row textarea {
+    resize: vertical;
+    min-height: 38px;
 }
 
 .dash-cat-row input:focus {

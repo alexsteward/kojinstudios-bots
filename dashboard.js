@@ -65,6 +65,13 @@ document.addEventListener('DOMContentLoaded', () => {
             fetchAnalytics(selectedGuildId, b.dataset.days);
         })
     );
+
+    on('analytics-refresh-btn', 'click', () => {
+        const active = document.querySelector('.dash-period-btn.active');
+        const days = active?.dataset?.days || '30';
+        if (selectedGuildId) fetchAnalytics(selectedGuildId, days);
+        else toast('Select a server first.', 'error');
+    });
 });
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -669,9 +676,22 @@ function addCatRow(cat) {
         </div>
         <input type="text" class="dash-cat-name" placeholder="Button label" value="${escA(cat?.name || '')}" required>
         <input type="text" class="dash-cat-desc" placeholder="Description (optional)" value="${escA(cat?.description || '')}">
+        <select class="dash-cat-ping-role dash-select" title="Role to ping for tickets created with this category">
+            <option value="">— Ping role (optional) —</option>
+        </select>
+        <textarea class="dash-cat-welcome dash-textarea" placeholder="Customer welcome message (Discord markdown allowed). Optional." rows="2"></textarea>
         <button type="button" class="dash-cat-remove">&times;</button>
     `;
     bindEmojiPicks(row);
+    // Populate ping role select from cached roles (exclude @everyone)
+    const sel = row.querySelector('.dash-cat-ping-role');
+    if (sel) {
+        const selected = cat?.ping_role_id ? String(cat.ping_role_id) : '';
+        const opts = (cachedRoles || []).map(r => `<option value="${escA(r.id)}"${String(r.id) === selected ? ' selected' : ''}>@ ${esc(r.name)}</option>`).join('');
+        sel.insertAdjacentHTML('beforeend', opts);
+    }
+    const welcome = row.querySelector('.dash-cat-welcome');
+    if (welcome) welcome.value = (cat?.ticket_welcome_message || '').toString();
     row.querySelector('.dash-cat-remove').addEventListener('click', () => row.remove());
     container.appendChild(row);
 }
@@ -705,10 +725,15 @@ async function submitPanel(e) {
     document.querySelectorAll('.dash-cat-row').forEach(r => {
         const name = r.querySelector('.dash-cat-name').value.trim();
         if (!name) return;
+        const pingRoleRaw = r.querySelector('.dash-cat-ping-role')?.value || '';
+        const ping_role_id = pingRoleRaw && String(pingRoleRaw).replace(/\D/g, '') ? Number(String(pingRoleRaw).replace(/\D/g, '')) : null;
+        const ticket_welcome_message = (r.querySelector('.dash-cat-welcome')?.value || '').trim();
         categories.push({
             emoji:       r.querySelector('.dash-cat-emoji').value.trim() || '🎫',
             name,
             description: r.querySelector('.dash-cat-desc')?.value.trim() || '',
+            ping_role_id,
+            ticket_welcome_message,
         });
     });
     if (!categories.length) { toast('Add at least one category.', 'error'); return; }
