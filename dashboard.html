@@ -439,6 +439,26 @@
                             </div>
                             <div id="appeal-panels-list" class="dash-panels-grid"></div>
                         </div>
+
+                        <!-- Custom embeds (rich message only) -->
+                        <div class="dash-card anim-in" style="--delay:.2s">
+                            <div class="dash-card-head">
+                                <div>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+                                    <h3>Custom embeds</h3>
+                                    <span class="dash-panel-count" id="custom-embed-panel-count"></span>
+                                </div>
+                                <button type="button" class="dash-btn dash-btn-primary dash-btn-sm" id="create-custom-embed-btn">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                    Create embed
+                                </button>
+                            </div>
+                            <p class="dash-card-desc">Post a standalone rich embed (no buttons): markdown in the text, optional footer and banner image. Placeholders: <code>{server}</code>, <code>{guild}</code>.</p>
+                            <div id="custom-embed-panels-loading" class="dash-loading-inline" style="display:none;">
+                                <div class="dash-spinner-sm"></div> Loading&hellip;
+                            </div>
+                            <div id="custom-embed-panels-list" class="dash-panels-grid"></div>
+                        </div>
                     </div>
 
                     <!-- Tab: Quick Responses -->
@@ -513,10 +533,15 @@
                                 </div>
                                 <div class="dash-field">
                                     <label for="panel-description">Description</label>
-                                    <textarea id="panel-description" class="dash-textarea" placeholder="Click a button below to open a ticket." rows="2"></textarea>
+                                    <textarea id="panel-description" class="dash-textarea" placeholder="Supports **Discord markdown** and image links. Shown above the category list." rows="3"></textarea>
                                 </div>
                                 <div class="dash-field">
-                                    <label>Categories <span class="dash-field-hint-inline">Each becomes a button. Emoji: Unicode or <code>&lt;:name:id&gt;</code></span></label>
+                                    <label for="panel-embed-image">Banner image (optional)</label>
+                                    <input type="url" id="panel-embed-image" class="dash-input" placeholder="https://…  — large image below the text (overrides first image URL in description)" maxlength="500">
+                                    <span class="dash-field-hint">Direct link to .png, .jpg, .gif, or .webp. You can still paste an Imgur or image URL in the description instead.</span>
+                                </div>
+                                <div class="dash-field">
+                                    <label>Categories <span class="dash-field-hint-inline">Each becomes a button. Use quick picks, <strong>This server</strong> emojis, or paste <code>&lt;:name:id&gt;</code></span></label>
                                     <div id="panel-categories-container" class="dash-cat-rows"></div>
                                     <button type="button" class="dash-btn dash-btn-ghost dash-btn-sm" id="panel-add-category">
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -526,6 +551,49 @@
                                 <div class="dash-actions">
                                     <button type="submit" class="dash-btn dash-btn-primary" id="panel-editor-submit">Publish to Discord</button>
                                     <button type="button" class="dash-btn dash-btn-ghost" id="panel-editor-cancel">Cancel</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Custom embed editor (overlay) -->
+                    <div id="dash-custom-embed-editor" class="dash-panel-editor" style="display:none;">
+                        <div class="dash-panel-editor-backdrop"></div>
+                        <div class="dash-panel-editor-dialog dash-custom-embed-dialog">
+                            <div class="dash-card-head">
+                                <h3 id="custom-embed-editor-title">Create custom embed</h3>
+                                <button type="button" class="dash-close-btn" id="custom-embed-editor-close">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                                </button>
+                            </div>
+                            <form id="custom-embed-editor-form" class="dash-editor-form">
+                                <div class="dash-field">
+                                    <label for="custom-embed-channel">Channel</label>
+                                    <select id="custom-embed-channel" class="dash-select"><option value="">Loading&hellip;</option></select>
+                                </div>
+                                <div class="dash-field">
+                                    <label for="custom-embed-title">Title (optional)</label>
+                                    <input type="text" id="custom-embed-title" class="dash-input" placeholder="Announcement" maxlength="256">
+                                </div>
+                                <div class="dash-field">
+                                    <label for="custom-embed-description">Description</label>
+                                    <textarea id="custom-embed-description" class="dash-textarea" placeholder="**Bold** · *italic* · [link](https://discord.com) — or put an image URL on its own line." rows="5"></textarea>
+                                </div>
+                                <div class="dash-field">
+                                    <label for="custom-embed-image">Banner image URL (optional)</label>
+                                    <input type="url" id="custom-embed-image" class="dash-input" placeholder="https://…" maxlength="500">
+                                </div>
+                                <div class="dash-field">
+                                    <label for="custom-embed-footer">Footer (optional)</label>
+                                    <input type="text" id="custom-embed-footer" class="dash-input" placeholder="Last updated · {server}" maxlength="2048">
+                                </div>
+                                <div class="dash-field">
+                                    <label for="custom-embed-color">Embed color (optional)</label>
+                                    <input type="text" id="custom-embed-color" class="dash-input" placeholder="decimal (3447003) or #3498db" maxlength="12">
+                                </div>
+                                <div class="dash-actions">
+                                    <button type="submit" class="dash-btn dash-btn-primary" id="custom-embed-editor-submit">Publish to Discord</button>
+                                    <button type="button" class="dash-btn dash-btn-ghost" id="custom-embed-editor-cancel">Cancel</button>
                                 </div>
                             </form>
                         </div>

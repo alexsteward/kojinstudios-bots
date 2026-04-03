@@ -9,6 +9,8 @@ let selectedGuild   = null;
 let editingPanelId  = null;
 let cachedChannels  = [];
 let cachedRoles     = [];
+let cachedGuildEmojis = [];
+let editingCustomEmbedId = null;
 
 // ─── Init ────────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
@@ -72,6 +74,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (selectedGuildId) fetchAnalytics(selectedGuildId, days);
         else toast('Select a server first.', 'error');
     });
+
+    on('create-custom-embed-btn', 'click', () => openCustomEmbedEditor(null));
+    on('custom-embed-editor-close', 'click', closeCustomEmbedEditor);
+    on('custom-embed-editor-cancel', 'click', closeCustomEmbedEditor);
+    on('custom-embed-editor-form', 'submit', submitCustomEmbed);
+    const ceb = document.querySelector('#dash-custom-embed-editor .dash-panel-editor-backdrop');
+    if (ceb) ceb.addEventListener('click', closeCustomEmbedEditor);
 });
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -86,6 +95,17 @@ function stored(k) {
 }
 function esc(t)  { const d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
 function escA(t) { return String(t).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function kojinActorHeaders() {
+    const h = {};
+    const user = stored(STORAGE_USER) || null;
+    if (user?.id) {
+        h['X-Kojin-Actor-Id'] = String(user.id);
+        if (user.username) h['X-Kojin-Actor-Name'] = String(user.username);
+        h['X-Kojin-Source'] = 'dashboard';
+    }
+    return h;
+}
 
 // ─── Toast notifications ─────────────────────────────────────────────────────
 function toast(msg, type = 'success') {
@@ -236,11 +256,12 @@ async function loadServerData() {
         if (c.classList.contains('active')) c.style.opacity = '0.5';
     });
     try {
-        const [status, config, channels, roles] = await Promise.allSettled([
+        const [status, config, channels, roles, emojis] = await Promise.allSettled([
             api('server-status', { guild_id: selectedGuildId }),
             apiDash('config', 'GET', { guild_id: selectedGuildId }),
             api('channels', { guild_id: selectedGuildId }),
             apiDash('roles', 'GET', { guild_id: selectedGuildId }),
+            api('emojis', { guild_id: selectedGuildId }),
         ]);
 
         const statusData  = status.status === 'fulfilled' ? status.value : {};
@@ -250,6 +271,7 @@ async function loadServerData() {
 
         cachedChannels = channelData.channels || [];
         cachedRoles    = roleData.roles || [];
+        cachedGuildEmojis = emojis.status === 'fulfilled' ? (emojis.value.emojis || []) : [];
 
         renderOverview(statusData);
         renderConfig(configData);
@@ -257,10 +279,11 @@ async function loadServerData() {
         fetchPanels();
         fetchAppPanels();
         fetchAppealPanels();
+        fetchCustomEmbeds();
         fetchQR();
         fetchAnalytics(selectedGuildId, 30);
 
-        const failed = [status, config, channels, roles].filter(r => r.status === 'rejected');
+        const failed = [status, config, channels, roles, emojis].filter(r => r.status === 'rejected');
         if (failed.length === 4) {
             toast('Could not reach the bot server. Check that the bot is running.', 'error');
         } else if (failed.length > 0) {
@@ -653,6 +676,8 @@ function openPanelEditor(panel) {
     $('panel-editor-submit').textContent  = panel ? 'Update in Discord' : 'Publish to Discord';
     $('panel-title').value      = panel ? (panel.title || '') : '';
     $('panel-description').value = '';
+    const pei = $('panel-embed-image');
+    if (pei) pei.value = '';
     $('panel-channel-id').value  = '';
 
     const container = $('panel-categories-container');
@@ -662,6 +687,7 @@ function openPanelEditor(panel) {
         try {
             const d = typeof panel.panel_data === 'string' ? JSON.parse(panel.panel_data) : panel.panel_data;
             if (d.description) $('panel-description').value = d.description;
+            if (pei && d.embed_image_url) pei.value = d.embed_image_url;
             if (panel.channel_id) $('panel-channel-id').value = String(panel.channel_id);
             (d.categories || []).forEach(c => addCatRow(c));
             if (!d.categories?.length) addCatRow();
@@ -696,7 +722,7 @@ function addCatRow(cat) {
     row.className = 'dash-cat-row';
     row.innerHTML = `
         <div class="dash-cat-emoji-cell">
-            <input type="text" class="dash-cat-emoji" placeholder="🎫" value="${escA(cat?.emoji || '')}" maxlength="64" title="Unicode or Discord custom emoji &lt;:name:id&gt;">
+            <input type="text" class="dash-cat-emoji" placeholder="🎫 or &lt;:name:id&gt;" value="${escA(cat?.emoji || '')}" maxlength="90" title="Unicode or Discord custom emoji &lt;:name:id&gt; — use server emoji row below or paste from Discord">
             <div class="dash-emoji-picks">${EMOJI_QUICK_PICKS.map(e => `<button type="button" class="dash-emoji-pick" data-emoji="${escA(e)}" title="Insert ${escA(e)}">${e}</button>`).join('')}</div>
         </div>
         <input type="text" class="dash-cat-name" placeholder="Button label" value="${escA(cat?.name || '')}" required>
@@ -712,9 +738,10 @@ function addCatRow(cat) {
     bindEmojiPicks(row);
     // Populate ping role select from cached roles (exclude @everyone)
     const sel = row.querySelector('.dash-cat-ping-role');
-    if (sel) {
-        const selected = cat?.ping_role_id ? String(cat.ping_role_id) : '';
-        const opts = (cachedRoles || []).map(r => `<option value="${escA(r.id)}"${String(r.id) === selected ? ' selected' : ''}>@ ${esc(r.name)}</option>`).join('');
+        if (sel) {
+        const rid = cat?.ping_role_id;
+        const selected = rid != null && rid !== '' ? String(rid).replace(/\D/g, '') : '';
+        const opts = (cachedRoles || []).map(r => `<option value="${escA(r.id)}"${String(r.id).replace(/\D/g, '') === selected ? ' selected' : ''}>@ ${esc(r.name)}</option>`).join('');
         sel.insertAdjacentHTML('beforeend', opts);
     }
     const welcome = row.querySelector('.dash-cat-welcome');
@@ -723,20 +750,66 @@ function addCatRow(cat) {
     container.appendChild(row);
 }
 
+function insertAtCursor(input, text) {
+    if (!input || text == null) return;
+    const start = input.selectionStart ?? 0;
+    const end = input.selectionEnd ?? start;
+    const val = input.value;
+    input.value = val.slice(0, start) + text + val.slice(end);
+    input.focus();
+    const pos = start + text.length;
+    input.selectionStart = input.selectionEnd = pos;
+}
+
+function bindGuildEmojiChips(row) {
+    const cell = row.querySelector('.dash-cat-emoji-cell');
+    const emojiInput = row.querySelector('.dash-cat-emoji');
+    if (!cell || !emojiInput) return;
+    let wrap = cell.querySelector('.dash-emoji-guild-wrap');
+    if (!wrap) {
+        wrap = document.createElement('div');
+        wrap.className = 'dash-emoji-guild-wrap';
+        cell.appendChild(wrap);
+    }
+    wrap.innerHTML = '';
+    const label = document.createElement('div');
+    label.className = 'dash-emoji-guild-label';
+    label.textContent = 'This server';
+    wrap.appendChild(label);
+    if (!cachedGuildEmojis.length) {
+        const hint = document.createElement('span');
+        hint.className = 'dash-hint-sm';
+        hint.innerHTML = 'No emojis loaded — paste <code>&lt;:name:id&gt;</code> from Discord';
+        wrap.appendChild(hint);
+        return;
+    }
+    const scroll = document.createElement('div');
+    scroll.className = 'dash-emoji-chip-scroll';
+    cachedGuildEmojis.slice(0, 72).forEach(emo => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'dash-emoji-chip';
+        b.title = (emo.name || '') + ' — insert';
+        const tag = emo.tag || '';
+        b.innerHTML = `<img src="${escA(emo.url)}" alt="" loading="lazy" width="22" height="22">`;
+        b.addEventListener('click', (ev) => {
+            ev.preventDefault();
+            insertAtCursor(emojiInput, tag);
+        });
+        scroll.appendChild(b);
+    });
+    wrap.appendChild(scroll);
+}
+
 function bindEmojiPicks(row) {
     const emojiInput = row.querySelector('.dash-cat-emoji');
     row.querySelectorAll('.dash-emoji-pick').forEach(btn => {
         btn.addEventListener('click', (e) => {
             e.preventDefault();
-            const emoji = btn.dataset.emoji;
-            const start = emojiInput.selectionStart || 0;
-            const end = emojiInput.selectionEnd || start;
-            const val = emojiInput.value;
-            emojiInput.value = val.slice(0, start) + emoji + val.slice(end);
-            emojiInput.focus();
-            emojiInput.selectionStart = emojiInput.selectionEnd = start + emoji.length;
+            insertAtCursor(emojiInput, btn.dataset.emoji || '');
         });
     });
+    bindGuildEmojiChips(row);
 }
 
 async function submitPanel(e) {
@@ -748,12 +821,14 @@ async function submitPanel(e) {
     if (!title) { toast('Enter a panel title.', 'error'); return; }
 
     const description = $('panel-description').value.trim();
+    const embed_image_url = ($('panel-embed-image')?.value || '').trim();
     const categories  = [];
-    document.querySelectorAll('.dash-cat-row').forEach(r => {
+    ($('panel-categories-container') || document).querySelectorAll('.dash-cat-row').forEach(r => {
         const name = r.querySelector('.dash-cat-name').value.trim();
         if (!name) return;
-        const pingRoleRaw = r.querySelector('.dash-cat-ping-role')?.value || '';
-        const ping_role_id = pingRoleRaw && String(pingRoleRaw).replace(/\D/g, '') ? Number(String(pingRoleRaw).replace(/\D/g, '')) : null;
+        const pingRaw = (r.querySelector('.dash-cat-ping-role')?.value || '').trim();
+        const pingDigits = pingRaw.replace(/\D/g, '');
+        const ping_role_id = pingDigits && /^\d{17,20}$/.test(pingDigits) ? pingDigits : null;
         const ticket_welcome_message = (r.querySelector('.dash-cat-welcome')?.value || '').trim();
         categories.push({
             emoji:       r.querySelector('.dash-cat-emoji').value.trim() || '🎫',
@@ -776,8 +851,8 @@ async function submitPanel(e) {
     try {
         const res  = await fetch(url, {
             method:  editingPanelId ? 'PATCH' : 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body:    JSON.stringify({ guild_id: selectedGuildId, channel_id: channelId, title, description, categories }),
+            headers: { 'Content-Type': 'application/json', ...kojinActorHeaders() },
+            body:    JSON.stringify({ guild_id: selectedGuildId, channel_id: channelId, title, description, embed_image_url: embed_image_url || null, categories }),
         });
         const data = await res.json();
         if (data.error) throw new Error(data.error);
@@ -812,12 +887,14 @@ function renderPanelLimits() {
         const atLimit = info.max !== -1 && info.count >= info.max;
         return `<span class="dash-limit-badge${atLimit ? ' at-limit' : ''}">${label}: <strong>${info.count}</strong> / <strong>${max}</strong></span>`;
     };
+    const ceBadge = l.custom_embed_panels ? mkBadge(l.custom_embed_panels, 'Custom embed') : '';
     banner.innerHTML = `
         <div class="dash-limits-row">
             <span class="dash-plan-tag ${isPremium ? 'premium' : 'free'}">${isPremium ? '⭐ Premium' : 'Free Plan'}</span>
             ${mkBadge(l.ticket_panels, 'Ticket')}
             ${mkBadge(l.application_panels, 'Application')}
             ${mkBadge(l.appeal_panels, 'Appeal')}
+            ${ceBadge}
             ${!isPremium ? '<a href="/#pricing" class="dash-upgrade-link">Upgrade for unlimited panels →</a>' : ''}
         </div>`;
     banner.style.display = '';
@@ -832,6 +909,7 @@ function renderPanelLimits() {
     setCount('ticket-panel-count', l.ticket_panels);
     setCount('app-panel-count', l.application_panels);
     setCount('appeal-panel-count', l.appeal_panels);
+    if (l.custom_embed_panels) setCount('custom-embed-panel-count', l.custom_embed_panels);
 }
 
 function canCreatePanel(type) {
@@ -1005,6 +1083,162 @@ async function submitAppealPanel(e) {
     btn.disabled = false; btn.textContent = 'Publish to Discord';
 }
 
+// ─── Custom embeds (standalone rich messages, no buttons) ─────────────────
+async function fetchCustomEmbeds() {
+    const loading = $('custom-embed-panels-loading');
+    const list = $('custom-embed-panels-list');
+    if (loading) loading.style.display = 'flex';
+    if (list) list.innerHTML = '';
+    try {
+        const data = await api('custom-embed-panels', { guild_id: selectedGuildId });
+        const panels = data.panels || [];
+        if (!panels.length) {
+            if (list) list.innerHTML = '<p class="dash-empty">No custom embeds yet. Post a rich message with markdown and an optional banner image—no ticket buttons.</p>';
+        } else if (list) {
+            list.innerHTML = panels.map(p => {
+                const title = p.title || 'Untitled';
+                const ch = cachedChannels.find(c => String(c.id) === String(p.channel_id));
+                const chName = ch ? `# ${esc(ch.name)}` : `Channel ${p.channel_id}`;
+                return `<div class="dash-panel-card custom-embed-type" data-id="${p.id}">
+                    <div class="dash-panel-card-top">
+                        <h4>📎 ${esc(title)}</h4>
+                        <div style="display:flex; gap:.5rem; align-items:center;">
+                            <button type="button" class="dash-panel-edit-btn custom-embed-edit" data-id="${p.id}">Edit</button>
+                            <button type="button" class="dash-panel-del-btn custom-embed-del" data-id="${p.id}" title="Delete">Delete</button>
+                        </div>
+                    </div>
+                    <div class="dash-panel-card-meta">${chName} · Rich embed</div>
+                </div>`;
+            }).join('');
+            list.querySelectorAll('.custom-embed-edit').forEach(btn => {
+                const p = panels.find(x => String(x.id) === btn.dataset.id);
+                if (p) btn.addEventListener('click', () => openCustomEmbedEditor(p));
+            });
+            list.querySelectorAll('.custom-embed-del').forEach(btn => {
+                const p = panels.find(x => String(x.id) === btn.dataset.id);
+                if (p) btn.addEventListener('click', () => deleteCustomEmbed(p));
+            });
+        }
+    } catch {
+        if (list) list.innerHTML = '<p class="dash-empty">Could not load custom embeds.</p>';
+    }
+    if (loading) loading.style.display = 'none';
+}
+
+async function deleteCustomEmbed(panel) {
+    if (!panel || !selectedGuildId) return;
+    const title = panel.title || 'Untitled';
+    if (!confirm(`Remove custom embed "${title}" from the dashboard?\n\nThe Discord message will stay unless you delete it manually.`)) return;
+    try {
+        const url = `${BASE}/.netlify/functions/custom-embed-panels?guild_id=${encodeURIComponent(selectedGuildId)}&panel_id=${panel.id}`;
+        const res = await fetch(url, { method: 'DELETE', headers: { 'Content-Type': 'application/json', ...kojinActorHeaders() } });
+        const data = await res.json().catch(() => ({}));
+        if (data.error) throw new Error(data.error);
+        toast('Custom embed removed from dashboard.', 'success');
+        fetchCustomEmbeds();
+        fetchPanelLimits();
+    } catch (e) {
+        toast(e.message || 'Failed to delete.', 'error');
+    }
+}
+
+function openCustomEmbedEditor(panel) {
+    if (!panel && !canCreatePanel('custom_embed_panels')) {
+        toast('Custom embed limit reached for your plan.', 'error');
+        return;
+    }
+    editingCustomEmbedId = panel ? panel.id : null;
+    const overlay = $('dash-custom-embed-editor');
+    if (!overlay) return;
+    overlay.style.display = 'flex';
+    const h = $('custom-embed-editor-title');
+    if (h) h.textContent = panel ? 'Edit custom embed' : 'Create custom embed';
+    const sub = $('custom-embed-editor-submit');
+    if (sub) sub.textContent = panel ? 'Update in Discord' : 'Publish to Discord';
+    $('custom-embed-title').value = '';
+    $('custom-embed-description').value = '';
+    $('custom-embed-image').value = '';
+    $('custom-embed-footer').value = '';
+    $('custom-embed-color').value = '';
+    let ch = '';
+    if (panel && panel.panel_data) {
+        try {
+            const d = typeof panel.panel_data === 'string' ? JSON.parse(panel.panel_data) : panel.panel_data;
+            $('custom-embed-title').value = d.title || panel.title || '';
+            $('custom-embed-description').value = d.description || '';
+            $('custom-embed-image').value = d.image_url || '';
+            $('custom-embed-footer').value = d.footer || '';
+            if (d.color != null && d.color !== '') $('custom-embed-color').value = String(d.color);
+            ch = panel.channel_id ? String(panel.channel_id) : '';
+        } catch { /* ignore */ }
+    }
+    loadEditorChannelSelect('custom-embed-channel', ch || null);
+}
+
+function closeCustomEmbedEditor() {
+    const el = $('dash-custom-embed-editor');
+    if (el) el.style.display = 'none';
+    editingCustomEmbedId = null;
+}
+
+async function submitCustomEmbed(e) {
+    e.preventDefault();
+    const channelEl = $('custom-embed-channel');
+    const channelId = (channelEl?.value || '').replace(/\D/g, '') || '';
+    if (!channelId || channelId.length < 17) { toast('Choose a valid channel.', 'error'); return; }
+    const title = $('custom-embed-title').value.trim();
+    const description = $('custom-embed-description').value.trim();
+    const image_url = ($('custom-embed-image').value || '').trim();
+    const footer = ($('custom-embed-footer').value || '').trim();
+    const colorRaw = ($('custom-embed-color').value || '').trim();
+    let color = null;
+    if (colorRaw) {
+        let n;
+        if (colorRaw.startsWith('#')) n = parseInt(colorRaw.slice(1), 16);
+        else n = parseInt(colorRaw, colorRaw.toLowerCase().startsWith('0x') ? 16 : 10);
+        if (!Number.isNaN(n) && n >= 0 && n <= 0xffffff) color = n;
+    }
+    if (!title && !description && !image_url) {
+        toast('Add at least a title, description, or image URL.', 'error');
+        return;
+    }
+    const body = {
+        guild_id: selectedGuildId,
+        channel_id: channelId,
+        title: title || undefined,
+        description,
+        image_url: image_url || null,
+        footer: footer || null,
+        color,
+    };
+    const btn = $('custom-embed-editor-submit');
+    const wasEdit = !!editingCustomEmbedId;
+    if (btn) { btn.disabled = true; btn.textContent = 'Publishing…'; }
+    const method = editingCustomEmbedId ? 'PATCH' : 'POST';
+    const url = editingCustomEmbedId
+        ? `${BASE}/.netlify/functions/custom-embed-panels?guild_id=${encodeURIComponent(selectedGuildId)}&panel_id=${editingCustomEmbedId}`
+        : `${BASE}/.netlify/functions/custom-embed-panels?guild_id=${encodeURIComponent(selectedGuildId)}`;
+    try {
+        const res = await fetch(url, {
+            method,
+            headers: { 'Content-Type': 'application/json', ...kojinActorHeaders() },
+            body: JSON.stringify(body),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (data.error) throw new Error(data.error);
+        closeCustomEmbedEditor();
+        fetchCustomEmbeds();
+        fetchPanelLimits();
+        toast(editingCustomEmbedId ? 'Custom embed updated in Discord!' : 'Published to Discord!');
+    } catch (err) {
+        toast(err.message || 'Failed to save.', 'error');
+    }
+    if (btn) {
+        btn.disabled = false;
+        btn.textContent = wasEdit ? 'Update in Discord' : 'Publish to Discord';
+    }
+}
+
 // ─── Shared panel editor helpers ─────────────────────────────────────────────
 function addTypeRow(containerId, cat) {
     const container = $(containerId);
@@ -1013,7 +1247,7 @@ function addTypeRow(containerId, cat) {
     row.className = 'dash-cat-row';
     row.innerHTML = `
         <div class="dash-cat-emoji-cell">
-            <input type="text" class="dash-cat-emoji" placeholder="📋" value="${escA(cat?.emoji || '')}" maxlength="64" title="Unicode or Discord custom emoji &lt;:name:id&gt;">
+            <input type="text" class="dash-cat-emoji" placeholder="📋 or &lt;:name:id&gt;" value="${escA(cat?.emoji || '')}" maxlength="90" title="Unicode or custom emoji — use picker below or paste from Discord">
             <div class="dash-emoji-picks">${EMOJI_QUICK_PICKS.map(e => `<button type="button" class="dash-emoji-pick" data-emoji="${escA(e)}" title="Insert ${escA(e)}">${e}</button>`).join('')}</div>
         </div>
         <input type="text" class="dash-cat-name" placeholder="Button label" value="${escA(cat?.name || '')}" required>

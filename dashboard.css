@@ -1549,6 +1549,67 @@ body.dashboard-page {
     transform: scale(1.08);
 }
 
+.dash-emoji-guild-wrap {
+    margin-top: 0.35rem;
+}
+
+.dash-emoji-guild-label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--d-muted, #888);
+    margin-bottom: 0.25rem;
+}
+
+.dash-hint-sm {
+    font-size: 0.7rem;
+    color: var(--d-muted, #888);
+    line-height: 1.35;
+}
+
+.dash-hint-sm code {
+    font-size: 0.68rem;
+}
+
+.dash-emoji-chip-scroll {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    max-height: 92px;
+    overflow-y: auto;
+    padding: 2px 0;
+}
+
+.dash-emoji-chip {
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    border: 1px solid var(--d-border);
+    border-radius: 6px;
+    background: var(--d-surface-2, #1a1d24);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    transition: border-color 0.15s, transform 0.12s;
+}
+
+.dash-emoji-chip:hover {
+    border-color: var(--d-accent);
+    transform: scale(1.06);
+}
+
+.dash-emoji-chip img {
+    object-fit: contain;
+    max-width: 22px;
+    max-height: 22px;
+}
+
+.dash-custom-embed-dialog {
+    max-width: 560px;
+}
+
 .dash-cat-row input {
     padding: 0.4rem 0.625rem;
     background: var(--d-bg);
