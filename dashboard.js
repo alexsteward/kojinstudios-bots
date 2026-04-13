@@ -444,8 +444,16 @@ function renderOverview(data) {
 
     const panels = $('overview-panel-count');
     if (panels) {
-        if (typeof data.panel_count === 'number') animateCount(panels, data.panel_count);
-        else panels.textContent = '—';
+        if (typeof data.panel_count === 'number') {
+            animateCount(panels, data.panel_count);
+            if (panelLimits) {
+                const t = panelLimits.ticket_panels || {};
+                const a = panelLimits.application_panels || {};
+                const ap = panelLimits.appeal_panels || {};
+                const ce = panelLimits.custom_embed_panels || {};
+                panels.title = `🎫 Tickets: ${t.count ?? 0}/${t.max === -1 ? '∞' : t.max ?? '?'}\n📋 Applications: ${a.count ?? 0}/${a.max === -1 ? '∞' : a.max ?? '?'}\n⚖️ Appeals: ${ap.count ?? 0}/${ap.max === -1 ? '∞' : ap.max ?? '?'}\n🎨 Custom: ${ce.count ?? 0}/${ce.max === -1 ? '∞' : ce.max ?? '?'}`;
+            }
+        } else panels.textContent = '—';
     }
 
     const name = $('overview-guild-name');
