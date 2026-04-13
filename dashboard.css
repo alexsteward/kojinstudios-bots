@@ -284,7 +284,7 @@ body.dashboard-page {
 .dash-sidebar {
     width: var(--d-sidebar-w);
     flex-shrink: 0;
-    background: var(--d-surface);
+    background: linear-gradient(180deg, var(--d-surface), var(--d-bg-subtle));
     border-right: 1px solid var(--d-border);
     display: flex;
     flex-direction: column;
@@ -521,8 +521,9 @@ body.dashboard-page {
     padding: 2rem 2.5rem 4rem;
     position: relative;
     background:
-        radial-gradient(ellipse 80% 50% at 50% -10%, rgba(255, 71, 87, 0.035) 0%, transparent 60%),
-        radial-gradient(ellipse 60% 40% at 100% 0%, rgba(88, 101, 242, 0.025) 0%, transparent 50%);
+        radial-gradient(ellipse 80% 50% at 50% -10%, rgba(255, 71, 87, 0.05) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 40% at 100% 0%, rgba(88, 101, 242, 0.04) 0%, transparent 50%),
+        radial-gradient(ellipse 40% 30% at 0% 80%, rgba(168, 85, 247, 0.03) 0%, transparent 50%);
 }
 
 /* ─── Toasts ────────────────────────────────────────── */
@@ -701,8 +702,9 @@ body.dashboard-page {
 
 .dash-tab.active {
     color: var(--d-text);
-    background: var(--d-surface-3);
-    box-shadow: 0 1px 3px rgba(0,0,0,0.2), 0 0 12px rgba(255, 71, 87, 0.06);
+    background: linear-gradient(135deg, var(--d-surface-3), rgba(255, 71, 87, 0.06));
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2), 0 0 16px rgba(255, 71, 87, 0.08);
+    border: 1px solid rgba(255, 71, 87, 0.12);
 }
 
 .dash-tab.active svg { opacity: 1; color: var(--d-accent); }
@@ -760,13 +762,14 @@ body.dashboard-page {
    CARDS & COMPONENTS
    ================================================================ */
 .dash-card {
-    background: var(--d-surface);
+    background: linear-gradient(145deg, var(--d-surface), rgba(22, 29, 39, 0.6));
     border: 1px solid var(--d-border);
     border-radius: var(--d-radius);
     padding: 1.5rem;
     margin-bottom: 1rem;
     transition: border-color 0.25s, box-shadow 0.25s, transform 0.25s;
     overflow: visible;
+    backdrop-filter: blur(4px);
 }
 
 .dash-card:hover {
@@ -1368,12 +1371,22 @@ body.dashboard-page {
     align-items: flex-start;
     gap: 1rem;
     padding: 1.25rem;
-    background: var(--d-surface);
+    background: linear-gradient(135deg, var(--d-surface), var(--d-surface-2));
     border: 1px solid var(--d-border);
     border-radius: var(--d-radius);
-    transition: all 0.2s var(--d-ease);
+    transition: all 0.25s var(--d-ease);
     animation: fadeSlideUp 0.4s var(--d-ease-out) both;
     animation-delay: calc(var(--i, 0) * 0.06s);
+    position: relative;
+    overflow: hidden;
+}
+
+.dash-stat-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at top right, color-mix(in srgb, var(--c, #ff4757) 5%, transparent), transparent 70%);
+    pointer-events: none;
 }
 
 .dash-stat-card:nth-child(1) { --i: 0; }
@@ -1471,9 +1484,9 @@ body.dashboard-page {
 }
 
 .dash-panel-card {
-    background: var(--d-surface-2);
+    background: linear-gradient(135deg, var(--d-surface-2), var(--d-surface));
     border: 1px solid var(--d-border);
-    border-radius: var(--d-radius-sm);
+    border-radius: var(--d-radius);
     padding: 1rem 1.25rem;
     transition: all 0.25s var(--d-ease);
     animation: fadeSlideUp 0.3s var(--d-ease-out) both;
@@ -1482,8 +1495,8 @@ body.dashboard-page {
 
 .dash-panel-card:hover {
     border-color: var(--d-border-hover);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(0,0,0,0.2), 0 0 0 1px rgba(255,255,255,0.03) inset;
+    transform: translateY(-3px);
+    box-shadow: 0 12px 32px rgba(0,0,0,0.25), 0 0 0 1px rgba(255,255,255,0.04) inset;
 }
 
 .dash-panel-card.ticket-type       { border-left: 3px solid #3b82f6; }
@@ -2521,37 +2534,85 @@ body.dashboard-page {
     border-left: 3px solid #a855f7;
 }
 
-/* ── Color-coded panel section cards ───────────────────────────── */
-.dash-card.panel-section-ticket  { border-left: 3px solid #3b82f6; }
-.dash-card.panel-section-app     { border-left: 3px solid #d4a017; }
-.dash-card.panel-section-appeal  { border-left: 3px solid #ef4444; }
-.dash-card.panel-section-custom  { border-left: 3px solid #a855f7; }
+/* ── Panel sections (top-down layout) ──────────────────────────── */
+.dash-panel-section {
+    margin-bottom: 1.75rem;
+    animation: fadeSlideUp 0.4s var(--d-ease-out) both;
+}
 
-.dash-card.panel-section-ticket  .dash-card-head svg { color: #3b82f6; }
-.dash-card.panel-section-app     .dash-card-head svg { color: #d4a017; }
-.dash-card.panel-section-appeal  .dash-card-head svg { color: #ef4444; }
-.dash-card.panel-section-custom  .dash-card-head svg { color: #a855f7; }
+.dash-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--d-border);
+}
 
-/* All create buttons are red */
-.dash-create-panel-btn { background: #ef4444 !important; }
-.dash-create-panel-btn:hover { background: #dc2626 !important; }
+.dash-section-title {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+}
 
-/* Uniform create-panel button sizing */
-.dash-create-panel-btn {
-    min-width: 150px;
-    padding: 0.5rem 1rem !important;
-    font-size: 0.8125rem !important;
-    font-weight: 600;
-    display: inline-flex;
+.dash-section-title h3 {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--d-text);
+}
+
+.dash-section-icon {
+    width: 32px;
+    height: 32px;
+    display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0.35rem;
     border-radius: 8px;
-    white-space: nowrap;
+    flex-shrink: 0;
 }
-.dash-create-panel-btn svg { width: 16px; height: 16px; flex-shrink: 0; }
-.dash-create-panel-btn .dash-plus-mark,
-.dash-create-panel-btn .dash-plus-mark-lg { font-size: 1rem; font-weight: 700; }
+.dash-section-icon svg { width: 18px; height: 18px; }
+
+.panel-section-ticket  .dash-section-icon { background: rgba(59, 130, 246, 0.12); color: #60a5fa; }
+.panel-section-app     .dash-section-icon { background: rgba(212, 160, 23, 0.12); color: #e8c44a; }
+.panel-section-appeal  .dash-section-icon { background: rgba(239, 68, 68, 0.1);   color: #f87171; }
+.panel-section-custom  .dash-section-icon { background: rgba(168, 85, 247, 0.1);  color: #c084fc; }
+
+.panel-section-ticket  .dash-section-header { border-bottom-color: rgba(59, 130, 246, 0.15); }
+.panel-section-app     .dash-section-header { border-bottom-color: rgba(212, 160, 23, 0.15); }
+.panel-section-appeal  .dash-section-header { border-bottom-color: rgba(239, 68, 68, 0.1); }
+.panel-section-custom  .dash-section-header { border-bottom-color: rgba(168, 85, 247, 0.1); }
+
+/* Create panel button */
+.dash-create-panel-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.5rem 1.1rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: #fff;
+    background: var(--d-accent);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s var(--d-ease);
+    box-shadow: 0 2px 8px rgba(255, 71, 87, 0.2);
+}
+.dash-create-panel-btn:hover {
+    background: #e63e4d;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(255, 71, 87, 0.35);
+}
+.dash-create-panel-btn:active { transform: translateY(0); }
+.dash-create-panel-btn svg { width: 15px; height: 15px; flex-shrink: 0; }
+.dash-create-panel-btn:disabled {
+    opacity: 0.4;
+    pointer-events: none;
+    box-shadow: none;
+}
 
 /* Scrollbar for sidebar on desktop */
 @media (min-width: 769px) {

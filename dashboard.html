@@ -377,23 +377,21 @@
 
                     <!-- Tab: Panels -->
                     <div class="dash-tab-content" data-tab="panels" id="tab-panels">
-                        <!-- Panel limits banner -->
                         <div class="dash-panel-limits" id="panel-limits-banner" style="display:none;"></div>
 
                         <!-- Ticket Panels -->
-                        <div class="dash-card anim-in panel-section-ticket" style="--delay:0s">
-                            <div class="dash-card-head">
-                                <div>
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 12l2 2 4-4"/></svg>
+                        <div class="dash-panel-section anim-in panel-section-ticket" style="--delay:0s">
+                            <div class="dash-section-header">
+                                <div class="dash-section-title">
+                                    <div class="dash-section-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 12l2 2 4-4"/></svg></div>
                                     <h3>Ticket Panels</h3>
                                     <span class="dash-panel-count" id="ticket-panel-count"></span>
                                 </div>
-                                <button type="button" class="dash-btn dash-btn-primary dash-btn-sm dash-create-panel-btn" id="detail-create-panel-btn">
+                                <button type="button" class="dash-create-panel-btn" id="detail-create-panel-btn">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                                    <span class="dash-plus-mark">+</span> Create panel
+                                    Create panel
                                 </button>
                             </div>
-                            <p class="dash-card-desc">Post a ticket panel with buttons in any channel. Users click to open a support ticket.</p>
                             <div id="detail-panels-loading" class="dash-loading-inline" style="display:none;">
                                 <div class="dash-spinner-sm"></div> Loading panels&hellip;
                             </div>
@@ -401,19 +399,18 @@
                         </div>
 
                         <!-- Application Panels -->
-                        <div class="dash-card anim-in panel-section-app" style="--delay:.08s">
-                            <div class="dash-card-head">
-                                <div>
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                        <div class="dash-panel-section anim-in panel-section-app" style="--delay:.08s">
+                            <div class="dash-section-header">
+                                <div class="dash-section-title">
+                                    <div class="dash-section-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div>
                                     <h3>Application Panels</h3>
                                     <span class="dash-panel-count" id="app-panel-count"></span>
                                 </div>
-                                <button type="button" class="dash-btn dash-btn-primary dash-btn-sm dash-create-panel-btn" id="create-app-panel-btn">
+                                <button type="button" class="dash-create-panel-btn" id="create-app-panel-btn">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                                    <span class="dash-plus-mark">+</span> Create panel
+                                    Create panel
                                 </button>
                             </div>
-                            <p class="dash-card-desc">Collect structured applications (staff apps, whitelists, etc.) via forms with custom questions.</p>
                             <div id="app-panels-loading" class="dash-loading-inline" style="display:none;">
                                 <div class="dash-spinner-sm"></div> Loading panels&hellip;
                             </div>
@@ -421,39 +418,37 @@
                         </div>
 
                         <!-- Appeal Panels -->
-                        <div class="dash-card anim-in panel-section-appeal" style="--delay:.16s">
-                            <div class="dash-card-head">
-                                <div>
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+                        <div class="dash-panel-section anim-in panel-section-appeal" style="--delay:.16s">
+                            <div class="dash-section-header">
+                                <div class="dash-section-title">
+                                    <div class="dash-section-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg></div>
                                     <h3>Appeal Panels</h3>
                                     <span class="dash-panel-count" id="appeal-panel-count"></span>
                                 </div>
-                                <button type="button" class="dash-btn dash-btn-primary dash-btn-sm dash-create-panel-btn" id="create-appeal-panel-btn">
+                                <button type="button" class="dash-create-panel-btn" id="create-appeal-panel-btn">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                                    <span class="dash-plus-mark">+</span> Create panel
+                                    Create panel
                                 </button>
                             </div>
-                            <p class="dash-card-desc">Allow banned users to submit appeals. Reviews are sent to your appeal log channel.</p>
                             <div id="appeal-panels-loading" class="dash-loading-inline" style="display:none;">
                                 <div class="dash-spinner-sm"></div> Loading panels&hellip;
                             </div>
                             <div id="appeal-panels-list" class="dash-panels-grid"></div>
                         </div>
 
-                        <!-- Custom embeds (rich message only) -->
-                        <div class="dash-card anim-in panel-section-custom" style="--delay:.2s">
-                            <div class="dash-card-head">
-                                <div>
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+                        <!-- Custom Panels -->
+                        <div class="dash-panel-section anim-in panel-section-custom" style="--delay:.2s">
+                            <div class="dash-section-header">
+                                <div class="dash-section-title">
+                                    <div class="dash-section-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="15" x2="15" y2="15"/></svg></div>
                                     <h3>Custom Panels</h3>
                                     <span class="dash-panel-count" id="custom-embed-panel-count"></span>
                                 </div>
-                                <button type="button" class="dash-btn dash-btn-primary dash-btn-sm dash-create-panel-btn" id="create-custom-embed-btn">
+                                <button type="button" class="dash-create-panel-btn" id="create-custom-embed-btn">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                                    <span class="dash-plus-mark">+</span> Create panel
+                                    Create panel
                                 </button>
                             </div>
-                            <p class="dash-card-desc">Post a standalone rich embed (no buttons): markdown in the text, optional footer and banner image. Placeholders: <code>{server}</code>, <code>{guild}</code>.</p>
                             <div id="custom-embed-panels-loading" class="dash-loading-inline" style="display:none;">
                                 <div class="dash-spinner-sm"></div> Loading&hellip;
                             </div>
