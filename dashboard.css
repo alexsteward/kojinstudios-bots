@@ -795,6 +795,12 @@ body.dashboard-page {
 }
 
 .dash-btn-sm { padding: 0.375rem 0.875rem; font-size: 0.75rem; }
+
+.dash-plus-mark {
+    color: #22c55e;
+    font-weight: 800;
+    margin-right: 0.15rem;
+}
 .dash-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
 
 /* ─── Action button (link-style) ────────────────────── */

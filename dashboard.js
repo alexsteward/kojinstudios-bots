@@ -7,6 +7,8 @@ const BASE = typeof window !== 'undefined' ? window.location.origin : '';
 let selectedGuildId = null;
 let selectedGuild   = null;
 let editingPanelId  = null;
+let editingAppPanelId = null;
+let editingAppealPanelId = null;
 let cachedChannels  = [];
 let cachedRoles     = [];
 let cachedGuildEmojis = [];
@@ -88,6 +90,23 @@ function on(id, evt, fn) {
     if (el) el.addEventListener(evt, fn);
 }
 function $(id) { return document.getElementById(id); }
+
+function maxTypesForPlan() {
+    const isPremium = !!(panelLimits && panelLimits.premium);
+    return isPremium ? 25 : 3;
+}
+
+function validateDirectImageUrl(rawUrl) {
+    const url = (rawUrl || '').trim();
+    if (!url) return null;
+    try {
+        const parsed = new URL(url);
+        if (!/^https?:$/i.test(parsed.protocol)) return null;
+        return parsed.toString();
+    } catch {
+        return null;
+    }
+}
 function stored(k) {
     try { const r = sessionStorage.getItem(k); return r ? JSON.parse(r) : null; }
     catch { return null; }
@@ -737,9 +756,9 @@ function openPanelEditor(panel) {
         try {
             const d = typeof panel.panel_data === 'string' ? JSON.parse(panel.panel_data) : panel.panel_data;
             if (d.description) $('panel-description').value = d.description;
-            if (pei && d.embed_image_url) pei.value = d.embed_image_url;
+            if (pei) pei.value = d.embed_image_url || d.image_url || d.banner_image_url || '';
             if (panel.channel_id) $('panel-channel-id').value = String(panel.channel_id);
-            (d.categories || []).forEach(c => addCatRow(c));
+            (d.categories || []).forEach(c => addCatRow(c, { ignoreLimit: true }));
             if (!d.categories?.length) addCatRow();
         } catch { addCatRow(); }
     } else {
@@ -761,13 +780,21 @@ function loadChannelSelect(selectedId) {
         const s = selectedId && String(ch.id) === selectedId ? ' selected' : '';
         return `<option value="${escA(ch.id)}"${s}># ${esc(ch.name)}</option>`;
     }).join('');
+    sel.onchange = () => {
+        const input = $('panel-channel-id');
+        if (input && sel.value) input.value = sel.value;
+    };
 }
 
 const EMOJI_QUICK_PICKS = ['🎫', '🔧', '💬', '📋', '⚖️', '🐛', '❓', '💡', '🎮', '📝', '✅', '🔒'];
 
-function addCatRow(cat) {
+function addCatRow(cat, options = {}) {
     const container = $('panel-categories-container');
     if (!container) return;
+    if (!options.ignoreLimit && container.querySelectorAll('.dash-cat-row').length >= maxTypesForPlan()) {
+        toast(`Free plan supports up to ${maxTypesForPlan()} categories per panel. Upgrade for more.`, 'error');
+        return;
+    }
     const row = document.createElement('div');
     row.className = 'dash-cat-row';
     row.innerHTML = `
@@ -889,6 +916,15 @@ async function submitPanel(e) {
         });
     });
     if (!categories.length) { toast('Add at least one category.', 'error'); return; }
+    if (categories.length > maxTypesForPlan()) {
+        toast(`This plan supports up to ${maxTypesForPlan()} categories per panel.`, 'error');
+        return;
+    }
+    const normalizedImageUrl = validateDirectImageUrl(embed_image_url);
+    if (embed_image_url && !normalizedImageUrl) {
+        toast('Banner image must be a valid http(s) direct image URL.', 'error');
+        return;
+    }
 
     const btn = $('panel-editor-submit');
     btn.disabled = true;
@@ -902,7 +938,16 @@ async function submitPanel(e) {
         const res  = await fetch(url, {
             method:  editingPanelId ? 'PATCH' : 'POST',
             headers: { 'Content-Type': 'application/json', ...kojinActorHeaders() },
-            body:    JSON.stringify({ guild_id: selectedGuildId, channel_id: channelId, title, description, embed_image_url: embed_image_url || null, categories }),
+            body:    JSON.stringify({
+                guild_id: selectedGuildId,
+                channel_id: channelId,
+                title,
+                description,
+                embed_image_url: normalizedImageUrl || null,
+                image_url: normalizedImageUrl || null,
+                banner_image_url: normalizedImageUrl || null,
+                categories
+            }),
         });
         const data = await res.json();
         if (data.error) throw new Error(data.error);
@@ -992,12 +1037,17 @@ async function fetchAppPanels() {
                         <h4>📋 ${esc(title)}</h4>
                         <div style="display:flex; gap:.5rem; align-items:center;">
                             <span class="dash-panel-badge">${p.is_active ? 'Active' : 'Inactive'}</span>
-                            <button type="button" class="dash-app-panel-del-btn" data-id="${p.id}" title="Delete panel">Delete</button>
+                            <button type="button" class="dash-panel-edit-btn dash-app-panel-edit-btn" data-id="${p.id}">Edit</button>
+                            <button type="button" class="dash-panel-del-btn dash-app-panel-del-btn" data-id="${p.id}" title="Delete panel">Delete</button>
                         </div>
                     </div>
                     <div class="dash-panel-card-meta">${chName} · ${typeCount} type${typeCount !== 1 ? 's' : ''}</div>
                 </div>`;
             }).join('');
+            list.querySelectorAll('.dash-app-panel-edit-btn').forEach(btn => {
+                const p = panels.find(x => String(x.id) === btn.dataset.id);
+                if (p) btn.addEventListener('click', () => openAppPanelEditor(p));
+            });
             list.querySelectorAll('.dash-app-panel-del-btn').forEach(btn => {
                 const p = panels.find(x => String(x.id) === btn.dataset.id);
                 if (p) btn.addEventListener('click', () => deleteAppPanel(p));
@@ -1009,22 +1059,33 @@ async function fetchAppPanels() {
     if (loading) loading.style.display = 'none';
 }
 
-function openAppPanelEditor() {
-    if (!canCreatePanel('application_panels')) {
+function openAppPanelEditor(panel) {
+    if (!panel && !canCreatePanel('application_panels')) {
         toast('Application panel limit reached. Upgrade to Premium for unlimited panels!', 'error');
         return;
     }
+    editingAppPanelId = panel ? panel.id : null;
     $('app-panel-editor').style.display = 'flex';
-    $('app-panel-title').value = '';
-    $('app-panel-description').value = '';
-    $('app-panel-channel-id').value = '';
+    $('app-panel-title').value = panel?.title || '';
+    $('app-panel-description').value = panel?.description || '';
+    $('app-panel-channel-id').value = panel?.channel_id ? String(panel.channel_id) : '';
     const container = $('app-panel-types-container');
     container.innerHTML = '';
-    addTypeRow('app-panel-types-container', { emoji: '📋', name: 'Staff Application', description: 'Apply for a staff position' });
-    loadEditorChannelSelect('app-panel-channel', null);
+    let types = [];
+    try {
+        const d = typeof panel?.panel_data === 'string' ? JSON.parse(panel.panel_data) : (panel?.panel_data || {});
+        types = d.application_types || [];
+    } catch { /* ignore parse errors */ }
+    if (types.length) types.forEach(t => addTypeRow('app-panel-types-container', t, { ignoreLimit: true }));
+    else addTypeRow('app-panel-types-container', { emoji: '📋', name: 'Staff Application', description: 'Apply for a staff position' });
+    loadEditorChannelSelect('app-panel-channel', panel?.channel_id ? String(panel.channel_id) : null);
+    $('app-panel-editor-submit').textContent = editingAppPanelId ? 'Update in Discord' : 'Publish to Discord';
 }
 
-function closeAppPanelEditor() { $('app-panel-editor').style.display = 'none'; }
+function closeAppPanelEditor() {
+    $('app-panel-editor').style.display = 'none';
+    editingAppPanelId = null;
+}
 
 async function submitAppPanel(e) {
     e.preventDefault();
@@ -1044,17 +1105,26 @@ async function submitAppPanel(e) {
         });
     });
     if (!categories.length) { toast('Add at least one application type.', 'error'); return; }
+    if (categories.length > maxTypesForPlan()) {
+        toast(`This plan supports up to ${maxTypesForPlan()} application types per panel.`, 'error');
+        return;
+    }
 
     const btn = $('app-panel-editor-submit');
-    btn.disabled = true; btn.textContent = 'Publishing...';
+    const isEdit = !!editingAppPanelId;
+    btn.disabled = true; btn.textContent = isEdit ? 'Updating...' : 'Publishing...';
     try {
+        if (isEdit) {
+            const del = await apiDash('app-panels', 'DELETE', { guild_id: selectedGuildId, panel_id: editingAppPanelId });
+            if (del?.error) throw new Error(del.error);
+        }
         const data = await apiDash('app-panels', 'POST', { guild_id: selectedGuildId }, { guild_id: selectedGuildId, channel_id: channelId, title, description, categories });
         if (data.error) throw new Error(data.error);
         closeAppPanelEditor();
         fetchAppPanels();
         fetchPanelLimits();
-        toast('Application panel published to Discord!');
-    } catch (err) { toast(err.message || 'Failed to create application panel.', 'error'); }
+        toast(isEdit ? 'Application panel updated in Discord!' : 'Application panel published to Discord!');
+    } catch (err) { toast(err.message || 'Failed to save application panel.', 'error'); }
     btn.disabled = false; btn.textContent = 'Publish to Discord';
 }
 
@@ -1081,12 +1151,17 @@ async function fetchAppealPanels() {
                         <h4>⚖️ ${esc(title)}</h4>
                         <div style="display:flex; gap:.5rem; align-items:center;">
                             <span class="dash-panel-badge">${p.is_active ? 'Active' : 'Inactive'}</span>
-                            <button type="button" class="dash-appeal-panel-del-btn" data-id="${p.id}" title="Delete panel">Delete</button>
+                            <button type="button" class="dash-panel-edit-btn dash-appeal-panel-edit-btn" data-id="${p.id}">Edit</button>
+                            <button type="button" class="dash-panel-del-btn dash-appeal-panel-del-btn" data-id="${p.id}" title="Delete panel">Delete</button>
                         </div>
                     </div>
                     <div class="dash-panel-card-meta">${chName} · ${catCount} categor${catCount !== 1 ? 'ies' : 'y'}</div>
                 </div>`;
             }).join('');
+            list.querySelectorAll('.dash-appeal-panel-edit-btn').forEach(btn => {
+                const p = panels.find(x => String(x.id) === btn.dataset.id);
+                if (p) btn.addEventListener('click', () => openAppealPanelEditor(p));
+            });
             list.querySelectorAll('.dash-appeal-panel-del-btn').forEach(btn => {
                 const p = panels.find(x => String(x.id) === btn.dataset.id);
                 if (p) btn.addEventListener('click', () => deleteAppealPanel(p));
@@ -1098,22 +1173,33 @@ async function fetchAppealPanels() {
     if (loading) loading.style.display = 'none';
 }
 
-function openAppealPanelEditor() {
-    if (!canCreatePanel('appeal_panels')) {
+function openAppealPanelEditor(panel) {
+    if (!panel && !canCreatePanel('appeal_panels')) {
         toast('Appeal panel limit reached. Upgrade to Premium for unlimited panels!', 'error');
         return;
     }
+    editingAppealPanelId = panel ? panel.id : null;
     $('appeal-panel-editor').style.display = 'flex';
-    $('appeal-panel-title').value = '';
-    $('appeal-panel-description').value = '';
-    $('appeal-panel-channel-id').value = '';
+    $('appeal-panel-title').value = panel?.title || '';
+    $('appeal-panel-description').value = panel?.description || '';
+    $('appeal-panel-channel-id').value = panel?.channel_id ? String(panel.channel_id) : '';
     const container = $('appeal-panel-cats-container');
     container.innerHTML = '';
-    addTypeRow('appeal-panel-cats-container', { emoji: '⚖️', name: 'Ban Appeal', description: 'Appeal a ban or punishment' });
-    loadEditorChannelSelect('appeal-panel-channel', null);
+    let cats = [];
+    try {
+        const d = typeof panel?.panel_data === 'string' ? JSON.parse(panel.panel_data) : (panel?.panel_data || {});
+        cats = d.appeal_categories || [];
+    } catch { /* ignore parse errors */ }
+    if (cats.length) cats.forEach(c => addTypeRow('appeal-panel-cats-container', c, { ignoreLimit: true }));
+    else addTypeRow('appeal-panel-cats-container', { emoji: '⚖️', name: 'Ban Appeal', description: 'Appeal a ban or punishment' });
+    loadEditorChannelSelect('appeal-panel-channel', panel?.channel_id ? String(panel.channel_id) : null);
+    $('appeal-panel-editor-submit').textContent = editingAppealPanelId ? 'Update in Discord' : 'Publish to Discord';
 }
 
-function closeAppealPanelEditor() { $('appeal-panel-editor').style.display = 'none'; }
+function closeAppealPanelEditor() {
+    $('appeal-panel-editor').style.display = 'none';
+    editingAppealPanelId = null;
+}
 
 async function submitAppealPanel(e) {
     e.preventDefault();
@@ -1133,17 +1219,26 @@ async function submitAppealPanel(e) {
         });
     });
     if (!categories.length) { toast('Add at least one appeal category.', 'error'); return; }
+    if (categories.length > maxTypesForPlan()) {
+        toast(`This plan supports up to ${maxTypesForPlan()} appeal categories per panel.`, 'error');
+        return;
+    }
 
     const btn = $('appeal-panel-editor-submit');
-    btn.disabled = true; btn.textContent = 'Publishing...';
+    const isEdit = !!editingAppealPanelId;
+    btn.disabled = true; btn.textContent = isEdit ? 'Updating...' : 'Publishing...';
     try {
+        if (isEdit) {
+            const del = await apiDash('appeal-panels', 'DELETE', { guild_id: selectedGuildId, panel_id: editingAppealPanelId });
+            if (del?.error) throw new Error(del.error);
+        }
         const data = await apiDash('appeal-panels', 'POST', { guild_id: selectedGuildId }, { guild_id: selectedGuildId, channel_id: channelId, title, description, categories });
         if (data.error) throw new Error(data.error);
         closeAppealPanelEditor();
         fetchAppealPanels();
         fetchPanelLimits();
-        toast('Appeal panel published to Discord!');
-    } catch (err) { toast(err.message || 'Failed to create appeal panel.', 'error'); }
+        toast(isEdit ? 'Appeal panel updated in Discord!' : 'Appeal panel published to Discord!');
+    } catch (err) { toast(err.message || 'Failed to save appeal panel.', 'error'); }
     btn.disabled = false; btn.textContent = 'Publish to Discord';
 }
 
@@ -1305,9 +1400,13 @@ async function submitCustomEmbed(e) {
 }
 
 // ─── Shared panel editor helpers ─────────────────────────────────────────────
-function addTypeRow(containerId, cat) {
+function addTypeRow(containerId, cat, options = {}) {
     const container = $(containerId);
     if (!container) return;
+    if (!options.ignoreLimit && container.querySelectorAll('.dash-cat-row').length >= maxTypesForPlan()) {
+        toast(`Free plan supports up to ${maxTypesForPlan()} categories per panel. Upgrade for more.`, 'error');
+        return;
+    }
     const row = document.createElement('div');
     row.className = 'dash-cat-row';
     row.innerHTML = `
