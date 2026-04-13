@@ -40,7 +40,29 @@ body.dashboard-page {
     background: var(--d-bg);
     color: var(--d-text);
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    scroll-behavior: smooth;
 }
+
+::selection {
+    background: rgba(255, 71, 87, 0.25);
+    color: #fff;
+}
+
+::-moz-selection {
+    background: rgba(255, 71, 87, 0.25);
+    color: #fff;
+}
+
+*:focus-visible {
+    outline: 2px solid rgba(255, 71, 87, 0.5);
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.14); }
 
 /* Active state for nav login on dashboard page */
 .nav-login-active {
@@ -406,6 +428,13 @@ body.dashboard-page {
     height: 60%;
     background: var(--d-accent);
     border-radius: 0 3px 3px 0;
+    box-shadow: 0 0 8px rgba(255, 71, 87, 0.35);
+    animation: indicatorPulse 2.5s ease-in-out infinite;
+}
+
+@keyframes indicatorPulse {
+    0%, 100% { box-shadow: 0 0 8px rgba(255, 71, 87, 0.35); }
+    50% { box-shadow: 0 0 14px rgba(255, 71, 87, 0.55); }
 }
 
 .dash-no-servers {
@@ -491,6 +520,9 @@ body.dashboard-page {
     min-width: 0;
     padding: 2rem 2.5rem 4rem;
     position: relative;
+    background:
+        radial-gradient(ellipse 80% 50% at 50% -10%, rgba(255, 71, 87, 0.035) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 40% at 100% 0%, rgba(88, 101, 242, 0.025) 0%, transparent 50%);
 }
 
 /* ─── Toasts ────────────────────────────────────────── */
@@ -509,19 +541,50 @@ body.dashboard-page {
     align-items: center;
     gap: 0.625rem;
     padding: 0.75rem 1.25rem;
-    background: var(--d-surface-2);
+    background: rgba(22, 29, 39, 0.92);
     border: 1px solid var(--d-border);
     border-radius: var(--d-radius-sm);
     font-size: 0.875rem;
     color: var(--d-text);
-    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-    animation: toastIn 0.3s var(--d-ease-out) both;
-    backdrop-filter: blur(16px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.03) inset;
+    animation: toastIn 0.35s var(--d-ease-spring) both;
+    backdrop-filter: blur(20px) saturate(1.2);
+    -webkit-backdrop-filter: blur(20px) saturate(1.2);
 }
 
-.dash-toast.success { border-color: rgba(52, 211, 153, 0.3); }
-.dash-toast.error { border-color: rgba(248, 113, 113, 0.3); }
-.dash-toast.removing { animation: toastOut 0.25s var(--d-ease) both; }
+.dash-toast::before {
+    content: '✓';
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 0.625rem;
+    font-weight: 800;
+    background: rgba(52, 211, 153, 0.15);
+    color: #34d399;
+}
+
+.dash-toast.success { border-color: rgba(52, 211, 153, 0.25); }
+.dash-toast.error { border-color: rgba(248, 113, 113, 0.25); }
+.dash-toast.error::before { content: '✕'; background: rgba(248, 113, 113, 0.15); color: #f87171; }
+.dash-toast.removing { animation: toastOut 0.3s var(--d-ease) both; }
+
+.dash-toast-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 2px;
+    width: 100%;
+    background: var(--d-green);
+    border-radius: 0 0 var(--d-radius-sm) var(--d-radius-sm);
+    transition: width 3.8s linear;
+}
+
+.dash-toast.error .dash-toast-bar { background: var(--d-red); }
+.dash-toast { position: relative; overflow: hidden; }
 
 /* ─── Welcome ───────────────────────────────────────── */
 .dash-welcome {
@@ -639,16 +702,18 @@ body.dashboard-page {
 .dash-tab.active {
     color: var(--d-text);
     background: var(--d-surface-3);
-    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2), 0 0 12px rgba(255, 71, 87, 0.06);
 }
 
-.dash-tab.active svg { opacity: 1; }
+.dash-tab.active svg { opacity: 1; color: var(--d-accent); }
 
 /* ─── Tab content ───────────────────────────────────── */
 .dash-tab-content {
     display: none;
-    animation: tabFadeIn 0.3s var(--d-ease-out) both;
+    animation: tabFadeIn 0.35s var(--d-ease-out) both;
 }
+
+.dash-tab-content > .dash-card { animation: fadeSlideUp 0.4s var(--d-ease-out) both; }
 
 .dash-tab-content.active { display: block; }
 
@@ -700,11 +765,14 @@ body.dashboard-page {
     border-radius: var(--d-radius);
     padding: 1.5rem;
     margin-bottom: 1rem;
-    transition: border-color 0.2s;
+    transition: border-color 0.25s, box-shadow 0.25s, transform 0.25s;
     overflow: visible;
 }
 
-.dash-card:hover { border-color: var(--d-border-hover); }
+.dash-card:hover {
+    border-color: var(--d-border-hover);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
 
 .dash-card-head {
     display: flex;
@@ -773,14 +841,26 @@ body.dashboard-page {
     background: linear-gradient(135deg, var(--d-accent), #e84357);
     color: #fff;
     box-shadow: 0 2px 12px var(--d-accent-glow);
+    position: relative;
+    overflow: hidden;
+}
+
+.dash-btn-primary::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 50%);
+    opacity: 0;
+    transition: opacity 0.25s;
 }
 
 .dash-btn-primary:hover {
     transform: translateY(-1px);
-    box-shadow: 0 6px 24px rgba(255, 71, 87, 0.35);
+    box-shadow: 0 8px 28px rgba(255, 71, 87, 0.4);
 }
 
-.dash-btn-primary:active { transform: translateY(0); }
+.dash-btn-primary:hover::after { opacity: 1; }
+.dash-btn-primary:active { transform: translateY(0); box-shadow: 0 2px 8px var(--d-accent-glow); }
 
 .dash-btn-ghost {
     background: transparent;
@@ -927,7 +1007,16 @@ body.dashboard-page {
 
 .dash-input:focus, .dash-select:focus, .dash-textarea:focus {
     border-color: var(--d-border-focus);
-    box-shadow: 0 0 0 3px var(--d-accent-soft);
+    box-shadow: 0 0 0 3px var(--d-accent-soft), 0 0 16px rgba(255, 71, 87, 0.06);
+}
+
+.dash-input::placeholder, .dash-textarea::placeholder {
+    color: var(--d-text-3);
+    transition: color 0.2s;
+}
+
+.dash-input:focus::placeholder, .dash-textarea:focus::placeholder {
+    color: rgba(139, 148, 158, 0.5);
 }
 
 .dash-select {
@@ -1294,8 +1383,8 @@ body.dashboard-page {
 
 .dash-stat-card:hover {
     border-color: var(--d-border-hover);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    transform: translateY(-3px);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.25), 0 0 0 1px rgba(255,255,255,0.04) inset;
 }
 
 .dash-stat-icon {
@@ -1326,6 +1415,15 @@ body.dashboard-page {
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 1.25rem;
     font-weight: 800;
+    transition: color 0.3s;
+}
+
+.dash-stat-value.counting { animation: countPop 0.3s var(--d-ease-spring); }
+
+@keyframes countPop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+    100% { transform: scale(1); }
 }
 
 /* Status dots & badges */
@@ -1377,15 +1475,20 @@ body.dashboard-page {
     border: 1px solid var(--d-border);
     border-radius: var(--d-radius-sm);
     padding: 1rem 1.25rem;
-    transition: all 0.2s var(--d-ease);
+    transition: all 0.25s var(--d-ease);
     animation: fadeSlideUp 0.3s var(--d-ease-out) both;
+    position: relative;
 }
 
 .dash-panel-card:hover {
     border-color: var(--d-border-hover);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2), 0 0 0 1px rgba(255,255,255,0.03) inset;
 }
+
+.dash-panel-card.app-type:hover { box-shadow: 0 8px 24px rgba(88, 101, 242, 0.12), 0 0 0 1px rgba(88, 101, 242, 0.1) inset; }
+.dash-panel-card.appeal-type:hover { box-shadow: 0 8px 24px rgba(245, 158, 11, 0.1), 0 0 0 1px rgba(245, 158, 11, 0.08) inset; }
+.dash-panel-card.custom-embed-type:hover { box-shadow: 0 8px 24px rgba(168, 85, 247, 0.1), 0 0 0 1px rgba(168, 85, 247, 0.08) inset; }
 
 .dash-panel-card-top {
     display: flex;
@@ -1456,9 +1559,10 @@ body.dashboard-page {
 .dash-panel-editor-backdrop {
     position: absolute;
     inset: 0;
-    background: rgba(0, 0, 0, 0.7);
-    backdrop-filter: blur(4px);
-    animation: fadeIn 0.2s var(--d-ease) both;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(12px) saturate(0.8);
+    -webkit-backdrop-filter: blur(12px) saturate(0.8);
+    animation: fadeIn 0.25s var(--d-ease) both;
 }
 
 .dash-panel-editor-dialog {
@@ -1468,11 +1572,11 @@ body.dashboard-page {
     max-height: 80vh;
     overflow-y: auto;
     background: var(--d-surface);
-    border: 1px solid var(--d-border);
+    border: 1px solid var(--d-border-hover);
     border-radius: var(--d-radius);
     padding: 1.75rem;
-    box-shadow: 0 24px 64px rgba(0,0,0,0.5);
-    animation: modalSlideUp 0.3s var(--d-ease-out) both;
+    box-shadow: 0 32px 80px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.04) inset;
+    animation: modalSlideUp 0.35s var(--d-ease-spring) both;
 }
 
 .dash-panel-editor-dialog::-webkit-scrollbar { width: 6px; }
@@ -2310,8 +2414,301 @@ body.dashboard-page {
     border-left: 3px solid #f59e0b;
 }
 
+.dash-panel-card.custom-embed-type {
+    border-left: 3px solid #a855f7;
+}
+
 /* Scrollbar for sidebar on desktop */
 @media (min-width: 769px) {
     .dash-sidebar-top::-webkit-scrollbar { width: 4px; }
     .dash-sidebar-top::-webkit-scrollbar-thumb { background: var(--d-surface-3); border-radius: 4px; }
+}
+
+/* ================================================================
+   QOL POLISH — Skeleton loader, micro-interactions, glass effects
+   ================================================================ */
+
+/* Skeleton shimmer for loading states */
+.dash-skeleton {
+    background: linear-gradient(90deg,
+        var(--d-surface-2) 25%,
+        var(--d-surface-3) 37%,
+        var(--d-surface-2) 63%
+    );
+    background-size: 400% 100%;
+    animation: shimmer 1.4s ease infinite;
+    border-radius: var(--d-radius-sm);
+}
+
+.dash-skeleton-stat {
+    height: 82px;
+    border-radius: var(--d-radius);
+}
+
+.dash-skeleton-card {
+    height: 100px;
+    border-radius: var(--d-radius-sm);
+}
+
+.dash-skeleton-line {
+    height: 14px;
+    border-radius: 4px;
+    margin-bottom: 0.5rem;
+}
+
+.dash-skeleton-line.w-60 { width: 60%; }
+.dash-skeleton-line.w-80 { width: 80%; }
+.dash-skeleton-line.w-40 { width: 40%; }
+
+@keyframes shimmer {
+    0% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Delete button confirm state */
+.dash-panel-del-btn.confirming {
+    background: rgba(248, 113, 113, 0.25);
+    border-color: rgba(248, 113, 113, 0.5);
+    animation: deletePulse 0.6s ease infinite;
+}
+
+@keyframes deletePulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(248, 113, 113, 0.3); }
+    50% { box-shadow: 0 0 0 4px rgba(248, 113, 113, 0.1); }
+}
+
+/* Glass morphism for user card */
+.dash-user-card {
+    background: rgba(22, 29, 39, 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.04);
+}
+
+/* Better loading spinner with brand color */
+.dash-spinner {
+    border: 3px solid rgba(255,255,255,0.06);
+    border-top-color: var(--d-accent);
+    filter: drop-shadow(0 0 6px rgba(255, 71, 87, 0.2));
+}
+
+/* Stat icon subtle float on hover */
+.dash-stat-card:hover .dash-stat-icon {
+    transform: translateY(-2px);
+    transition: transform 0.3s var(--d-ease-spring);
+}
+
+.dash-stat-icon {
+    transition: transform 0.3s var(--d-ease);
+}
+
+/* Panel edit button hover improvement */
+.dash-panel-edit-btn {
+    transition: all 0.2s var(--d-ease);
+}
+
+.dash-panel-edit-btn:hover {
+    background: var(--d-accent-glow);
+    transform: translateY(-1px);
+}
+
+/* Panel card meta text with icon-like dot */
+.dash-panel-card-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+}
+
+/* Quick response items hover glow */
+.dash-qr-item:hover {
+    border-color: var(--d-border-hover);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+}
+
+/* Badge shine animation for premium */
+.dash-badge-sm.premium {
+    position: relative;
+    overflow: hidden;
+}
+
+.dash-badge-sm.premium::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+        90deg,
+        transparent 30%,
+        rgba(251, 191, 36, 0.15) 50%,
+        transparent 70%
+    );
+    animation: badgeShine 3s ease-in-out infinite;
+}
+
+@keyframes badgeShine {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+/* Smooth number transitions */
+.dash-stat-value, .dash-trend-total, .dash-cat-count {
+    font-variant-numeric: tabular-nums;
+}
+
+/* Tooltip entrance polish */
+.dash-help::after {
+    transition: opacity 0.2s var(--d-ease-out), transform 0.25s var(--d-ease-spring);
+}
+
+/* Sidebar brand hover glow */
+.dash-sidebar-brand:hover {
+    background: var(--d-surface-2);
+    box-shadow: 0 0 20px rgba(255, 71, 87, 0.03) inset;
+}
+
+/* Action button ripple-like effect */
+.dash-action-btn {
+    position: relative;
+    overflow: hidden;
+}
+
+.dash-action-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 40%);
+    opacity: 0;
+    transition: opacity 0.25s;
+}
+
+.dash-action-btn:hover::before { opacity: 1; }
+
+/* Trend bar hover tooltip feel */
+.dash-trend-bar-wrap:hover .dash-trend-bar-value {
+    transform: translateY(-1px);
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+
+.dash-trend-bar-value {
+    transition: transform 0.2s var(--d-ease), text-shadow 0.2s;
+}
+
+/* Nicer toggle animation */
+.dash-toggle-track {
+    transition: background 0.25s, box-shadow 0.25s;
+}
+
+.dash-toggle input:checked + .dash-toggle-track {
+    box-shadow: 0 0 12px rgba(52, 211, 153, 0.25);
+}
+
+/* Category row border accent on hover */
+.dash-cat-row {
+    padding: 0.75rem;
+    border-radius: var(--d-radius-sm);
+    border: 1px solid transparent;
+    transition: border-color 0.2s, background 0.2s;
+}
+
+.dash-cat-row:hover {
+    border-color: var(--d-border);
+    background: rgba(255,255,255,0.01);
+}
+
+/* Analytics bar chart smooth entrance */
+.dash-bar {
+    animation: barGrow 0.5s var(--d-ease-out) both;
+    animation-delay: calc(var(--bar-i, 0) * 0.03s);
+}
+
+@keyframes barGrow {
+    from { transform: scaleY(0); transform-origin: bottom; }
+    to { transform: scaleY(1); transform-origin: bottom; }
+}
+
+/* Trend bar smooth entrance */
+.dash-trend-bar {
+    animation: barGrow 0.6s var(--d-ease-out) both;
+    animation-delay: calc(var(--bar-i, 0) * 0.05s);
+    transform-origin: bottom;
+}
+
+/* Loading state for buttons */
+.dash-btn.loading {
+    pointer-events: none;
+    opacity: 0.7;
+    position: relative;
+}
+
+.dash-btn.loading::after {
+    content: '';
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(255,255,255,0.2);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    right: 0.75rem;
+}
+
+/* Panel limits bar smooth fill */
+.dash-limit-badge {
+    transition: color 0.3s, background 0.3s;
+}
+
+/* Close button hover rotation */
+.dash-close-btn:hover {
+    background: var(--d-red-soft);
+    color: var(--d-red);
+    transform: rotate(90deg);
+    transition: all 0.25s var(--d-ease-spring);
+}
+
+.dash-close-btn {
+    transition: all 0.2s var(--d-ease);
+}
+
+/* Server avatar border on hover */
+.dash-guild-btn:hover img {
+    box-shadow: 0 0 0 2px rgba(255, 71, 87, 0.2);
+    transition: box-shadow 0.2s;
+}
+
+.dash-guild-btn img {
+    transition: box-shadow 0.2s;
+}
+
+/* Smooth page entrance */
+.dash-app {
+    animation: fadeIn 0.3s var(--d-ease-out) both;
+}
+
+/* Feature card icon bounce on hover */
+.dash-feature-card:hover .dash-feature-icon {
+    transform: scale(1.05);
+    transition: transform 0.3s var(--d-ease-spring);
+}
+
+.dash-feature-icon {
+    transition: transform 0.2s var(--d-ease);
+}
+
+/* Subtle gradient line under server header */
+.dash-server-header::after {
+    content: '';
+    display: block;
+    height: 1px;
+    background: linear-gradient(90deg, var(--d-accent) 0%, rgba(88, 101, 242, 0.3) 50%, transparent 100%);
+    opacity: 0.2;
+    margin-top: 1rem;
+}
+
+/* Empty state better styling */
+.dash-empty {
+    border: 1px dashed var(--d-border);
+    border-radius: var(--d-radius);
+    background: var(--d-surface);
 }

@@ -2,6 +2,10 @@
   "name": "kojinstudios-bots",
   "version": "1.0.0",
   "description": "KojinStudios Discord Bots - Premium bot subscriptions at bots.kojinstudios.com",
+  "scripts": {
+    "dev": "npm exec --yes netlify-cli@latest -- dev --port 8888 --functions-port 4001",
+    "dev:dashboard": "npm exec --yes netlify-cli@latest -- dev --port 8888 --functions-port 4001"
+  },
   "dependencies": {
     "stripe": "^14.0.0"
   }

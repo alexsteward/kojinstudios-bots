@@ -82,6 +82,14 @@ document.addEventListener('DOMContentLoaded', () => {
     on('custom-embed-editor-form', 'submit', submitCustomEmbed);
     const ceb = document.querySelector('#dash-custom-embed-editor .dash-panel-editor-backdrop');
     if (ceb) ceb.addEventListener('click', closeCustomEmbedEditor);
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key !== 'Escape') return;
+        if ($('dash-panel-editor')?.style.display === 'flex') { closePanelEditor(); return; }
+        if ($('app-panel-editor')?.style.display === 'flex') { closeAppPanelEditor(); return; }
+        if ($('appeal-panel-editor')?.style.display === 'flex') { closeAppealPanelEditor(); return; }
+        if ($('dash-custom-embed-editor')?.style.display === 'flex') { closeCustomEmbedEditor(); return; }
+    });
 });
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -136,18 +144,39 @@ function kojinActorHeaders() {
     return h;
 }
 
+// ─── Smooth modal close helper ───────────────────────────────────────────────
+function smoothCloseModal(editor) {
+    if (!editor) return;
+    const dialog = editor.querySelector('.dash-panel-editor-dialog, .dash-custom-embed-dialog')?.closest('[class*=dialog]') || editor.querySelector('[class*=dialog]');
+    const backdrop = editor.querySelector('[class*=backdrop]');
+    const inner = dialog || editor.lastElementChild;
+    if (inner) { inner.style.transition = 'opacity 0.2s, transform 0.2s'; inner.style.opacity = '0'; inner.style.transform = 'translateY(12px) scale(0.97)'; }
+    if (backdrop) { backdrop.style.transition = 'opacity 0.2s'; backdrop.style.opacity = '0'; }
+    setTimeout(() => {
+        editor.style.display = 'none';
+        if (inner) { inner.style.opacity = ''; inner.style.transform = ''; }
+        if (backdrop) { backdrop.style.opacity = ''; }
+    }, 220);
+}
+
 // ─── Toast notifications ─────────────────────────────────────────────────────
 function toast(msg, type = 'success') {
     const container = $('dash-toasts');
     if (!container) return;
     const el = document.createElement('div');
     el.className = `dash-toast ${type}`;
-    el.textContent = msg;
+    const span = document.createElement('span');
+    span.textContent = msg;
+    el.appendChild(span);
+    const bar = document.createElement('div');
+    bar.className = 'dash-toast-bar';
+    el.appendChild(bar);
     container.appendChild(el);
+    requestAnimationFrame(() => { bar.style.width = '0%'; });
     setTimeout(() => {
         el.classList.add('removing');
         setTimeout(() => el.remove(), 300);
-    }, 3500);
+    }, 3800);
 }
 
 // ─── Auth ────────────────────────────────────────────────────────────────────
@@ -237,8 +266,18 @@ function selectServer(guild) {
     selectedGuildId = guild.id;
     selectedGuild   = guild;
 
-    $('dash-welcome').style.display = 'none';
-    $('dash-server').style.display  = 'block';
+    const welcome = $('dash-welcome');
+    const server = $('dash-server');
+
+    welcome.style.transition = 'opacity 0.2s';
+    welcome.style.opacity = '0';
+    setTimeout(() => {
+        welcome.style.display = 'none';
+        server.style.display  = 'block';
+        server.style.opacity = '0';
+        server.style.transition = 'opacity 0.35s';
+        requestAnimationFrame(() => { server.style.opacity = '1'; });
+    }, 200);
 
     $('detail-server-name').textContent = guild.name;
 
@@ -246,7 +285,6 @@ function selectServer(guild) {
         b.classList.toggle('active', b.dataset.id === guild.id)
     );
 
-    // Close mobile sidebar after selection
     const sidebar = document.querySelector('.dash-sidebar');
     if (sidebar) sidebar.classList.remove('open');
 
@@ -281,8 +319,10 @@ function switchTab(tab) {
 // ─── Data loading ────────────────────────────────────────────────────────────
 async function loadServerData() {
     $('dash-loading').style.display = 'flex';
+    $('dash-loading').style.opacity = '0';
+    requestAnimationFrame(() => { $('dash-loading').style.transition = 'opacity 0.3s'; $('dash-loading').style.opacity = '1'; });
     document.querySelectorAll('.dash-tab-content').forEach(c => {
-        if (c.classList.contains('active')) c.style.opacity = '0.5';
+        if (c.classList.contains('active')) { c.style.transition = 'opacity 0.3s'; c.style.opacity = '0.4'; }
     });
     try {
         const [status, config, channels, roles, emojis] = await Promise.allSettled([
@@ -322,8 +362,10 @@ async function loadServerData() {
         console.error(e);
         toast('Failed to load server data. Is the bot online?', 'error');
     }
-    $('dash-loading').style.display = 'none';
-    document.querySelectorAll('.dash-tab-content').forEach(c => c.style.opacity = '1');
+    $('dash-loading').style.transition = 'opacity 0.25s';
+    $('dash-loading').style.opacity = '0';
+    setTimeout(() => { $('dash-loading').style.display = 'none'; }, 250);
+    document.querySelectorAll('.dash-tab-content').forEach(c => { c.style.transition = 'opacity 0.35s'; c.style.opacity = '1'; });
 }
 
 async function api(endpoint, params) {
@@ -348,6 +390,23 @@ async function apiDash(endpoint, method, params, body) {
 }
 
 // ─── Overview ────────────────────────────────────────────────────────────────
+function animateCount(el, target, duration = 500) {
+    if (!el) return;
+    const start = parseInt(el.textContent.replace(/,/g, '')) || 0;
+    if (start === target) return;
+    const startTime = performance.now();
+    el.classList.add('counting');
+    function step(now) {
+        const progress = Math.min((now - startTime) / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        const current = Math.round(start + (target - start) * eased);
+        el.textContent = current.toLocaleString();
+        if (progress < 1) requestAnimationFrame(step);
+        else el.classList.remove('counting');
+    }
+    requestAnimationFrame(step);
+}
+
 function renderOverview(data) {
     const inServer = data.tickets === true;
     $('overview-bot-status').innerHTML = inServer
@@ -370,14 +429,23 @@ function renderOverview(data) {
             ? '<span class="dash-badge-sm free">Free</span>'
             : '<span class="dash-badge-sm none">Unknown</span>';
 
-    $('overview-ticket-count').textContent = typeof data.ticket_count === 'number' ? data.ticket_count.toLocaleString() : '—';
-    $('overview-open-tickets').textContent = typeof data.open_tickets === 'number' ? data.open_tickets.toLocaleString() : '—';
+    if (typeof data.ticket_count === 'number') animateCount($('overview-ticket-count'), data.ticket_count);
+    else $('overview-ticket-count').textContent = '—';
+
+    if (typeof data.open_tickets === 'number') animateCount($('overview-open-tickets'), data.open_tickets);
+    else $('overview-open-tickets').textContent = '—';
 
     const members = $('overview-members');
-    if (members) members.textContent = typeof data.member_count === 'number' ? data.member_count.toLocaleString() : '—';
+    if (members) {
+        if (typeof data.member_count === 'number') animateCount(members, data.member_count);
+        else members.textContent = '—';
+    }
 
     const panels = $('overview-panel-count');
-    if (panels) panels.textContent = typeof data.panel_count === 'number' ? data.panel_count.toLocaleString() : '—';
+    if (panels) {
+        if (typeof data.panel_count === 'number') animateCount(panels, data.panel_count);
+        else panels.textContent = '—';
+    }
 
     const name = $('overview-guild-name');
     if (name && data.guild_name) name.textContent = data.guild_name;
@@ -655,13 +723,13 @@ async function fetchPanels() {
         if (!panels.length) {
             list.innerHTML = '<p class="dash-empty">No panels yet. Create one to get started.</p>';
         } else {
-            list.innerHTML = panels.map(p => {
+            list.innerHTML = panels.map((p, i) => {
                 const title = p.title || 'Untitled Panel';
                 let catCount = 0;
                 try { catCount = (JSON.parse(p.panel_data).categories || []).length; } catch {}
                 const ch     = cachedChannels.find(c => String(c.id) === String(p.channel_id));
                 const chName = ch ? `# ${esc(ch.name)}` : `Channel ${p.channel_id}`;
-                return `<div class="dash-panel-card" data-id="${p.id}">
+                return `<div class="dash-panel-card" data-id="${p.id}" style="animation-delay:${i * 0.05}s">
                     <div class="dash-panel-card-top">
                         <h4>${esc(title)}</h4>
                         <div style="display:flex; gap:.5rem; align-items:center;">
@@ -781,7 +849,7 @@ function openPanelEditor(panel) {
 }
 
 function closePanelEditor() {
-    $('dash-panel-editor').style.display = 'none';
+    smoothCloseModal($('dash-panel-editor'));
     editingPanelId = null;
 }
 
@@ -1060,13 +1128,13 @@ async function fetchAppPanels() {
         if (!panels.length) {
             list.innerHTML = '<p class="dash-empty">No application panels yet.</p>';
         } else {
-            list.innerHTML = panels.map(p => {
+            list.innerHTML = panels.map((p, i) => {
                 const title = p.title || 'Untitled';
                 let typeCount = 0;
                 try { typeCount = (JSON.parse(p.panel_data).application_types || []).length; } catch {}
                 const ch     = cachedChannels.find(c => String(c.id) === String(p.channel_id));
                 const chName = ch ? `# ${esc(ch.name)}` : `Channel ${p.channel_id}`;
-                return `<div class="dash-panel-card app-type" data-id="${p.id}">
+                return `<div class="dash-panel-card app-type" data-id="${p.id}" style="animation-delay:${i * 0.05}s">
                     <div class="dash-panel-card-top">
                         <h4>📋 ${esc(title)}</h4>
                         <div style="display:flex; gap:.5rem; align-items:center;">
@@ -1124,7 +1192,7 @@ function openAppPanelEditor(panel) {
 }
 
 function closeAppPanelEditor() {
-    $('app-panel-editor').style.display = 'none';
+    smoothCloseModal($('app-panel-editor'));
     editingAppPanelId = null;
 }
 
@@ -1203,13 +1271,13 @@ async function fetchAppealPanels() {
         if (!panels.length) {
             list.innerHTML = '<p class="dash-empty">No appeal panels yet.</p>';
         } else {
-            list.innerHTML = panels.map(p => {
+            list.innerHTML = panels.map((p, i) => {
                 const title = p.title || 'Untitled';
                 let catCount = 0;
                 try { catCount = (JSON.parse(p.panel_data).appeal_categories || []).length; } catch {}
                 const ch     = cachedChannels.find(c => String(c.id) === String(p.channel_id));
                 const chName = ch ? `# ${esc(ch.name)}` : `Channel ${p.channel_id}`;
-                return `<div class="dash-panel-card appeal-type" data-id="${p.id}">
+                return `<div class="dash-panel-card appeal-type" data-id="${p.id}" style="animation-delay:${i * 0.05}s">
                     <div class="dash-panel-card-top">
                         <h4>⚖️ ${esc(title)}</h4>
                         <div style="display:flex; gap:.5rem; align-items:center;">
@@ -1260,7 +1328,7 @@ function openAppealPanelEditor(panel) {
 }
 
 function closeAppealPanelEditor() {
-    $('appeal-panel-editor').style.display = 'none';
+    smoothCloseModal($('appeal-panel-editor'));
     editingAppealPanelId = null;
 }
 
@@ -1318,11 +1386,11 @@ async function fetchCustomEmbeds() {
         if (!panels.length) {
             if (list) list.innerHTML = '<p class="dash-empty">No custom embeds yet. Post a rich message with markdown and an optional banner image—no ticket buttons.</p>';
         } else if (list) {
-            list.innerHTML = panels.map(p => {
+            list.innerHTML = panels.map((p, i) => {
                 const title = p.title || 'Untitled';
                 const ch = cachedChannels.find(c => String(c.id) === String(p.channel_id));
                 const chName = ch ? `# ${esc(ch.name)}` : `Channel ${p.channel_id}`;
-                return `<div class="dash-panel-card custom-embed-type" data-id="${p.id}">
+                return `<div class="dash-panel-card custom-embed-type" data-id="${p.id}" style="animation-delay:${i * 0.05}s">
                     <div class="dash-panel-card-top">
                         <h4>📎 ${esc(title)}</h4>
                         <div style="display:flex; gap:.5rem; align-items:center;">
@@ -1399,8 +1467,7 @@ function openCustomEmbedEditor(panel) {
 }
 
 function closeCustomEmbedEditor() {
-    const el = $('dash-custom-embed-editor');
-    if (el) el.style.display = 'none';
+    smoothCloseModal($('dash-custom-embed-editor'));
     editingCustomEmbedId = null;
 }
 
