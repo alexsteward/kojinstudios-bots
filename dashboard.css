@@ -2496,10 +2496,6 @@ body.dashboard-page {
     background: rgba(248, 113, 113, 0.12);
 }
 
-.panel-section-ticket  .dash-panel-count { color: #60a5fa; background: rgba(59, 130, 246, 0.15); }
-.panel-section-app     .dash-panel-count { color: #e8c44a; background: rgba(212, 160, 23, 0.15); }
-.panel-section-appeal  .dash-panel-count { color: #f87171; background: rgba(239, 68, 68, 0.12); }
-.panel-section-custom  .dash-panel-count { color: #c084fc; background: rgba(168, 85, 247, 0.12); }
 
 .dash-panel-badge {
     font-size: 0.6875rem;

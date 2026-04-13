@@ -106,14 +106,16 @@ function isPremiumPlan() {
 
 function maxItemsForPanel(kind) {
     if (isPremiumPlan()) return 25;
-    if (kind === 'app') return 2;
-    if (kind === 'appeal') return 4;
+    if (panelLimits) {
+        const key = kind === 'app' ? 'application_panels' : kind === 'appeal' ? 'appeal_panels' : 'ticket_panels';
+        const info = panelLimits[key];
+        if (info && typeof info.max_categories === 'number' && info.max_categories !== -1) return info.max_categories;
+    }
     return 3;
 }
 
 function maxTypesForPlan() {
-    const isPremium = !!(panelLimits && panelLimits.premium);
-    return isPremium ? 25 : 3;
+    return isPremiumPlan() ? 25 : 3;
 }
 
 function validateDirectImageUrl(rawUrl) {
