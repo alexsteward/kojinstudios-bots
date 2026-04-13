@@ -869,6 +869,7 @@ function loadChannelSelect(selectedId) {
 const EMOJI_QUICK_PICKS = ['🎫', '🔧', '💬', '📋', '⚖️', '🐛', '❓', '💡', '🎮', '📝', '✅', '🔒'];
 const APP_QUESTION_PRESETS = {
     custom: [],
+    _deprecated: true,
     staff: [
         { question: 'What is your experience with Discord moderation?', required: false, type: 'paragraph' },
         { question: 'Why do you want to be staff?', required: false, type: 'paragraph' },
@@ -1183,9 +1184,9 @@ function openAppPanelEditor(panel) {
     if (types.length) types.forEach(t => addTypeRow('app-panel-types-container', t, { ignoreLimit: true, mode: 'app' }));
     else addTypeRow('app-panel-types-container', {
         emoji: '📋',
-        name: 'Staff Application',
-        description: 'Apply for a staff position',
-        questions: APP_QUESTION_PRESETS.staff,
+        name: '',
+        description: '',
+        questions: [],
     }, { mode: 'app' });
     loadEditorChannelSelect('app-panel-channel', panel?.channel_id ? String(panel.channel_id) : null);
     $('app-panel-editor-submit').textContent = editingAppPanelId ? 'Update in Discord' : 'Publish to Discord';
@@ -1214,15 +1215,23 @@ async function submitAppPanel(e) {
         const pingDigits = pingRaw.replace(/\D/g, '');
         const ping_role_id = pingDigits && /^\d{17,20}$/.test(pingDigits) ? pingDigits : null;
         const application_welcome_message = (r.querySelector('.dash-app-welcome')?.value || '').trim();
-        let questions = [];
-        try { questions = JSON.parse(r.dataset.questions || '[]'); } catch { questions = []; }
+        const questions = [];
+        r.querySelectorAll('.dash-question-row').forEach(qr => {
+            const question = qr.querySelector('.dash-q-text')?.value.trim();
+            if (!question) return;
+            questions.push({
+                question,
+                type: qr.querySelector('.dash-q-type')?.value || 'paragraph',
+                required: !!qr.querySelector('.dash-q-required')?.checked,
+            });
+        });
         categories.push({
             emoji: r.querySelector('.dash-cat-emoji').value.trim() || '📋',
             name,
             description: r.querySelector('.dash-cat-desc')?.value.trim() || '',
             ping_role_id,
             application_welcome_message,
-            questions: Array.isArray(questions) ? questions : [],
+            questions,
         });
     });
     if (!categories.length) { toast('Add at least one application type.', 'error'); return; }
@@ -1313,6 +1322,7 @@ function openAppealPanelEditor(panel) {
     $('appeal-panel-editor').style.display = 'flex';
     $('appeal-panel-title').value = panel?.title || '';
     $('appeal-panel-description').value = panel?.description || '';
+    $('appeal-panel-embed-image').value = '';
     $('appeal-panel-channel-id').value = panel?.channel_id ? String(panel.channel_id) : '';
     const container = $('appeal-panel-cats-container');
     container.innerHTML = '';
@@ -1320,6 +1330,7 @@ function openAppealPanelEditor(panel) {
     try {
         const d = typeof panel?.panel_data === 'string' ? JSON.parse(panel.panel_data) : (panel?.panel_data || {});
         cats = d.appeal_categories || [];
+        $('appeal-panel-embed-image').value = d.embed_image_url || d.image_url || d.banner_image_url || '';
     } catch { /* ignore parse errors */ }
     if (cats.length) cats.forEach(c => addTypeRow('appeal-panel-cats-container', c, { ignoreLimit: true, mode: 'appeal' }));
     else addTypeRow('appeal-panel-cats-container', { emoji: '⚖️', name: 'Ban Appeal', description: 'Appeal a ban or punishment' }, { mode: 'appeal' });
@@ -1339,14 +1350,28 @@ async function submitAppealPanel(e) {
     const title = $('appeal-panel-title').value.trim();
     if (!title) { toast('Enter a title.', 'error'); return; }
     const description = $('appeal-panel-description').value.trim();
+    const embed_image_url = ($('appeal-panel-embed-image')?.value || '').trim();
+    const normalizedImageUrl = validateDirectImageUrl(embed_image_url);
+    if (embed_image_url && !normalizedImageUrl) { toast('Banner image must be a valid http(s) URL.', 'error'); return; }
     const categories = [];
     $('appeal-panel-cats-container').querySelectorAll('.dash-cat-row').forEach(r => {
         const name = r.querySelector('.dash-cat-name').value.trim();
         if (!name) return;
+        const questions = [];
+        r.querySelectorAll('.dash-question-row').forEach(qr => {
+            const question = qr.querySelector('.dash-q-text')?.value.trim();
+            if (!question) return;
+            questions.push({
+                question,
+                type: qr.querySelector('.dash-q-type')?.value || 'paragraph',
+                required: !!qr.querySelector('.dash-q-required')?.checked,
+            });
+        });
         categories.push({
             emoji: r.querySelector('.dash-cat-emoji').value.trim() || '⚖️',
             name,
             description: r.querySelector('.dash-cat-desc')?.value.trim() || '',
+            questions,
         });
     });
     if (!categories.length) { toast('Add at least one appeal category.', 'error'); return; }
@@ -1364,7 +1389,10 @@ async function submitAppealPanel(e) {
             const del = await apiDash('appeal-panels', 'DELETE', { guild_id: selectedGuildId, panel_id: editingAppealPanelId });
             if (del?.error) throw new Error(del.error);
         }
-        const data = await apiDash('appeal-panels', 'POST', { guild_id: selectedGuildId }, { guild_id: selectedGuildId, channel_id: channelId, title, description, categories });
+        const data = await apiDash('appeal-panels', 'POST', { guild_id: selectedGuildId }, {
+            guild_id: selectedGuildId, channel_id: channelId, title, description, categories,
+            embed_image_url: normalizedImageUrl || null, image_url: normalizedImageUrl || null, banner_image_url: normalizedImageUrl || null,
+        });
         if (data.error) throw new Error(data.error);
         closeAppealPanelEditor();
         fetchAppealPanels();
@@ -1530,6 +1558,23 @@ async function submitCustomEmbed(e) {
 }
 
 // ─── Shared panel editor helpers ─────────────────────────────────────────────
+
+function buildQuestionRow(q) {
+    const qRow = document.createElement('div');
+    qRow.className = 'dash-question-row';
+    qRow.innerHTML = `
+        <input type="text" class="dash-q-text dash-input" placeholder="Enter a question…" value="${escA(q?.question || '')}" maxlength="256" required>
+        <select class="dash-q-type dash-select" title="Answer type">
+            <option value="paragraph"${q?.type === 'paragraph' || !q?.type ? ' selected' : ''}>Long answer</option>
+            <option value="short"${q?.type === 'short' ? ' selected' : ''}>Short answer</option>
+        </select>
+        <label class="dash-q-req-label"><input type="checkbox" class="dash-q-required" ${q?.required ? 'checked' : ''}> Required</label>
+        <button type="button" class="dash-q-remove" title="Remove question">&times;</button>
+    `;
+    qRow.querySelector('.dash-q-remove').addEventListener('click', () => qRow.remove());
+    return qRow;
+}
+
 function addTypeRow(containerId, cat, options = {}) {
     const container = $(containerId);
     if (!container) return;
@@ -1542,6 +1587,7 @@ function addTypeRow(containerId, cat, options = {}) {
     }
     const row = document.createElement('div');
     row.className = 'dash-cat-row';
+    const showExtras = (mode === 'app' || mode === 'appeal');
     row.innerHTML = `
         <div class="dash-cat-emoji-cell">
             <input type="text" class="dash-cat-emoji" placeholder="📋 or &lt;:name:id&gt;" value="${escA(cat?.emoji || '')}" maxlength="90" title="Unicode or custom emoji — use picker below or paste from Discord">
@@ -1549,42 +1595,43 @@ function addTypeRow(containerId, cat, options = {}) {
         </div>
         <input type="text" class="dash-cat-name" placeholder="Button label" value="${escA(cat?.name || '')}" required>
         <input type="text" class="dash-cat-desc" placeholder="Description (optional)" value="${escA(cat?.description || '')}">
-        ${mode === 'app' ? `
+        ${showExtras ? `
         <div class="dash-cat-extras">
-            <select class="dash-app-q-preset dash-select" title="Load starter questions">
-                <option value="custom">Questions preset (optional)</option>
-                <option value="staff">Staff</option>
-                <option value="support">Support</option>
-                <option value="designer">Designer</option>
-                <option value="developer">Developer</option>
-            </select>
+            ${mode === 'app' ? `
             <select class="dash-app-ping-role dash-select" title="Role to ping when this application is submitted">
                 <option value="">— Ping role (optional) —</option>
             </select>
             <textarea class="dash-app-welcome dash-textarea" placeholder="Applicant welcome message (optional)." rows="2"></textarea>
+            ` : ''}
+            <div class="dash-questions-section">
+                <div class="dash-questions-header">
+                    <span class="dash-questions-label">Questions</span>
+                    <button type="button" class="dash-btn dash-btn-ghost dash-btn-sm dash-add-question-btn">
+                        <span class="dash-plus-mark">+</span> Add question
+                    </button>
+                </div>
+                <div class="dash-questions-list"></div>
+            </div>
         </div>` : ''}
         <button type="button" class="dash-cat-remove">&times;</button>
     `;
     bindEmojiPicks(row);
-    if (mode === 'app') {
-        const roleSel = row.querySelector('.dash-app-ping-role');
-        if (roleSel) {
-            const selected = (cat?.ping_role_id != null ? String(cat.ping_role_id) : '').replace(/\D/g, '');
-            const opts = (cachedRoles || []).map(r => `<option value="${escA(r.id)}"${String(r.id).replace(/\D/g, '') === selected ? ' selected' : ''}>@ ${esc(r.name)}</option>`).join('');
-            roleSel.insertAdjacentHTML('beforeend', opts);
-        }
-        const welcome = row.querySelector('.dash-app-welcome');
-        if (welcome) welcome.value = (cat?.application_welcome_message || '').toString();
-        const presetSel = row.querySelector('.dash-app-q-preset');
-        if (presetSel) {
-            presetSel.addEventListener('change', () => {
-                if (presetSel.value === 'custom') return;
-                row.dataset.questions = JSON.stringify(APP_QUESTION_PRESETS[presetSel.value] || []);
-                toast('Question preset loaded for this type.', 'success');
-            });
-            if (Array.isArray(cat?.questions) && cat.questions.length) {
-                row.dataset.questions = JSON.stringify(cat.questions);
+    if (showExtras) {
+        if (mode === 'app') {
+            const roleSel = row.querySelector('.dash-app-ping-role');
+            if (roleSel) {
+                const selected = (cat?.ping_role_id != null ? String(cat.ping_role_id) : '').replace(/\D/g, '');
+                const opts = (cachedRoles || []).map(r => `<option value="${escA(r.id)}"${String(r.id).replace(/\D/g, '') === selected ? ' selected' : ''}>@ ${esc(r.name)}</option>`).join('');
+                roleSel.insertAdjacentHTML('beforeend', opts);
             }
+            const welcome = row.querySelector('.dash-app-welcome');
+            if (welcome) welcome.value = (cat?.application_welcome_message || '').toString();
+        }
+        const qList = row.querySelector('.dash-questions-list');
+        const addBtn = row.querySelector('.dash-add-question-btn');
+        if (addBtn) addBtn.addEventListener('click', () => qList.appendChild(buildQuestionRow()));
+        if (Array.isArray(cat?.questions) && cat.questions.length) {
+            cat.questions.forEach(q => qList.appendChild(buildQuestionRow(q)));
         }
     }
     row.querySelector('.dash-cat-remove').addEventListener('click', () => row.remove());
