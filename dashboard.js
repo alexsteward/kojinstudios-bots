@@ -734,9 +734,11 @@ async function fetchPanels() {
     if (loading) loading.style.display = 'flex';
     if (list) list.innerHTML = '';
 
+    let panelCount = 0;
     try {
         const data   = await api('panels', { guild_id: selectedGuildId });
         const panels = data.panels || [];
+        panelCount = panels.length;
         if (!panels.length) {
             list.innerHTML = '<p class="dash-empty">No panels yet. Create one to get started.</p>';
         } else {
@@ -771,6 +773,7 @@ async function fetchPanels() {
         if (list) list.innerHTML = '<p class="dash-empty">Could not load panels.</p>';
     }
     if (loading) loading.style.display = 'none';
+    updateCountFromList('ticket-panel-count', panelCount, 'ticket_panels');
 }
 
 async function deletePanel(panel) {
@@ -1124,17 +1127,29 @@ function renderPanelLimits() {
         </div>`;
     banner.style.display = '';
 
-    const setCount = (id, info) => {
-        const el = $(id);
-        if (!el) return;
-        const max = info.max === -1 ? '∞' : info.max;
-        el.textContent = `${info.count} / ${max}`;
-        el.className = 'dash-panel-count' + (info.max !== -1 && info.count >= info.max ? ' at-limit' : '');
-    };
-    setCount('ticket-panel-count', l.ticket_panels);
-    setCount('app-panel-count', l.application_panels);
-    setCount('appeal-panel-count', l.appeal_panels);
-    if (l.custom_embed_panels) setCount('custom-embed-panel-count', l.custom_embed_panels);
+    updateCountBadge('ticket-panel-count', l.ticket_panels);
+    updateCountBadge('app-panel-count', l.application_panels);
+    updateCountBadge('appeal-panel-count', l.appeal_panels);
+    if (l.custom_embed_panels) updateCountBadge('custom-embed-panel-count', l.custom_embed_panels);
+}
+
+function updateCountBadge(id, info) {
+    const el = $(id);
+    if (!el) return;
+    if (!info) { el.textContent = '—'; return; }
+    const count = info.count ?? 0;
+    const max = info.max === -1 ? '∞' : info.max;
+    el.textContent = `${count}/${max}`;
+    el.className = 'dash-panel-count' + (info.max !== -1 && count >= info.max ? ' at-limit' : '');
+}
+
+function updateCountFromList(id, listCount, limitKey) {
+    const info = panelLimits ? panelLimits[limitKey] : null;
+    const max = info ? (info.max === -1 ? '∞' : info.max) : '?';
+    const el = $(id);
+    if (!el) return;
+    el.textContent = `${listCount}/${max}`;
+    el.className = 'dash-panel-count' + (info && info.max !== -1 && listCount >= info.max ? ' at-limit' : '');
 }
 
 function canCreatePanel(type) {
@@ -1150,9 +1165,11 @@ async function fetchAppPanels() {
     const list    = $('app-panels-list');
     if (loading) loading.style.display = 'flex';
     if (list) list.innerHTML = '';
+    let panelCount = 0;
     try {
         const data   = await apiDash('app-panels', 'GET', { guild_id: selectedGuildId });
         const panels = data.panels || [];
+        panelCount = panels.length;
         if (!panels.length) {
             list.innerHTML = '<p class="dash-empty">No application panels yet.</p>';
         } else {
@@ -1187,6 +1204,7 @@ async function fetchAppPanels() {
         if (list) list.innerHTML = '<p class="dash-empty">Could not load application panels.</p>';
     }
     if (loading) loading.style.display = 'none';
+    updateCountFromList('app-panel-count', panelCount, 'application_panels');
 }
 
 function openAppPanelEditor(panel) {
@@ -1301,9 +1319,11 @@ async function fetchAppealPanels() {
     const list    = $('appeal-panels-list');
     if (loading) loading.style.display = 'flex';
     if (list) list.innerHTML = '';
+    let panelCount = 0;
     try {
         const data   = await apiDash('appeal-panels', 'GET', { guild_id: selectedGuildId });
         const panels = data.panels || [];
+        panelCount = panels.length;
         if (!panels.length) {
             list.innerHTML = '<p class="dash-empty">No appeal panels yet.</p>';
         } else {
@@ -1338,6 +1358,7 @@ async function fetchAppealPanels() {
         if (list) list.innerHTML = '<p class="dash-empty">Could not load appeal panels.</p>';
     }
     if (loading) loading.style.display = 'none';
+    updateCountFromList('appeal-panel-count', panelCount, 'appeal_panels');
 }
 
 function openAppealPanelEditor(panel) {
@@ -1435,9 +1456,11 @@ async function fetchCustomEmbeds() {
     const list = $('custom-embed-panels-list');
     if (loading) loading.style.display = 'flex';
     if (list) list.innerHTML = '';
+    let panelCount = 0;
     try {
         const data = await api('custom-embed-panels', { guild_id: selectedGuildId });
         const panels = data.panels || [];
+        panelCount = panels.length;
         if (!panels.length) {
             if (list) list.innerHTML = '<p class="dash-empty">No custom embeds yet. Post a rich message with markdown and an optional banner image—no ticket buttons.</p>';
         } else if (list) {
@@ -1469,6 +1492,7 @@ async function fetchCustomEmbeds() {
         if (list) list.innerHTML = '<p class="dash-empty">Could not load custom embeds.</p>';
     }
     if (loading) loading.style.display = 'none';
+    updateCountFromList('custom-embed-panel-count', panelCount, 'custom_embed_panels');
 }
 
 async function deleteCustomEmbed(panel) {
