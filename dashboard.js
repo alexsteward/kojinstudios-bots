@@ -13,6 +13,7 @@ let cachedChannels  = [];
 let cachedRoles     = [];
 let cachedGuildEmojis = [];
 let editingCustomEmbedId = null;
+let lastConfigSaveTime = 0;
 
 // ─── Init ────────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
@@ -671,6 +672,14 @@ function renderConfig(cfg) {
 }
 
 async function saveConfig() {
+    const now = Date.now();
+    const cooldown = 10000;
+    if (now - lastConfigSaveTime < cooldown) {
+        const remaining = Math.ceil((cooldown - (now - lastConfigSaveTime)) / 1000);
+        toast(`Please wait ${remaining}s before saving again.`, 'error');
+        return;
+    }
+    lastConfigSaveTime = now;
     const btn    = $('cfg-save-btn');
     const status = $('cfg-save-status');
     btn.disabled = true;
