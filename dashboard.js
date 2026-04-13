@@ -1145,13 +1145,16 @@ function updateCountBadge(id, info) {
     el.className = 'dash-panel-count' + (info.max !== -1 && count >= info.max ? ' at-limit' : '');
 }
 
+const FREE_PANEL_DEFAULTS = { ticket_panels: 2, application_panels: 2, appeal_panels: 2, custom_embed_panels: 1 };
+
 function updateCountFromList(id, listCount, limitKey) {
     const info = panelLimits ? panelLimits[limitKey] : null;
-    const max = info ? (info.max === -1 ? '∞' : info.max) : '?';
+    const rawMax = info ? info.max : FREE_PANEL_DEFAULTS[limitKey] ?? 2;
+    const max = rawMax === -1 ? '∞' : rawMax;
     const el = $(id);
     if (!el) return;
     el.textContent = `${listCount}/${max}`;
-    el.className = 'dash-panel-count' + (info && info.max !== -1 && listCount >= info.max ? ' at-limit' : '');
+    el.className = 'dash-panel-count' + (rawMax !== -1 && listCount >= rawMax ? ' at-limit' : '');
 }
 
 function canCreatePanel(type) {
