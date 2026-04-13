@@ -295,10 +295,27 @@
                                 <a href="#" class="dash-trend-link" id="overview-trend-analytics-link">View full analytics →</a>
                             </div>
                         </div>
-                        <div class="dash-card anim-in" style="--delay:.15s">
-                            <a href="#" class="dash-action-btn" id="detail-get-tickets-btn" data-bot="tickets">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-                                Get Tickets
+                        <div class="dash-quick-actions anim-in" style="--delay:.15s">
+                            <a href="#" class="dash-quick-action-card" id="detail-get-tickets-btn" data-bot="tickets">
+                                <div class="dash-qa-icon" style="--c:#ff4757">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                </div>
+                                <span class="dash-qa-label">Get Tickets</span>
+                                <svg class="dash-qa-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                            </a>
+                            <a href="#" class="dash-quick-action-card" data-go-tab="panels">
+                                <div class="dash-qa-icon" style="--c:#3b82f6">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 12l2 2 4-4"/></svg>
+                                </div>
+                                <span class="dash-qa-label">Manage Panels</span>
+                                <svg class="dash-qa-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                            </a>
+                            <a href="#" class="dash-quick-action-card" data-go-tab="analytics">
+                                <div class="dash-qa-icon" style="--c:#f59e0b">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+                                </div>
+                                <span class="dash-qa-label">View Analytics</span>
+                                <svg class="dash-qa-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
                             </a>
                         </div>
                     </div>
@@ -463,6 +480,7 @@
                                 <div>
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
                                     <h3>Quick Responses</h3>
+                                    <span class="dash-panel-count" id="qr-count-badge"></span>
                                 </div>
                                 <button type="button" class="dash-btn dash-btn-primary dash-btn-sm" id="qr-add-btn">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -473,9 +491,12 @@
                             <div id="qr-list" class="dash-qr-list"></div>
                         </div>
                         <div class="dash-card anim-in" id="qr-form-card" style="display:none;">
-                            <h3>Add quick response</h3>
+                            <div class="dash-card-head">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                                <h3 id="qr-form-title">Add quick response</h3>
+                            </div>
                             <div class="dash-field"><label for="qr-label">Label</label><input type="text" id="qr-label" class="dash-input" placeholder="e.g. Greeting" maxlength="100"></div>
-                            <div class="dash-field"><label for="qr-message">Message</label><textarea id="qr-message" class="dash-textarea" placeholder="Hi {customer}, thanks for reaching out!" rows="3"></textarea></div>
+                            <div class="dash-field"><label for="qr-message">Message</label><textarea id="qr-message" class="dash-textarea" placeholder="Hi {customer}, thanks for reaching out!" rows="4"></textarea></div>
                             <div class="dash-actions">
                                 <button type="button" class="dash-btn dash-btn-primary dash-btn-sm" id="qr-save-btn">Save</button>
                                 <button type="button" class="dash-btn dash-btn-ghost dash-btn-sm" id="qr-cancel-btn">Cancel</button>
@@ -496,11 +517,17 @@
                         </div>
                         <div class="dash-overview-grid" id="analytics-stats"></div>
                         <div class="dash-card anim-in" id="analytics-chart-card">
-                            <h3>Tickets per day</h3>
+                            <div class="dash-card-head">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+                                <h3>Tickets per day</h3>
+                            </div>
                             <div id="analytics-chart" class="dash-chart"></div>
                         </div>
                         <div class="dash-card anim-in" id="analytics-categories-card">
-                            <h3>By category</h3>
+                            <div class="dash-card-head">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                                <h3>By category</h3>
+                            </div>
                             <div id="analytics-categories" class="dash-cat-list"></div>
                         </div>
                     </div>

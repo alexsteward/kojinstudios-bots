@@ -61,6 +61,14 @@ document.addEventListener('DOMContentLoaded', () => {
         t.addEventListener('click', () => switchTab(t.dataset.tab))
     );
 
+    // Quick-action tab shortcuts (overview)
+    document.querySelectorAll('[data-go-tab]').forEach(a => {
+        a.addEventListener('click', (e) => {
+            e.preventDefault();
+            switchTab(a.dataset.goTab);
+        });
+    });
+
     // Analytics period buttons
     document.querySelectorAll('.dash-period-btn').forEach(b =>
         b.addEventListener('click', () => {
@@ -1726,6 +1734,11 @@ async function fetchQR() {
     try {
         const data = await apiDash('quick-responses', 'GET', { guild_id: selectedGuildId });
         const qr   = data.responses || [];
+        const qrBadge = $('qr-count-badge');
+        if (qrBadge) {
+            const qrMax = panelLimits?.quick_responses?.max ?? 5;
+            qrBadge.textContent = `${qr.length}/${qrMax === -1 ? '∞' : qrMax}`;
+        }
         if (!qr.length) {
             list.innerHTML = '<p class="dash-empty">No quick responses yet.</p>';
         } else {
