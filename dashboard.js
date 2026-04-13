@@ -388,6 +388,10 @@ async function refreshOverviewStats() {
     } catch { /* ignore */ }
 }
 
+async function syncPanelCounts() {
+    await Promise.allSettled([fetchPanelLimits(), refreshOverviewStats()]);
+}
+
 function renderOverviewTrend(byDay, error) {
     const chart = $('overview-trend-chart');
     const hint = $('overview-trend-hint');
@@ -686,8 +690,7 @@ async function deletePanel(panel) {
         if (res.ok && data.ok) {
             toast('Panel deleted.', 'success');
             fetchPanels();
-            fetchPanelLimits();
-            refreshOverviewStats();
+            await syncPanelCounts();
         } else {
             toast(data.error || 'Failed to delete panel.', 'error');
         }
@@ -705,8 +708,7 @@ async function deleteAppPanel(panel) {
         if (data && data.ok) {
             toast('Application panel deleted.', 'success');
             fetchAppPanels();
-            fetchPanelLimits();
-            refreshOverviewStats();
+            await syncPanelCounts();
         } else {
             toast(data?.error || 'Failed to delete application panel.', 'error');
         }
@@ -724,8 +726,7 @@ async function deleteAppealPanel(panel) {
         if (data && data.ok) {
             toast('Appeal panel deleted.', 'success');
             fetchAppealPanels();
-            fetchPanelLimits();
-            refreshOverviewStats();
+            await syncPanelCounts();
         } else {
             toast(data?.error || 'Failed to delete appeal panel.', 'error');
         }
@@ -953,7 +954,7 @@ async function submitPanel(e) {
         if (data.error) throw new Error(data.error);
         closePanelEditor();
         fetchPanels();
-        fetchPanelLimits();
+        await syncPanelCounts();
         toast(editingPanelId ? 'Panel updated!' : 'Panel published to Discord!');
     } catch (err) {
         toast(err.message || 'Failed to save panel.', 'error');
@@ -1122,7 +1123,7 @@ async function submitAppPanel(e) {
         if (data.error) throw new Error(data.error);
         closeAppPanelEditor();
         fetchAppPanels();
-        fetchPanelLimits();
+        await syncPanelCounts();
         toast(isEdit ? 'Application panel updated in Discord!' : 'Application panel published to Discord!');
     } catch (err) { toast(err.message || 'Failed to save application panel.', 'error'); }
     btn.disabled = false; btn.textContent = 'Publish to Discord';
@@ -1236,7 +1237,7 @@ async function submitAppealPanel(e) {
         if (data.error) throw new Error(data.error);
         closeAppealPanelEditor();
         fetchAppealPanels();
-        fetchPanelLimits();
+        await syncPanelCounts();
         toast(isEdit ? 'Appeal panel updated in Discord!' : 'Appeal panel published to Discord!');
     } catch (err) { toast(err.message || 'Failed to save appeal panel.', 'error'); }
     btn.disabled = false; btn.textContent = 'Publish to Discord';
@@ -1295,8 +1296,7 @@ async function deleteCustomEmbed(panel) {
         if (data.error) throw new Error(data.error);
         toast('Custom embed removed from dashboard.', 'success');
         fetchCustomEmbeds();
-        fetchPanelLimits();
-        refreshOverviewStats();
+        await syncPanelCounts();
     } catch (e) {
         toast(e.message || 'Failed to delete.', 'error');
     }
@@ -1388,7 +1388,7 @@ async function submitCustomEmbed(e) {
         if (data.error) throw new Error(data.error);
         closeCustomEmbedEditor();
         fetchCustomEmbeds();
-        fetchPanelLimits();
+        await syncPanelCounts();
         toast(editingCustomEmbedId ? 'Custom embed updated in Discord!' : 'Published to Discord!');
     } catch (err) {
         toast(err.message || 'Failed to save.', 'error');
