@@ -39,12 +39,12 @@ document.addEventListener('DOMContentLoaded', () => {
     on('create-app-panel-btn',      'click', () => openAppPanelEditor());
     on('app-panel-editor-close',    'click', closeAppPanelEditor);
     on('app-panel-editor-cancel',   'click', closeAppPanelEditor);
-    on('app-panel-add-type',        'click', () => addTypeRow('app-panel-types-container'));
+    on('app-panel-add-type',        'click', () => addTypeRow('app-panel-types-container', null, { mode: 'app' }));
     on('app-panel-editor-form',     'submit', submitAppPanel);
     on('create-appeal-panel-btn',   'click', () => openAppealPanelEditor());
     on('appeal-panel-editor-close', 'click', closeAppealPanelEditor);
     on('appeal-panel-editor-cancel','click', closeAppealPanelEditor);
-    on('appeal-panel-add-cat',      'click', () => addTypeRow('appeal-panel-cats-container'));
+    on('appeal-panel-add-cat',      'click', () => addTypeRow('appeal-panel-cats-container', null, { mode: 'appeal' }));
     on('appeal-panel-editor-form',  'submit', submitAppealPanel);
     on('cfg-save-btn',              'click', saveConfig);
     on('qr-add-btn',               'click', showQRForm);
@@ -90,6 +90,17 @@ function on(id, evt, fn) {
     if (el) el.addEventListener(evt, fn);
 }
 function $(id) { return document.getElementById(id); }
+
+function isPremiumPlan() {
+    return !!(panelLimits && panelLimits.premium);
+}
+
+function maxItemsForPanel(kind) {
+    if (isPremiumPlan()) return 25;
+    if (kind === 'app') return 2;
+    if (kind === 'appeal') return 4;
+    return 3;
+}
 
 function maxTypesForPlan() {
     const isPremium = !!(panelLimits && panelLimits.premium);
@@ -788,12 +799,33 @@ function loadChannelSelect(selectedId) {
 }
 
 const EMOJI_QUICK_PICKS = ['🎫', '🔧', '💬', '📋', '⚖️', '🐛', '❓', '💡', '🎮', '📝', '✅', '🔒'];
+const APP_QUESTION_PRESETS = {
+    custom: [],
+    staff: [
+        { question: 'What is your experience with Discord moderation?', required: false, type: 'paragraph' },
+        { question: 'Why do you want to be staff?', required: false, type: 'paragraph' },
+        { question: 'What timezone are you in?', required: false, type: 'short' },
+    ],
+    support: [
+        { question: 'How would you handle an upset user?', required: false, type: 'paragraph' },
+        { question: 'How many hours per week can you help?', required: false, type: 'short' },
+    ],
+    designer: [
+        { question: 'What design software do you use?', required: false, type: 'short' },
+        { question: 'Share your portfolio or examples of work.', required: false, type: 'paragraph' },
+    ],
+    developer: [
+        { question: 'What languages/frameworks do you use?', required: false, type: 'short' },
+        { question: 'Share your GitHub or code samples.', required: false, type: 'paragraph' },
+    ],
+};
 
 function addCatRow(cat, options = {}) {
     const container = $('panel-categories-container');
     if (!container) return;
-    if (!options.ignoreLimit && container.querySelectorAll('.dash-cat-row').length >= maxTypesForPlan()) {
-        toast(`Free plan supports up to ${maxTypesForPlan()} categories per panel. Upgrade for more.`, 'error');
+    const max = maxItemsForPanel('ticket');
+    if (!options.ignoreLimit && container.querySelectorAll('.dash-cat-row').length >= max) {
+        toast(`This plan supports up to ${max} ticket categories per panel.`, 'error');
         return;
     }
     const row = document.createElement('div');
@@ -917,8 +949,9 @@ async function submitPanel(e) {
         });
     });
     if (!categories.length) { toast('Add at least one category.', 'error'); return; }
-    if (categories.length > maxTypesForPlan()) {
-        toast(`This plan supports up to ${maxTypesForPlan()} categories per panel.`, 'error');
+    const maxTicketCats = maxItemsForPanel('ticket');
+    if (categories.length > maxTicketCats) {
+        toast(`This plan supports up to ${maxTicketCats} ticket categories per panel.`, 'error');
         return;
     }
     const normalizedImageUrl = validateDirectImageUrl(embed_image_url);
@@ -1069,6 +1102,7 @@ function openAppPanelEditor(panel) {
     $('app-panel-editor').style.display = 'flex';
     $('app-panel-title').value = panel?.title || '';
     $('app-panel-description').value = panel?.description || '';
+    $('app-panel-embed-image').value = '';
     $('app-panel-channel-id').value = panel?.channel_id ? String(panel.channel_id) : '';
     const container = $('app-panel-types-container');
     container.innerHTML = '';
@@ -1076,9 +1110,15 @@ function openAppPanelEditor(panel) {
     try {
         const d = typeof panel?.panel_data === 'string' ? JSON.parse(panel.panel_data) : (panel?.panel_data || {});
         types = d.application_types || [];
+        $('app-panel-embed-image').value = d.embed_image_url || d.image_url || d.banner_image_url || '';
     } catch { /* ignore parse errors */ }
-    if (types.length) types.forEach(t => addTypeRow('app-panel-types-container', t, { ignoreLimit: true }));
-    else addTypeRow('app-panel-types-container', { emoji: '📋', name: 'Staff Application', description: 'Apply for a staff position' });
+    if (types.length) types.forEach(t => addTypeRow('app-panel-types-container', t, { ignoreLimit: true, mode: 'app' }));
+    else addTypeRow('app-panel-types-container', {
+        emoji: '📋',
+        name: 'Staff Application',
+        description: 'Apply for a staff position',
+        questions: APP_QUESTION_PRESETS.staff,
+    }, { mode: 'app' });
     loadEditorChannelSelect('app-panel-channel', panel?.channel_id ? String(panel.channel_id) : null);
     $('app-panel-editor-submit').textContent = editingAppPanelId ? 'Update in Discord' : 'Publish to Discord';
 }
@@ -1095,19 +1135,32 @@ async function submitAppPanel(e) {
     const title = $('app-panel-title').value.trim();
     if (!title) { toast('Enter a title.', 'error'); return; }
     const description = $('app-panel-description').value.trim();
+    const embed_image_url = ($('app-panel-embed-image')?.value || '').trim();
+    const normalizedImageUrl = validateDirectImageUrl(embed_image_url);
+    if (embed_image_url && !normalizedImageUrl) { toast('Banner image must be a valid http(s) URL.', 'error'); return; }
     const categories = [];
     $('app-panel-types-container').querySelectorAll('.dash-cat-row').forEach(r => {
         const name = r.querySelector('.dash-cat-name').value.trim();
         if (!name) return;
+        const pingRaw = (r.querySelector('.dash-app-ping-role')?.value || '').trim();
+        const pingDigits = pingRaw.replace(/\D/g, '');
+        const ping_role_id = pingDigits && /^\d{17,20}$/.test(pingDigits) ? pingDigits : null;
+        const application_welcome_message = (r.querySelector('.dash-app-welcome')?.value || '').trim();
+        let questions = [];
+        try { questions = JSON.parse(r.dataset.questions || '[]'); } catch { questions = []; }
         categories.push({
             emoji: r.querySelector('.dash-cat-emoji').value.trim() || '📋',
             name,
             description: r.querySelector('.dash-cat-desc')?.value.trim() || '',
+            ping_role_id,
+            application_welcome_message,
+            questions: Array.isArray(questions) ? questions : [],
         });
     });
     if (!categories.length) { toast('Add at least one application type.', 'error'); return; }
-    if (categories.length > maxTypesForPlan()) {
-        toast(`This plan supports up to ${maxTypesForPlan()} application types per panel.`, 'error');
+    const maxAppTypes = maxItemsForPanel('app');
+    if (categories.length > maxAppTypes) {
+        toast(`This plan supports up to ${maxAppTypes} application types per panel.`, 'error');
         return;
     }
 
@@ -1119,7 +1172,16 @@ async function submitAppPanel(e) {
             const del = await apiDash('app-panels', 'DELETE', { guild_id: selectedGuildId, panel_id: editingAppPanelId });
             if (del?.error) throw new Error(del.error);
         }
-        const data = await apiDash('app-panels', 'POST', { guild_id: selectedGuildId }, { guild_id: selectedGuildId, channel_id: channelId, title, description, categories });
+        const data = await apiDash('app-panels', 'POST', { guild_id: selectedGuildId }, {
+            guild_id: selectedGuildId,
+            channel_id: channelId,
+            title,
+            description,
+            embed_image_url: normalizedImageUrl || null,
+            image_url: normalizedImageUrl || null,
+            banner_image_url: normalizedImageUrl || null,
+            categories,
+        });
         if (data.error) throw new Error(data.error);
         closeAppPanelEditor();
         fetchAppPanels();
@@ -1191,8 +1253,8 @@ function openAppealPanelEditor(panel) {
         const d = typeof panel?.panel_data === 'string' ? JSON.parse(panel.panel_data) : (panel?.panel_data || {});
         cats = d.appeal_categories || [];
     } catch { /* ignore parse errors */ }
-    if (cats.length) cats.forEach(c => addTypeRow('appeal-panel-cats-container', c, { ignoreLimit: true }));
-    else addTypeRow('appeal-panel-cats-container', { emoji: '⚖️', name: 'Ban Appeal', description: 'Appeal a ban or punishment' });
+    if (cats.length) cats.forEach(c => addTypeRow('appeal-panel-cats-container', c, { ignoreLimit: true, mode: 'appeal' }));
+    else addTypeRow('appeal-panel-cats-container', { emoji: '⚖️', name: 'Ban Appeal', description: 'Appeal a ban or punishment' }, { mode: 'appeal' });
     loadEditorChannelSelect('appeal-panel-channel', panel?.channel_id ? String(panel.channel_id) : null);
     $('appeal-panel-editor-submit').textContent = editingAppealPanelId ? 'Update in Discord' : 'Publish to Discord';
 }
@@ -1220,8 +1282,9 @@ async function submitAppealPanel(e) {
         });
     });
     if (!categories.length) { toast('Add at least one appeal category.', 'error'); return; }
-    if (categories.length > maxTypesForPlan()) {
-        toast(`This plan supports up to ${maxTypesForPlan()} appeal categories per panel.`, 'error');
+    const maxAppealCats = maxItemsForPanel('appeal');
+    if (categories.length > maxAppealCats) {
+        toast(`This plan supports up to ${maxAppealCats} appeal categories per panel.`, 'error');
         return;
     }
 
@@ -1403,8 +1466,11 @@ async function submitCustomEmbed(e) {
 function addTypeRow(containerId, cat, options = {}) {
     const container = $(containerId);
     if (!container) return;
-    if (!options.ignoreLimit && container.querySelectorAll('.dash-cat-row').length >= maxTypesForPlan()) {
-        toast(`Free plan supports up to ${maxTypesForPlan()} categories per panel. Upgrade for more.`, 'error');
+    const mode = options.mode || (containerId.includes('app-panel') ? 'app' : 'appeal');
+    const max = maxItemsForPanel(mode);
+    if (!options.ignoreLimit && container.querySelectorAll('.dash-cat-row').length >= max) {
+        const label = mode === 'app' ? 'application types' : 'appeal categories';
+        toast(`This plan supports up to ${max} ${label} per panel.`, 'error');
         return;
     }
     const row = document.createElement('div');
@@ -1416,9 +1482,44 @@ function addTypeRow(containerId, cat, options = {}) {
         </div>
         <input type="text" class="dash-cat-name" placeholder="Button label" value="${escA(cat?.name || '')}" required>
         <input type="text" class="dash-cat-desc" placeholder="Description (optional)" value="${escA(cat?.description || '')}">
+        ${mode === 'app' ? `
+        <div class="dash-cat-extras">
+            <select class="dash-app-q-preset dash-select" title="Load starter questions">
+                <option value="custom">Questions preset (optional)</option>
+                <option value="staff">Staff</option>
+                <option value="support">Support</option>
+                <option value="designer">Designer</option>
+                <option value="developer">Developer</option>
+            </select>
+            <select class="dash-app-ping-role dash-select" title="Role to ping when this application is submitted">
+                <option value="">— Ping role (optional) —</option>
+            </select>
+            <textarea class="dash-app-welcome dash-textarea" placeholder="Applicant welcome message (optional)." rows="2"></textarea>
+        </div>` : ''}
         <button type="button" class="dash-cat-remove">&times;</button>
     `;
     bindEmojiPicks(row);
+    if (mode === 'app') {
+        const roleSel = row.querySelector('.dash-app-ping-role');
+        if (roleSel) {
+            const selected = (cat?.ping_role_id != null ? String(cat.ping_role_id) : '').replace(/\D/g, '');
+            const opts = (cachedRoles || []).map(r => `<option value="${escA(r.id)}"${String(r.id).replace(/\D/g, '') === selected ? ' selected' : ''}>@ ${esc(r.name)}</option>`).join('');
+            roleSel.insertAdjacentHTML('beforeend', opts);
+        }
+        const welcome = row.querySelector('.dash-app-welcome');
+        if (welcome) welcome.value = (cat?.application_welcome_message || '').toString();
+        const presetSel = row.querySelector('.dash-app-q-preset');
+        if (presetSel) {
+            presetSel.addEventListener('change', () => {
+                if (presetSel.value === 'custom') return;
+                row.dataset.questions = JSON.stringify(APP_QUESTION_PRESETS[presetSel.value] || []);
+                toast('Question preset loaded for this type.', 'success');
+            });
+            if (Array.isArray(cat?.questions) && cat.questions.length) {
+                row.dataset.questions = JSON.stringify(cat.questions);
+            }
+        }
+    }
     row.querySelector('.dash-cat-remove').addEventListener('click', () => row.remove());
     container.appendChild(row);
 }
