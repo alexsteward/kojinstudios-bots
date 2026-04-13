@@ -1146,15 +1146,31 @@ function updateCountBadge(id, info) {
 }
 
 const FREE_PANEL_DEFAULTS = { ticket_panels: 2, application_panels: 2, appeal_panels: 2, custom_embed_panels: 1 };
+const LIMIT_KEY_TO_BTN = {
+    ticket_panels: 'detail-create-panel-btn',
+    application_panels: 'create-app-panel-btn',
+    appeal_panels: 'create-appeal-panel-btn',
+    custom_embed_panels: 'create-custom-embed-btn',
+};
 
 function updateCountFromList(id, listCount, limitKey) {
     const info = panelLimits ? panelLimits[limitKey] : null;
     const rawMax = info ? info.max : FREE_PANEL_DEFAULTS[limitKey] ?? 2;
     const max = rawMax === -1 ? '∞' : rawMax;
+    const atLimit = rawMax !== -1 && listCount >= rawMax;
     const el = $(id);
-    if (!el) return;
-    el.textContent = `${listCount}/${max}`;
-    el.className = 'dash-panel-count' + (rawMax !== -1 && listCount >= rawMax ? ' at-limit' : '');
+    if (el) {
+        el.textContent = `${listCount}/${max}`;
+        el.className = 'dash-panel-count' + (atLimit ? ' at-limit' : '');
+    }
+    const btnId = LIMIT_KEY_TO_BTN[limitKey];
+    const btn = btnId ? $(btnId) : null;
+    if (btn) {
+        btn.disabled = atLimit;
+        btn.title = atLimit ? `Limit reached (${max}). Upgrade to Premium for unlimited.` : '';
+        btn.style.opacity = atLimit ? '0.45' : '';
+        btn.style.pointerEvents = atLimit ? 'none' : '';
+    }
 }
 
 function canCreatePanel(type) {
