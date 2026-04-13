@@ -1086,6 +1086,7 @@ function renderPanelLimits() {
         return `<span class="dash-limit-badge${atLimit ? ' at-limit' : ''}">${label}: <strong>${info.count}</strong> / <strong>${max}</strong></span>`;
     };
     const ceBadge = l.custom_embed_panels ? mkBadge(l.custom_embed_panels, 'Custom embed') : '';
+    const qrBadge = l.quick_responses ? mkBadge(l.quick_responses, 'Responses') : '';
     banner.innerHTML = `
         <div class="dash-limits-row">
             <span class="dash-plan-tag ${isPremium ? 'premium' : 'free'}">${isPremium ? '⭐ Premium' : 'Free Plan'}</span>
@@ -1093,7 +1094,8 @@ function renderPanelLimits() {
             ${mkBadge(l.application_panels, 'Application')}
             ${mkBadge(l.appeal_panels, 'Appeal')}
             ${ceBadge}
-            ${!isPremium ? '<a href="/#pricing" class="dash-upgrade-link">Upgrade for unlimited panels →</a>' : ''}
+            ${qrBadge}
+            ${!isPremium ? '<a href="/#pricing" class="dash-upgrade-link">Upgrade for unlimited →</a>' : ''}
         </div>`;
     banner.style.display = '';
 
@@ -1672,6 +1674,13 @@ async function fetchQR() {
 }
 
 function showQRForm() {
+    if (panelLimits && panelLimits.quick_responses) {
+        const info = panelLimits.quick_responses;
+        if (info.max !== -1 && info.count >= info.max) {
+            toast(`Quick response limit reached (${info.count}/${info.max}). Upgrade for more!`, 'error');
+            return;
+        }
+    }
     $('qr-form-card').style.display = 'block';
     $('qr-label').value   = '';
     $('qr-message').value = '';
@@ -1691,6 +1700,7 @@ async function saveQR() {
         if (res.error) throw new Error(res.error);
         hideQRForm();
         fetchQR();
+        await fetchPanelLimits();
         toast('Quick response added!');
     } catch (err) {
         toast(err.message || 'Failed to save.', 'error');
@@ -1702,6 +1712,7 @@ async function deleteQR(name) {
     try {
         await apiDash('quick-responses', 'DELETE', { guild_id: selectedGuildId, name });
         fetchQR();
+        await fetchPanelLimits();
         toast('Quick response deleted.');
     } catch {
         toast('Failed to delete.', 'error');
@@ -1710,34 +1721,55 @@ async function deleteQR(name) {
 
 // ─── Analytics ───────────────────────────────────────────────────────────────
 async function fetchAnalytics(guildId, days) {
+    const statsEl = $('analytics-stats');
+    const catsEl = $('analytics-categories');
+    const chartEl = $('analytics-chart');
+    if (statsEl) statsEl.innerHTML = '<div class="dash-skeleton dash-skeleton-stat"></div>'.repeat(4);
     try {
         const data = await apiDash('analytics', 'GET', { guild_id: guildId, period: days });
-        $('analytics-stats').innerHTML = `
-            <div class="dash-stat-card"><span class="dash-stat-label">Total</span><div class="dash-stat-value">${data.total || 0}</div></div>
-            <div class="dash-stat-card"><span class="dash-stat-label">Open</span><div class="dash-stat-value">${data.open || 0}</div></div>
-            <div class="dash-stat-card"><span class="dash-stat-label">Closed</span><div class="dash-stat-value">${data.closed || 0}</div></div>
+        const avgLabel = data.avg_close_hours != null
+            ? (data.avg_close_hours < 1 ? `${Math.round(data.avg_close_hours * 60)}m` : `${data.avg_close_hours}h`)
+            : '—';
+        if (statsEl) statsEl.innerHTML = `
+            <div class="dash-stat-card" style="animation-delay:0s">
+                <div class="dash-stat-icon" style="--c:#5865f2"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+                <div><span class="dash-stat-label">Total tickets</span><div class="dash-stat-value">${data.total || 0}</div></div>
+            </div>
+            <div class="dash-stat-card" style="animation-delay:.06s">
+                <div class="dash-stat-icon" style="--c:#22c55e"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></div>
+                <div><span class="dash-stat-label">Open</span><div class="dash-stat-value">${data.open || 0}</div></div>
+            </div>
+            <div class="dash-stat-card" style="animation-delay:.12s">
+                <div class="dash-stat-icon" style="--c:#f87171"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+                <div><span class="dash-stat-label">Closed</span><div class="dash-stat-value">${data.closed || 0}</div></div>
+            </div>
+            <div class="dash-stat-card" style="animation-delay:.18s">
+                <div class="dash-stat-icon" style="--c:#f59e0b"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
+                <div><span class="dash-stat-label">Avg. close time</span><div class="dash-stat-value">${avgLabel}</div></div>
+            </div>
         `;
         renderChart(data.by_day || []);
         const cats = data.by_category || [];
-        $('analytics-categories').innerHTML = cats.length
-            ? cats.map(c => `<div class="dash-cat-stat"><span>${esc(c.name)}</span><span class="dash-cat-count">${c.count}</span></div>`).join('')
-            : '<p class="dash-empty">No data for this period.</p>';
+        if (catsEl) catsEl.innerHTML = cats.length
+            ? cats.map((c, i) => `<div class="dash-cat-stat" style="animation-delay:${i * 0.04}s"><span>${esc(c.name)}</span><span class="dash-cat-count">${c.count}</span></div>`).join('')
+            : '<p class="dash-empty">No category data for this period.</p>';
         const byDay = data.by_day || [];
         renderOverviewTrend(byDay.slice(-7));
     } catch {
-        $('analytics-stats').innerHTML = '<p class="dash-empty">Could not load analytics.</p>';
+        if (statsEl) statsEl.innerHTML = '<p class="dash-empty">Could not load analytics. Is the bot online?</p>';
         renderOverviewTrend(null, true);
     }
 }
 
 function renderChart(days) {
     const chart = $('analytics-chart');
-    if (!chart || !days.length) { if (chart) chart.innerHTML = '<p class="dash-empty">No data.</p>'; return; }
+    if (!chart) return;
+    if (!days.length) { chart.innerHTML = '<p class="dash-empty">No ticket activity in this period.</p>'; return; }
     const max = Math.max(...days.map(d => d.count), 1);
-    chart.innerHTML = `<div class="dash-bar-chart">${days.map(d => {
-        const pct = Math.max((d.count / max) * 100, 2);
-        return `<div class="dash-bar-col" title="${d.date}: ${d.count}">
-            <div class="dash-bar" style="height:${pct}%"></div>
+    chart.innerHTML = `<div class="dash-bar-chart">${days.map((d, i) => {
+        const pct = Math.max((d.count / max) * 100, 3);
+        return `<div class="dash-bar-col" title="${d.date}: ${d.count} ticket${d.count !== 1 ? 's' : ''}">
+            <div class="dash-bar" style="height:${pct}%;--bar-i:${i}"></div>
             <span class="dash-bar-label">${d.date}</span>
         </div>`;
     }).join('')}</div>`;
