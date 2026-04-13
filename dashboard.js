@@ -746,9 +746,9 @@ async function fetchPanels() {
                 try { catCount = (JSON.parse(p.panel_data).categories || []).length; } catch {}
                 const ch     = cachedChannels.find(c => String(c.id) === String(p.channel_id));
                 const chName = ch ? `# ${esc(ch.name)}` : `Channel ${p.channel_id}`;
-                return `<div class="dash-panel-card" data-id="${p.id}" style="animation-delay:${i * 0.05}s">
+                return `<div class="dash-panel-card ticket-type" data-id="${p.id}" style="animation-delay:${i * 0.05}s">
                     <div class="dash-panel-card-top">
-                        <h4>${esc(title)}</h4>
+                        <h4>🎫 ${esc(title)}</h4>
                         <div style="display:flex; gap:.5rem; align-items:center;">
                             <button class="dash-panel-edit-btn" data-id="${p.id}">Edit</button>
                             <button class="dash-panel-del-btn" data-id="${p.id}" title="Delete panel">Delete</button>
