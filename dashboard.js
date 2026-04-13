@@ -150,6 +150,7 @@ function kojinActorHeaders() {
     if (user?.id) {
         h['X-Kojin-Actor-Id'] = String(user.id);
         if (user.username) h['X-Kojin-Actor-Name'] = String(user.username);
+        if (user.avatar) h['X-Kojin-Actor-Avatar'] = String(user.avatar);
         h['X-Kojin-Source'] = 'dashboard';
     }
     return h;
@@ -393,6 +394,7 @@ async function apiDash(endpoint, method, params, body) {
     if (user && user.id) {
         opts.headers['X-Kojin-Actor-Id'] = String(user.id);
         if (user.username) opts.headers['X-Kojin-Actor-Name'] = String(user.username);
+        if (user.avatar) opts.headers['X-Kojin-Actor-Avatar'] = String(user.avatar);
         opts.headers['X-Kojin-Source'] = 'dashboard';
     }
     if (body) opts.body = JSON.stringify(body);

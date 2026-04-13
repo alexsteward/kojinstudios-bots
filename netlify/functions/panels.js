@@ -23,8 +23,15 @@ exports.handler = async (event) => {
     const path = (event.path || '').replace(/\.netlify\/functions\/panels/, '');
     const isList = event.httpMethod === 'GET' && !event.path.match(/\/panels\/[^/]+/);
 
+    const passthrough = {};
+    for (const [k, v] of Object.entries(event.headers || {})) {
+        if (!k) continue;
+        const key = String(k).toLowerCase();
+        if (key.startsWith('x-kojin-')) passthrough[key] = v;
+    }
+
     const fetchOpts = (method, body) => {
-        const opts = { method, headers: { 'Content-Type': 'application/json' } };
+        const opts = { method, headers: { 'Content-Type': 'application/json', ...passthrough } };
         if (body) opts.body = body;
         const ctrl = new AbortController();
         setTimeout(() => ctrl.abort(), 15000);
