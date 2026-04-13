@@ -801,6 +801,15 @@ body.dashboard-page {
     font-weight: 800;
     margin-right: 0.15rem;
 }
+
+.dash-plus-mark-lg {
+    font-size: 1rem;
+}
+
+.dash-create-panel-btn {
+    padding: 0.29rem 0.65rem;
+    border-radius: 8px;
+}
 .dash-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
 
 /* ─── Action button (link-style) ────────────────────── */
