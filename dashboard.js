@@ -345,7 +345,7 @@ async function loadServerData() {
 
         renderOverview(statusData);
         renderConfig(configData);
-        fetchPanelLimits();
+        await fetchPanelLimits();
         fetchPanels();
         fetchAppPanels();
         fetchAppealPanels();
@@ -1087,8 +1087,16 @@ let panelLimits = null;
 
 async function fetchPanelLimits() {
     try {
-        panelLimits = await apiDash('panel-limits', 'GET', { guild_id: selectedGuildId });
-    } catch { panelLimits = null; }
+        const data = await apiDash('panel-limits', 'GET', { guild_id: selectedGuildId });
+        if (data && data.ticket_panels) {
+            panelLimits = data;
+        } else {
+            console.warn('[Dashboard] panel-limits returned unexpected shape:', data);
+        }
+    } catch (e) {
+        console.warn('[Dashboard] fetchPanelLimits failed:', e);
+        panelLimits = null;
+    }
     renderPanelLimits();
 }
 
