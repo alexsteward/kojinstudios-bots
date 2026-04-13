@@ -1486,8 +1486,8 @@ body.dashboard-page {
     box-shadow: 0 8px 24px rgba(0,0,0,0.2), 0 0 0 1px rgba(255,255,255,0.03) inset;
 }
 
-.dash-panel-card.app-type:hover { box-shadow: 0 8px 24px rgba(88, 101, 242, 0.12), 0 0 0 1px rgba(88, 101, 242, 0.1) inset; }
-.dash-panel-card.appeal-type:hover { box-shadow: 0 8px 24px rgba(245, 158, 11, 0.1), 0 0 0 1px rgba(245, 158, 11, 0.08) inset; }
+.dash-panel-card.app-type:hover { box-shadow: 0 8px 24px rgba(34, 197, 94, 0.12), 0 0 0 1px rgba(34, 197, 94, 0.1) inset; }
+.dash-panel-card.appeal-type:hover { box-shadow: 0 8px 24px rgba(239, 68, 68, 0.1), 0 0 0 1px rgba(239, 68, 68, 0.08) inset; }
 .dash-panel-card.custom-embed-type:hover { box-shadow: 0 8px 24px rgba(168, 85, 247, 0.1), 0 0 0 1px rgba(168, 85, 247, 0.08) inset; }
 
 .dash-panel-card-top {
@@ -2503,16 +2503,54 @@ body.dashboard-page {
 }
 
 .dash-panel-card.app-type {
-    border-left: 3px solid #5865f2;
+    border-left: 3px solid #22c55e;
 }
 
 .dash-panel-card.appeal-type {
-    border-left: 3px solid #f59e0b;
+    border-left: 3px solid #ef4444;
 }
 
 .dash-panel-card.custom-embed-type {
     border-left: 3px solid #a855f7;
 }
+
+/* ── Color-coded panel section cards ───────────────────────────── */
+.dash-card.panel-section-ticket  { border-left: 3px solid #5865f2; }
+.dash-card.panel-section-app     { border-left: 3px solid #22c55e; }
+.dash-card.panel-section-appeal  { border-left: 3px solid #ef4444; }
+.dash-card.panel-section-custom  { border-left: 3px solid #a855f7; }
+
+.dash-card.panel-section-ticket  .dash-card-head svg { color: #5865f2; }
+.dash-card.panel-section-app     .dash-card-head svg { color: #22c55e; }
+.dash-card.panel-section-appeal  .dash-card-head svg { color: #ef4444; }
+.dash-card.panel-section-custom  .dash-card-head svg { color: #a855f7; }
+
+/* Color-coded create buttons */
+.dash-card.panel-section-ticket  .dash-create-panel-btn { background: #5865f2; }
+.dash-card.panel-section-ticket  .dash-create-panel-btn:hover { background: #4752c4; }
+.dash-card.panel-section-app     .dash-create-panel-btn { background: #22c55e; }
+.dash-card.panel-section-app     .dash-create-panel-btn:hover { background: #16a34a; }
+.dash-card.panel-section-appeal  .dash-create-panel-btn { background: #ef4444; }
+.dash-card.panel-section-appeal  .dash-create-panel-btn:hover { background: #dc2626; }
+.dash-card.panel-section-custom  .dash-create-panel-btn { background: #a855f7; }
+.dash-card.panel-section-custom  .dash-create-panel-btn:hover { background: #9333ea; }
+
+/* Uniform create-panel button sizing */
+.dash-create-panel-btn {
+    min-width: 150px;
+    padding: 0.5rem 1rem !important;
+    font-size: 0.8125rem !important;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    border-radius: 8px;
+    white-space: nowrap;
+}
+.dash-create-panel-btn svg { width: 16px; height: 16px; flex-shrink: 0; }
+.dash-create-panel-btn .dash-plus-mark,
+.dash-create-panel-btn .dash-plus-mark-lg { font-size: 1rem; font-weight: 700; }
 
 /* Scrollbar for sidebar on desktop */
 @media (min-width: 769px) {
