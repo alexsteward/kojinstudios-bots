@@ -361,6 +361,14 @@ function renderOverview(data) {
     }
 }
 
+async function refreshOverviewStats() {
+    if (!selectedGuildId) return;
+    try {
+        const data = await api('server-status', { guild_id: selectedGuildId });
+        renderOverview(data);
+    } catch { /* ignore */ }
+}
+
 function renderOverviewTrend(byDay, error) {
     const chart = $('overview-trend-chart');
     const hint = $('overview-trend-hint');
@@ -649,18 +657,61 @@ async function fetchPanels() {
 async function deletePanel(panel) {
     if (!panel || !selectedGuildId) return;
     const title = panel.title || 'Untitled Panel';
-    if (!confirm(`Delete panel "${title}"?\n\nThis will disable it in the database. (It may not remove the Discord message automatically.)`)) return;
+    if (!confirm(`Delete panel "${title}"?\n\nThis removes the Discord message when possible and deletes the panel record (same as /panels in Discord).`)) return;
     try {
-        const res = await api('panels', { guild_id: selectedGuildId, panel_id: panel.id });
-        if (res && res.ok) {
+        const res = await fetch(`${BASE}/.netlify/functions/panels?guild_id=${encodeURIComponent(selectedGuildId)}&panel_id=${encodeURIComponent(panel.id)}`, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json', ...kojinActorHeaders() },
+        });
+        const data = await res.json().catch(() => ({}));
+        if (res.ok && data.ok) {
             toast('Panel deleted.', 'success');
             fetchPanels();
             fetchPanelLimits();
+            refreshOverviewStats();
         } else {
-            toast(res?.error || 'Failed to delete panel.', 'error');
+            toast(data.error || 'Failed to delete panel.', 'error');
         }
     } catch {
         toast('Failed to delete panel.', 'error');
+    }
+}
+
+async function deleteAppPanel(panel) {
+    if (!panel || !selectedGuildId) return;
+    const title = panel.title || 'Untitled';
+    if (!confirm(`Delete application panel "${title}"?\n\nThis removes the Discord message when possible and deletes the panel record.`)) return;
+    try {
+        const data = await apiDash('app-panels', 'DELETE', { guild_id: selectedGuildId, panel_id: panel.id });
+        if (data && data.ok) {
+            toast('Application panel deleted.', 'success');
+            fetchAppPanels();
+            fetchPanelLimits();
+            refreshOverviewStats();
+        } else {
+            toast(data?.error || 'Failed to delete application panel.', 'error');
+        }
+    } catch {
+        toast('Failed to delete application panel.', 'error');
+    }
+}
+
+async function deleteAppealPanel(panel) {
+    if (!panel || !selectedGuildId) return;
+    const title = panel.title || 'Untitled';
+    if (!confirm(`Delete appeal panel "${title}"?\n\nThis removes the Discord message when possible and marks the panel inactive in the database.`)) return;
+    try {
+        const data = await apiDash('appeal-panels', 'DELETE', { guild_id: selectedGuildId, panel_id: panel.id });
+        if (data && data.ok) {
+            toast('Appeal panel deleted.', 'success');
+            fetchAppealPanels();
+            fetchPanelLimits();
+            refreshOverviewStats();
+        } else {
+            toast(data?.error || 'Failed to delete appeal panel.', 'error');
+        }
+    } catch {
+        toast('Failed to delete appeal panel.', 'error');
     }
 }
 
@@ -939,11 +990,18 @@ async function fetchAppPanels() {
                 return `<div class="dash-panel-card app-type" data-id="${p.id}">
                     <div class="dash-panel-card-top">
                         <h4>📋 ${esc(title)}</h4>
-                        <span class="dash-panel-badge">${p.is_active ? 'Active' : 'Inactive'}</span>
+                        <div style="display:flex; gap:.5rem; align-items:center;">
+                            <span class="dash-panel-badge">${p.is_active ? 'Active' : 'Inactive'}</span>
+                            <button type="button" class="dash-app-panel-del-btn" data-id="${p.id}" title="Delete panel">Delete</button>
+                        </div>
                     </div>
                     <div class="dash-panel-card-meta">${chName} · ${typeCount} type${typeCount !== 1 ? 's' : ''}</div>
                 </div>`;
             }).join('');
+            list.querySelectorAll('.dash-app-panel-del-btn').forEach(btn => {
+                const p = panels.find(x => String(x.id) === btn.dataset.id);
+                if (p) btn.addEventListener('click', () => deleteAppPanel(p));
+            });
         }
     } catch {
         if (list) list.innerHTML = '<p class="dash-empty">Could not load application panels.</p>';
@@ -1021,11 +1079,18 @@ async function fetchAppealPanels() {
                 return `<div class="dash-panel-card appeal-type" data-id="${p.id}">
                     <div class="dash-panel-card-top">
                         <h4>⚖️ ${esc(title)}</h4>
-                        <span class="dash-panel-badge">${p.is_active ? 'Active' : 'Inactive'}</span>
+                        <div style="display:flex; gap:.5rem; align-items:center;">
+                            <span class="dash-panel-badge">${p.is_active ? 'Active' : 'Inactive'}</span>
+                            <button type="button" class="dash-appeal-panel-del-btn" data-id="${p.id}" title="Delete panel">Delete</button>
+                        </div>
                     </div>
                     <div class="dash-panel-card-meta">${chName} · ${catCount} categor${catCount !== 1 ? 'ies' : 'y'}</div>
                 </div>`;
             }).join('');
+            list.querySelectorAll('.dash-appeal-panel-del-btn').forEach(btn => {
+                const p = panels.find(x => String(x.id) === btn.dataset.id);
+                if (p) btn.addEventListener('click', () => deleteAppealPanel(p));
+            });
         }
     } catch {
         if (list) list.innerHTML = '<p class="dash-empty">Could not load appeal panels.</p>';
@@ -1136,6 +1201,7 @@ async function deleteCustomEmbed(panel) {
         toast('Custom embed removed from dashboard.', 'success');
         fetchCustomEmbeds();
         fetchPanelLimits();
+        refreshOverviewStats();
     } catch (e) {
         toast(e.message || 'Failed to delete.', 'error');
     }

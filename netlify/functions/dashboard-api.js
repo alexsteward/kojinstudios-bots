@@ -38,8 +38,18 @@ exports.handler = async (event) => {
 
     const params = new URLSearchParams(event.queryStringParameters || {});
     params.delete('endpoint');
+    const panelId = params.get('panel_id');
+    let pathSuffix = '';
+    if (
+        panelId &&
+        event.httpMethod === 'DELETE' &&
+        (endpoint === 'app-panels' || endpoint === 'appeal-panels')
+    ) {
+        pathSuffix = `/${panelId}`;
+        params.delete('panel_id');
+    }
     const qs = params.toString() ? `?${params.toString()}` : '';
-    const url = `${backend.replace(/\/$/, '')}/${endpoint}${qs}`;
+    const url = `${backend.replace(/\/$/, '')}/${endpoint}${pathSuffix}${qs}`;
 
     try {
         const method = event.httpMethod;
