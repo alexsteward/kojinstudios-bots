@@ -19,8 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const user   = stored(STORAGE_USER);
     const guilds = stored(STORAGE_GUILDS);
-    // Default: dashboard hidden (WIP). Use `?wip=0` to temporarily enable for testing.
-    const wip = new URLSearchParams(window.location.search).get('wip') !== '0';
+    const wip = false;
     if (wip) {
         showLogin();
         $('dashboard-content').style.display = 'none';
