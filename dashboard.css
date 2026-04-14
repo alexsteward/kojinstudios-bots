@@ -444,6 +444,7 @@ body.dashboard-page {
     margin: 0 0.05rem;
 }
 
+/* overflow must stay visible here — overflow-y:auto clips the absolutely-positioned server menu */
 .dash-sidebar-workspace {
     flex: 1;
     min-height: 0;
@@ -452,12 +453,8 @@ body.dashboard-page {
     padding: 0.85rem 0.85rem 0.75rem;
     border-bottom: 1px solid var(--d-border);
     overflow-x: hidden;
-    overflow-y: auto;
+    overflow-y: visible;
 }
-
-.dash-sidebar-workspace::-webkit-scrollbar { width: 4px; }
-.dash-sidebar-workspace::-webkit-scrollbar-track { background: transparent; }
-.dash-sidebar-workspace::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.08); border-radius: 4px; }
 
 .dash-sidebar-section-head--workspace {
     margin-bottom: 0.65rem;
@@ -619,9 +616,13 @@ body.dashboard-page {
     display: flex;
     flex-direction: column;
     overflow-x: hidden;
-    overflow-y: visible;
+    overflow-y: auto;
     padding: 0;
 }
+
+.dash-sidebar-top::-webkit-scrollbar { width: 4px; }
+.dash-sidebar-top::-webkit-scrollbar-track { background: transparent; }
+.dash-sidebar-top::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.08); border-radius: 4px; }
 
 .dash-sidebar-brand {
     flex-shrink: 0;
@@ -3622,8 +3623,8 @@ body.dashboard-page {
 
 /* Scrollbar for sidebar nav on desktop */
 @media (min-width: 769px) {
-    .dash-sidebar-workspace::-webkit-scrollbar { width: 4px; }
-    .dash-sidebar-workspace::-webkit-scrollbar-thumb { background: var(--d-surface-3); border-radius: 4px; }
+    .dash-sidebar-top::-webkit-scrollbar { width: 4px; }
+    .dash-sidebar-top::-webkit-scrollbar-thumb { background: var(--d-surface-3); border-radius: 4px; }
 }
 
 /* ================================================================
