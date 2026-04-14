@@ -215,108 +215,122 @@
 
                     <!-- Tab: Overview -->
                     <div class="dash-tab-content active" data-tab="overview" id="tab-overview">
-                        <div class="dash-overview-grid">
-                            <div class="dash-stat-card">
-                                <div class="dash-stat-icon" style="--c:#5865f2">
+                        <header class="dash-overview-page-head anim-in">
+                            <h1 class="dash-overview-page-title">Overview</h1>
+                            <p class="dash-overview-page-context" id="overview-page-guild">—</p>
+                        </header>
+
+                        <div class="dash-overview-stats-row">
+                            <div class="dash-stat-card dash-stat-card--accent" style="--c: var(--d-discord); --i: 0">
+                                <div class="dash-stat-icon">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
                                 </div>
-                                <div>
-                                    <span class="dash-stat-label">Bot status</span>
-                                    <div id="overview-bot-status" class="dash-stat-value">—</div>
+                                <div class="dash-stat-body">
+                                    <span class="dash-stat-label">Status</span>
+                                    <div id="overview-bot-status" class="dash-stat-value dash-stat-value--lead">—</div>
+                                    <div id="overview-latency" class="dash-stat-sub">—</div>
                                 </div>
                             </div>
-                            <div class="dash-stat-card">
-                                <div class="dash-stat-icon" style="--c:#22c55e">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                                </div>
-                                <div>
-                                    <span class="dash-stat-label">Latency</span>
-                                    <div id="overview-latency" class="dash-stat-value">—</div>
-                                </div>
-                            </div>
-                            <div class="dash-stat-card">
-                                <div class="dash-stat-icon" style="--c:#f59e0b">
+                            <div class="dash-stat-card" style="--c: var(--d-yellow); --i: 1">
+                                <div class="dash-stat-icon">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
                                 </div>
-                                <div>
-                                    <span class="dash-stat-label">Subscription</span>
+                                <div class="dash-stat-body">
+                                    <span class="dash-stat-label">Plan</span>
                                     <div id="overview-subscription" class="dash-stat-value">—</div>
+                                    <p id="overview-plan-hint" class="dash-stat-sub dash-stat-sub--muted">—</p>
                                 </div>
                             </div>
-                            <div class="dash-stat-card">
-                                <div class="dash-stat-icon" style="--c:#ff4757">
+                            <div class="dash-stat-card" style="--c: var(--d-accent); --i: 2">
+                                <div class="dash-stat-icon">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
                                 </div>
-                                <div>
+                                <div class="dash-stat-body">
                                     <span class="dash-stat-label">Total tickets</span>
                                     <div id="overview-ticket-count" class="dash-stat-value">—</div>
+                                    <div id="overview-ticket-sub" class="dash-stat-sub">—</div>
                                 </div>
                             </div>
-                            <div class="dash-stat-card">
-                                <div class="dash-stat-icon" style="--c:#a78bfa">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
-                                </div>
-                                <div>
-                                    <span class="dash-stat-label">Open tickets</span>
-                                    <div id="overview-open-tickets" class="dash-stat-value">—</div>
-                                </div>
-                            </div>
-                            <div class="dash-stat-card">
-                                <div class="dash-stat-icon" style="--c:#34d399">
+                            <div class="dash-stat-card" style="--c: var(--d-green); --i: 3">
+                                <div class="dash-stat-icon">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                                 </div>
-                                <div>
+                                <div class="dash-stat-body">
                                     <span class="dash-stat-label">Members</span>
                                     <div id="overview-members" class="dash-stat-value">—</div>
                                 </div>
                             </div>
-                            <div class="dash-stat-card">
-                                <div class="dash-stat-icon" style="--c:#0ea5e9">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 12l2 2 4-4"/></svg>
-                                </div>
-                                <div>
-                                    <span class="dash-stat-label">All panels</span>
-                                    <div id="overview-panel-count" class="dash-stat-value" title="Ticket + application + appeal + custom embed panels">—</div>
-                                </div>
+                        </div>
+
+                        <div class="dash-overview-extras anim-in" style="--delay:.05s">
+                            <div class="dash-mini-stat">
+                                <span class="dash-mini-stat-label">Open tickets</span>
+                                <span id="overview-open-tickets" class="dash-mini-stat-value">—</span>
+                            </div>
+                            <div class="dash-mini-stat">
+                                <span class="dash-mini-stat-label">Panels deployed</span>
+                                <span id="overview-panel-count" class="dash-mini-stat-value" title="Ticket + application + appeal + custom embed panels">—</span>
                             </div>
                         </div>
-                        <div class="dash-card anim-in dash-overview-trend" style="--delay:.1s">
-                            <div class="dash-trend-header">
-                                <div class="dash-trend-title-row">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
-                                    <h3>Ticket activity</h3>
-                                    <span class="dash-trend-period">Last 7 days</span>
+
+                        <div class="dash-overview-split">
+                            <div class="dash-card dash-overview-trend anim-in" style="--delay:.1s">
+                                <div class="dash-trend-header">
+                                    <div class="dash-trend-title-row">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+                                        <h3>Ticket trend</h3>
+                                        <span class="dash-trend-period">Last 7 days</span>
+                                    </div>
+                                    <div class="dash-trend-total" id="overview-trend-total">—</div>
                                 </div>
-                                <div class="dash-trend-total" id="overview-trend-total">—</div>
+                                <div id="overview-trend-chart" class="dash-overview-chart"></div>
+                                <div class="dash-trend-footer">
+                                    <span class="dash-trend-hint" id="overview-trend-hint">Loading&hellip;</span>
+                                    <a href="#" class="dash-trend-link" id="overview-trend-analytics-link">View full analytics →</a>
+                                </div>
                             </div>
-                            <div id="overview-trend-chart" class="dash-overview-chart"></div>
-                            <div class="dash-trend-footer">
-                                <span class="dash-trend-hint" id="overview-trend-hint">Loading&hellip;</span>
-                                <a href="#" class="dash-trend-link" id="overview-trend-analytics-link">View full analytics →</a>
-                            </div>
-                        </div>
-                        <div class="dash-quick-actions anim-in" style="--delay:.15s">
-                            <a href="#" class="dash-quick-action-card" id="detail-get-tickets-btn" data-bot="tickets">
-                                <div class="dash-qa-icon" style="--c:#ff4757">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                            <aside class="dash-overview-aside">
+                                <div class="dash-quick-actions-head">Quick actions</div>
+                                <div class="dash-quick-actions-stack">
+                                    <a href="#" class="dash-quick-action-card" data-go-tab="panels">
+                                        <div class="dash-qa-icon" style="--c: var(--d-accent)">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 12l2 2 4-4"/></svg>
+                                        </div>
+                                        <div class="dash-qa-copy">
+                                            <span class="dash-qa-label">Panels</span>
+                                            <span class="dash-qa-desc">Ticket, application &amp; appeal panels</span>
+                                        </div>
+                                        <svg class="dash-qa-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                                    </a>
+                                    <a href="#" class="dash-quick-action-card" data-go-tab="analytics">
+                                        <div class="dash-qa-icon" style="--c: var(--d-discord)">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+                                        </div>
+                                        <div class="dash-qa-copy">
+                                            <span class="dash-qa-label">Analytics</span>
+                                            <span class="dash-qa-desc">Volume, categories &amp; trends</span>
+                                        </div>
+                                        <svg class="dash-qa-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                                    </a>
+                                    <a href="#" class="dash-quick-action-card" data-go-tab="responses">
+                                        <div class="dash-qa-icon" style="--c: var(--d-green)">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                                        </div>
+                                        <div class="dash-qa-copy">
+                                            <span class="dash-qa-label">Quick responses</span>
+                                            <span class="dash-qa-desc">Canned replies for staff</span>
+                                        </div>
+                                        <svg class="dash-qa-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                                    </a>
                                 </div>
-                                <span class="dash-qa-label">Get Tickets</span>
-                                <svg class="dash-qa-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-                            </a>
-                            <a href="#" class="dash-quick-action-card" data-go-tab="panels">
-                                <div class="dash-qa-icon" style="--c:#3b82f6">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 12l2 2 4-4"/></svg>
+                                <div class="dash-overview-cta">
+                                    <h4 class="dash-overview-cta-title">Subscription</h4>
+                                    <p class="dash-overview-cta-desc">Upgrade or manage your Tickets bot plan.</p>
+                                    <a href="#" class="dash-overview-cta-btn" id="detail-get-tickets-btn" data-bot="tickets">
+                                        <span class="dash-overview-cta-btn-inner">Manage subscription</span>
+                                    </a>
                                 </div>
-                                <span class="dash-qa-label">Manage Panels</span>
-                                <svg class="dash-qa-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-                            </a>
-                            <a href="#" class="dash-quick-action-card" data-go-tab="analytics">
-                                <div class="dash-qa-icon" style="--c:#f59e0b">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
-                                </div>
-                                <span class="dash-qa-label">View Analytics</span>
-                                <svg class="dash-qa-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-                            </a>
+                            </aside>
                         </div>
                     </div>
 

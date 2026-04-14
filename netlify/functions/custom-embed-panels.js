@@ -15,6 +15,16 @@ function passthroughKojinHeaders(event) {
     return out;
 }
 
+/** Netlify may send base64-encoded bodies; always return a UTF-8 string for JSON.parse */
+function decodeEventBody(event) {
+    if (event.body == null || event.body === '') return '{}';
+    let raw = typeof event.body === 'string' ? event.body : '{}';
+    if (event.isBase64Encoded) {
+        raw = Buffer.from(raw, 'base64').toString('utf8');
+    }
+    return raw;
+}
+
 exports.handler = async (event) => {
     if (event.httpMethod === 'OPTIONS') {
         return { statusCode: 204, headers: { ...headers, 'Access-Control-Allow-Methods': 'GET, POST, PATCH, DELETE, OPTIONS' }, body: '' };
@@ -57,10 +67,17 @@ exports.handler = async (event) => {
     }
 
     if (event.httpMethod === 'POST') {
+        let parsed = {};
         try {
-            const body = typeof event.body === 'string' ? event.body : '{}';
+            parsed = JSON.parse(decodeEventBody(event));
+        } catch (e) {
+            console.error('custom-embed-panels POST JSON:', e.message);
+            return { statusCode: 400, headers, body: JSON.stringify({ error: 'Invalid JSON body' }) };
+        }
+        try {
             const url = `${base}/custom-embed-panels?guild_id=${encodeURIComponent(guildId)}`;
-            const res = await fetch(url, fetchOpts('POST', JSON.stringify({ guild_id: guildId, ...JSON.parse(body) })));
+            const merged = { guild_id: guildId, ...parsed };
+            const res = await fetch(url, fetchOpts('POST', JSON.stringify(merged)));
             const data = await res.json().catch(() => ({}));
             return { statusCode: res.status || 200, headers, body: JSON.stringify(data) };
         } catch (e) {
@@ -76,10 +93,16 @@ exports.handler = async (event) => {
         }
         try {
             const url = `${base}/custom-embed-panels/${panelId}?guild_id=${encodeURIComponent(guildId)}`;
-            const res = await fetch(url, fetchOpts(
-                event.httpMethod,
-                event.httpMethod === 'PATCH' && event.body ? event.body : undefined,
-            ));
+            let patchBody;
+            if (event.httpMethod === 'PATCH' && event.body) {
+                try {
+                    patchBody = decodeEventBody(event);
+                    JSON.parse(patchBody);
+                } catch (e) {
+                    return { statusCode: 400, headers, body: JSON.stringify({ error: 'Invalid JSON body' }) };
+                }
+            }
+            const res = await fetch(url, fetchOpts(event.httpMethod, patchBody));
             const data = await res.json().catch(() => ({}));
             return { statusCode: res.status || 200, headers, body: JSON.stringify(data) };
         } catch (e) {

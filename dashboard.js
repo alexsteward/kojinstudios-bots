@@ -422,31 +422,56 @@ function animateCount(el, target, duration = 500) {
 
 function renderOverview(data) {
     const inServer = data.tickets === true;
-    $('overview-bot-status').innerHTML = inServer
-        ? '<span class="dash-status-dot green"></span> Online'
-        : '<span class="dash-status-dot red"></span> Not in server';
+    const statusEl = $('overview-bot-status');
+    if (statusEl) {
+        statusEl.innerHTML = inServer
+            ? '<span class="dash-status-dot green"></span> Online'
+            : '<span class="dash-status-dot red"></span> Not in server';
+    }
 
     const lat = $('overview-latency');
     if (lat) {
         const ms = data.latency_ms;
         if (typeof ms === 'number') {
             const ok = ms < 150;
-            lat.innerHTML = `<span class="dash-latency-val ${ok ? 'good' : 'warn'}">${ms} ms</span>`;
-        } else lat.textContent = '—';
+            lat.innerHTML = `<span class="dash-latency-val ${ok ? 'good' : 'warn'}">${ms} ms</span> latency`;
+        } else lat.textContent = inServer ? '—' : '—';
     }
 
     const sub = data.subscription;
-    $('overview-subscription').innerHTML = sub === 'premium'
-        ? '<span class="dash-badge-sm premium">Premium</span>'
-        : sub === 'free'
-            ? '<span class="dash-badge-sm free">Free</span>'
-            : '<span class="dash-badge-sm none">Unknown</span>';
+    const subEl = $('overview-subscription');
+    if (subEl) {
+        subEl.innerHTML = sub === 'premium'
+            ? '<span class="dash-badge-sm premium">Premium</span>'
+            : sub === 'free'
+                ? '<span class="dash-badge-sm free">Free</span>'
+                : '<span class="dash-badge-sm none">Unknown</span>';
+    }
+    const planHint = $('overview-plan-hint');
+    if (planHint) {
+        if (sub === 'premium') planHint.textContent = 'All features unlocked';
+        else if (sub === 'free') planHint.textContent = 'Upgrade for higher panel limits';
+        else planHint.textContent = '';
+    }
 
     if (typeof data.ticket_count === 'number') animateCount($('overview-ticket-count'), data.ticket_count);
-    else $('overview-ticket-count').textContent = '—';
+    else {
+        const el = $('overview-ticket-count');
+        if (el) el.textContent = '—';
+    }
+
+    const ticketSub = $('overview-ticket-sub');
+    if (ticketSub) {
+        if (typeof data.open_tickets === 'number') {
+            ticketSub.textContent = `${data.open_tickets.toLocaleString()} currently open`;
+        } else ticketSub.textContent = '—';
+    }
 
     if (typeof data.open_tickets === 'number') animateCount($('overview-open-tickets'), data.open_tickets);
-    else $('overview-open-tickets').textContent = '—';
+    else {
+        const ot = $('overview-open-tickets');
+        if (ot) ot.textContent = '—';
+    }
 
     const members = $('overview-members');
     if (members) {
@@ -468,15 +493,19 @@ function renderOverview(data) {
         } else panels.textContent = '—';
     }
 
-    const name = $('overview-guild-name');
+    const pageGuild = $('overview-page-guild');
+    if (pageGuild) pageGuild.textContent = data.guild_name || '—';
+
+    const name = $('detail-server-name');
     if (name && data.guild_name) name.textContent = data.guild_name;
 
     const btn = $('detail-get-tickets-btn');
+    const btnLabel = btn?.querySelector?.('.dash-overview-cta-btn-inner');
     if (btn && selectedGuildId) {
         btn.href = `${BASE}/index.html?buy=tickets&guild_id=${encodeURIComponent(selectedGuildId)}`;
-        btn.innerHTML = inServer
-            ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> Manage subscription'
-            : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg> Get Tickets';
+        const label = inServer ? 'Manage subscription' : 'Get Tickets';
+        if (btnLabel) btnLabel.textContent = label;
+        else btn.textContent = label;
     }
 }
 

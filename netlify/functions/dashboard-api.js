@@ -42,8 +42,8 @@ exports.handler = async (event) => {
     let pathSuffix = '';
     if (
         panelId &&
-        event.httpMethod === 'DELETE' &&
-        (endpoint === 'app-panels' || endpoint === 'appeal-panels')
+        (event.httpMethod === 'DELETE' || event.httpMethod === 'PATCH') &&
+        (endpoint === 'app-panels' || endpoint === 'appeal-panels' || endpoint === 'custom-embed-panels')
     ) {
         pathSuffix = `/${panelId}`;
         params.delete('panel_id');
