@@ -202,15 +202,19 @@ function showDashboard(user, guilds) {
     $('dashboard-content').style.display = 'block';
     const av  = $('dashboard-user-avatar');
     const ini = $('dashboard-user-initial');
-    const nm  = $('dashboard-user-name');
+    const disp = $('dashboard-user-display');
+    const handle = $('dashboard-user-handle');
+    const uname = user.username || '';
+    const gname = user.global_name || '';
     if (av && user.avatar) {
         av.src = user.avatar; av.style.display = 'block';
         if (ini) ini.style.display = 'none';
     } else if (ini) {
-        ini.textContent = (user.username || '?')[0].toUpperCase();
+        ini.textContent = (uname || '?')[0].toUpperCase();
         ini.style.display = 'flex';
     }
-    if (nm) nm.textContent = user.username || '';
+    if (disp) disp.textContent = gname || uname || 'User';
+    if (handle) handle.textContent = uname ? `@${uname}` : '';
     renderGuildList(guilds);
 }
 
@@ -232,10 +236,24 @@ function renderGuildList(guilds) {
 
     list.innerHTML = all.map(g => {
         const has = botSet.has(g.id);
-        return `<button class="dash-guild-btn${selectedGuildId === g.id ? ' active' : ''}" data-id="${escA(g.id)}">
+        const mc = g.memberCount != null && g.memberCount > 0
+            ? `${Number(g.memberCount).toLocaleString()} members`
+            : '';
+        let metaLine = '';
+        if (mc && has) metaLine = `${mc} · Tickets bot`;
+        else if (mc) metaLine = mc;
+        else if (has) metaLine = 'Tickets bot connected';
+        return `<button type="button" class="dash-guild-btn${selectedGuildId === g.id ? ' active' : ''}" data-id="${escA(g.id)}">
+            <div class="dash-guild-icon-wrap">
             ${g.icon ? `<img src="${escA(g.icon)}" alt="">` : `<span class="dash-guild-initial">${esc((g.name || '?')[0])}</span>`}
-            <span class="dash-guild-name">${esc(g.name)}</span>
-            ${has ? '<span class="dash-guild-badge">Tickets</span>' : ''}
+            </div>
+            <div class="dash-guild-info">
+                <div class="dash-guild-name-row">
+                    <span class="dash-guild-name">${esc(g.name)}</span>
+                    ${has ? '<span class="dash-guild-badge">Tickets</span>' : ''}
+                </div>
+                ${metaLine ? `<span class="dash-guild-meta">${esc(metaLine)}</span>` : ''}
+            </div>
         </button>`;
     }).join('');
 

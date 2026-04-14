@@ -216,6 +216,8 @@ exports.handler = async (event, context) => {
                 id: guild.id,
                 name: guild.name,
                 icon: guild.icon ? `https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png` : null,
+                memberCount:
+                    guild.approximate_member_count != null ? guild.approximate_member_count : null,
             });
             const guildsWithBot = filteredGuilds.map(toGuild);
             const filteredIds = new Set(filteredGuilds.map(g => g.id));
@@ -232,6 +234,7 @@ exports.handler = async (event, context) => {
                     user = {
                         id: u.id,
                         username: u.username,
+                        global_name: u.global_name || null,
                         discriminator: u.discriminator,
                         avatar: u.avatar
                             ? `https://cdn.discordapp.com/avatars/${u.id}/${u.avatar}.png?size=80`

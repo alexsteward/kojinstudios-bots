@@ -132,11 +132,16 @@
             <aside class="dash-sidebar">
                 <div class="dash-sidebar-top">
                     <a href="index.html" class="dash-sidebar-brand">
+                        <span class="dash-sidebar-brand-mark" aria-hidden="true"></span>
                         <img src="images/logo.png" alt="">
-                        <span>Kojin<strong>Bots</strong></span>
+                        <span class="dash-sidebar-brand-text">Kojin<strong>Bots</strong></span>
                     </a>
-                    <div class="dash-sidebar-servers">
-                        <span class="dash-sidebar-label">Your servers</span>
+                    <div class="dash-sidebar-section">
+                        <div class="dash-sidebar-section-head">
+                            <span class="dash-sidebar-kicker">Workspace</span>
+                            <h2 class="dash-sidebar-title">Your servers</h2>
+                            <p class="dash-sidebar-desc">Pick a server to open the dashboard.</p>
+                        </div>
                         <div id="dashboard-guild-list" class="dash-guild-list"></div>
                         <p id="discord-no-servers" class="dash-no-servers" style="display:none;">No servers with manage permissions found.</p>
                     </div>
@@ -147,7 +152,10 @@
                             <img id="dashboard-user-avatar" src="" alt="" class="dash-user-avatar" style="display:none;">
                             <span class="dash-user-initial" id="dashboard-user-initial">?</span>
                         </div>
-                        <span class="dash-user-name" id="dashboard-user-name"></span>
+                        <div class="dash-user-text">
+                            <span class="dash-user-display" id="dashboard-user-display"></span>
+                            <span class="dash-user-handle" id="dashboard-user-handle"></span>
+                        </div>
                         <button type="button" class="dash-logout-btn" id="dashboard-logout" title="Log out">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
                         </button>
