@@ -31,7 +31,7 @@ exports.handler = async (event) => {
         return { statusCode: 400, headers, body: JSON.stringify({ error: 'endpoint query param required (e.g. config, roles, analytics).' }) };
     }
 
-    const allowed = ['config', 'roles', 'categories', 'quick-responses', 'analytics', 'panel-limits', 'app-panels', 'appeal-panels', 'custom-embed-panels'];
+    const allowed = ['config', 'roles', 'categories', 'quick-responses', 'analytics', 'panel-limits', 'app-panels', 'appeal-panels', 'custom-embed-panels', 'recent-activity', 'audit-log'];
     if (!allowed.includes(endpoint)) {
         return { statusCode: 400, headers, body: JSON.stringify({ error: `Invalid endpoint. Allowed: ${allowed.join(', ')}` }) };
     }

@@ -14,6 +14,15 @@ let cachedRoles     = [];
 let cachedGuildEmojis = [];
 let editingCustomEmbedId = null;
 let lastConfigSaveTime = 0;
+let guildsDataCache = null;
+
+const TAB_LABELS = {
+    overview: 'Overview',
+    config: 'Configuration',
+    panels: 'Panels',
+    responses: 'Quick responses',
+    analytics: 'Analytics',
+};
 
 // ─── Init ────────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
@@ -56,10 +65,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const backdrop = document.querySelector('.dash-panel-editor-backdrop');
     if (backdrop) backdrop.addEventListener('click', closePanelEditor);
 
-    // Tabs
-    document.querySelectorAll('.dash-tab').forEach(t =>
-        t.addEventListener('click', () => switchTab(t.dataset.tab))
+    document.querySelectorAll('.dash-nav-tab').forEach(t =>
+        t.addEventListener('click', () => {
+            if (!selectedGuildId) {
+                toast('Select a server from the menu first.', 'error');
+                return;
+            }
+            switchTab(t.dataset.tab);
+        })
     );
+
+    initServerPickerDropdown();
 
     // Quick-action tab shortcuts (overview)
     document.querySelectorAll('[data-go-tab]').forEach(a => {
@@ -94,6 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.addEventListener('keydown', (e) => {
         if (e.key !== 'Escape') return;
+        closeServerPickerMenu();
         if ($('dash-panel-editor')?.style.display === 'flex') { closePanelEditor(); return; }
         if ($('app-panel-editor')?.style.display === 'flex') { closeAppPanelEditor(); return; }
         if ($('appeal-panel-editor')?.style.display === 'flex') { closeAppealPanelEditor(); return; }
@@ -200,6 +217,7 @@ function showLogin() {
 function showDashboard(user, guilds) {
     $('dashboard-login').style.display = 'none';
     $('dashboard-content').style.display = 'block';
+    document.querySelector('.dash-layout')?.classList.add('dash-layout--no-server');
     const av  = $('dashboard-user-avatar');
     const ini = $('dashboard-user-initial');
     const disp = $('dashboard-user-display');
@@ -219,22 +237,16 @@ function showDashboard(user, guilds) {
 }
 
 function renderGuildList(guilds) {
+    guildsDataCache = guilds;
     const withBot = Array.isArray(guilds.guildsWithBot) ? guilds.guildsWithBot : (guilds.guilds || []);
     const other   = Array.isArray(guilds.otherGuilds) ? guilds.otherGuilds : [];
     const all     = [...withBot, ...other];
     const botSet  = new Set(withBot.map(g => g.id));
     const list    = $('dashboard-guild-list');
+    const menu    = $('dash-server-picker-menu');
     const noSrv   = $('discord-no-servers');
 
-    if (!all.length) {
-        if (list)  list.innerHTML = '';
-        if (noSrv) noSrv.style.display = 'block';
-        return;
-    }
-    if (noSrv) noSrv.style.display = 'none';
-    if (!list) return;
-
-    list.innerHTML = all.map(g => {
+    function guildRowHtml(g, inMenu) {
         const has = botSet.has(g.id);
         const mc = g.memberCount != null && g.memberCount > 0
             ? `${Number(g.memberCount).toLocaleString()} members`
@@ -243,7 +255,9 @@ function renderGuildList(guilds) {
         if (mc && has) metaLine = `${mc} · Tickets bot`;
         else if (mc) metaLine = mc;
         else if (has) metaLine = 'Tickets bot connected';
-        return `<button type="button" class="dash-guild-btn${selectedGuildId === g.id ? ' active' : ''}" data-id="${escA(g.id)}">
+        const active = selectedGuildId === g.id;
+        const cls = inMenu ? 'dash-server-picker-option' : 'dash-guild-btn';
+        return `<button type="button" class="${cls}${active ? ' active' : ''}" data-id="${escA(g.id)}" role="${inMenu ? 'option' : 'button'}"${inMenu ? ` aria-selected="${active ? 'true' : 'false'}"` : ''}>
             <div class="dash-guild-icon-wrap">
             ${g.icon ? `<img src="${escA(g.icon)}" alt="">` : `<span class="dash-guild-initial">${esc((g.name || '?')[0])}</span>`}
             </div>
@@ -255,11 +269,79 @@ function renderGuildList(guilds) {
                 ${metaLine ? `<span class="dash-guild-meta">${esc(metaLine)}</span>` : ''}
             </div>
         </button>`;
-    }).join('');
+    }
 
-    list.querySelectorAll('.dash-guild-btn').forEach(btn => {
+    if (!all.length) {
+        if (list) list.innerHTML = '';
+        if (menu) { menu.innerHTML = ''; menu.setAttribute('hidden', ''); }
+        if (noSrv) noSrv.style.display = 'block';
+        return;
+    }
+    if (noSrv) noSrv.style.display = 'none';
+
+    const rows = all.map(g => guildRowHtml(g, false)).join('');
+    const menuRows = all.map(g => guildRowHtml(g, true)).join('');
+
+    if (list) list.innerHTML = rows;
+    if (menu) menu.innerHTML = menuRows;
+
+    list?.querySelectorAll('.dash-guild-btn').forEach(btn => {
         const g = all.find(x => x.id === btn.dataset.id);
         if (g) btn.addEventListener('click', () => selectServer(g));
+    });
+    menu?.querySelectorAll('.dash-server-picker-option').forEach(btn => {
+        const g = all.find(x => x.id === btn.dataset.id);
+        if (g) btn.addEventListener('click', () => { selectServer(g); closeServerPickerMenu(); });
+    });
+
+    if (selectedGuild) updateServerPickerButton(selectedGuild);
+}
+
+function closeServerPickerMenu() {
+    const menu = $('dash-server-picker-menu');
+    const btn = $('dash-server-picker-btn');
+    if (menu) menu.setAttribute('hidden', '');
+    if (btn) btn.setAttribute('aria-expanded', 'false');
+}
+
+function initServerPickerDropdown() {
+    const wrap = document.querySelector('.dash-server-picker-wrap');
+    const btn = $('dash-server-picker-btn');
+    const menu = $('dash-server-picker-menu');
+    if (!btn || !menu) return;
+    btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (!selectedGuildId) return;
+        const isClosed = menu.hasAttribute('hidden');
+        if (isClosed) {
+            menu.removeAttribute('hidden');
+            btn.setAttribute('aria-expanded', 'true');
+        } else {
+            closeServerPickerMenu();
+        }
+    });
+    document.addEventListener('click', () => closeServerPickerMenu());
+    if (wrap) wrap.addEventListener('click', (e) => e.stopPropagation());
+}
+
+function updateServerPickerButton(guild) {
+    const label = $('detail-server-name');
+    const icon = $('dash-server-picker-icon');
+    if (label) label.textContent = guild.name || '—';
+    if (icon) {
+        if (guild.icon) {
+            icon.innerHTML = `<img src="${escA(guild.icon)}" alt="">`;
+        } else {
+            icon.innerHTML = `<span class="dash-guild-initial">${esc((guild.name || '?')[0])}</span>`;
+        }
+    }
+    document.querySelectorAll('.dash-server-picker-option').forEach(opt => {
+        const on = opt.dataset.id === guild.id;
+        opt.classList.toggle('active', on);
+        opt.setAttribute('aria-selected', on ? 'true' : 'false');
+    });
+    document.querySelectorAll('.dash-guild-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.id === guild.id);
     });
 }
 
@@ -309,11 +391,9 @@ function selectServer(guild) {
         requestAnimationFrame(() => { server.style.opacity = '1'; });
     }, 200);
 
-    $('detail-server-name').textContent = guild.name;
-
-    document.querySelectorAll('.dash-guild-btn').forEach(b =>
-        b.classList.toggle('active', b.dataset.id === guild.id)
-    );
+    document.querySelector('.dash-layout')?.classList.remove('dash-layout--no-server');
+    if (guildsDataCache) renderGuildList(guildsDataCache);
+    updateServerPickerButton(guild);
 
     const sidebar = document.querySelector('.dash-sidebar');
     if (sidebar) sidebar.classList.remove('open');
@@ -327,14 +407,18 @@ function backToServers() {
     selectedGuild   = null;
     $('dash-welcome').style.display = 'flex';
     $('dash-server').style.display  = 'none';
+    document.querySelector('.dash-layout')?.classList.add('dash-layout--no-server');
+    closeServerPickerMenu();
 
     document.querySelectorAll('.dash-guild-btn').forEach(b => b.classList.remove('active'));
 }
 
 function switchTab(tab) {
-    document.querySelectorAll('.dash-tab').forEach(t =>
+    document.querySelectorAll('.dash-nav-tab').forEach(t =>
         t.classList.toggle('active', t.dataset.tab === tab)
     );
+    const bc = $('dash-breadcrumb-tab');
+    if (bc) bc.textContent = TAB_LABELS[tab] || tab;
     document.querySelectorAll('.dash-tab-content').forEach(c => {
         const isTarget = c.dataset.tab === tab;
         c.classList.toggle('active', isTarget);
@@ -381,6 +465,13 @@ async function loadServerData() {
         fetchCustomEmbeds();
         fetchQR();
         fetchAnalytics(selectedGuildId, 30);
+
+        const [ra, audit] = await Promise.allSettled([
+            apiDash('recent-activity', 'GET', { guild_id: selectedGuildId, limit: 15 }),
+            apiDash('audit-log', 'GET', { guild_id: selectedGuildId }),
+        ]);
+        renderRecentActivity(ra.status === 'fulfilled' ? ra.value : null);
+        renderAuditLog(audit.status === 'fulfilled' ? audit.value : null);
 
         const failed = [status, config, channels, roles, emojis].filter(r => r.status === 'rejected');
         if (failed.length === 4) {
@@ -547,7 +638,10 @@ function renderOverviewTrend(byDay, error) {
     if (!chart) return;
     if (link) {
         link.href = '#';
-        link.onclick = (e) => { e.preventDefault(); document.querySelector('[data-tab="analytics"]')?.click(); };
+        link.onclick = (e) => {
+            e.preventDefault();
+            document.querySelector('.dash-nav-tab[data-tab="analytics"]')?.click();
+        };
     }
     if (error) {
         chart.innerHTML = '';
@@ -575,6 +669,74 @@ function renderOverviewTrend(byDay, error) {
         </div>`;
     }).join('')}</div>`;
     if (hint) hint.textContent = total === 0 ? 'No tickets created.' : `${total} ticket${total !== 1 ? 's' : ''} created this week.`;
+}
+
+function formatRelativeTime(iso) {
+    if (!iso) return '—';
+    const t = Date.parse(iso);
+    if (Number.isNaN(t)) return '—';
+    const diff = Date.now() - t;
+    const sec = Math.floor(diff / 1000);
+    if (sec < 60) return 'just now';
+    const min = Math.floor(sec / 60);
+    if (min < 60) return `${min} min ago`;
+    const h = Math.floor(min / 60);
+    if (h < 24) return `${h}h ago`;
+    const d = Math.floor(h / 24);
+    return `${d}d ago`;
+}
+
+function renderRecentActivity(data) {
+    const el = $('overview-recent-activity');
+    if (!el) return;
+    const tickets = data?.tickets;
+    if (!tickets || !tickets.length) {
+        el.innerHTML = '<div class="dash-feed-empty">No recent tickets yet.</div>';
+        return;
+    }
+    el.innerHTML = tickets.map(t => {
+        const rel = formatRelativeTime(t.created_at);
+        const title = esc(t.title || `Ticket #${t.ticket_number ?? ''}`);
+        const cat = esc(t.category || 'General');
+        const st = esc((t.status || 'open').replace(/_/g, ' '));
+        return `<div class="dash-feed-row" role="listitem">
+            <div class="dash-feed-row-icon" aria-hidden="true">🎫</div>
+            <div class="dash-feed-row-body">
+                <div class="dash-feed-row-title">${title}</div>
+                <div class="dash-feed-row-meta">
+                    <span class="dash-feed-pill">${cat}</span>
+                    <span class="dash-feed-pill dash-feed-pill--muted">${st}</span>
+                    <span class="dash-feed-time">${esc(rel)}</span>
+                </div>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+function renderAuditLog(data) {
+    const el = $('overview-audit-log');
+    if (!el) return;
+    const events = data?.events;
+    const hint = data?.hint;
+    if (Array.isArray(events) && events.length) {
+        el.innerHTML = events.map(ev => {
+            const tag = esc(ev.type || 'event');
+            const who = esc(ev.actor || '—');
+            const when = esc(formatRelativeTime(ev.at));
+            return `<div class="dash-feed-row dash-feed-row--audit" role="listitem">
+                <div class="dash-feed-row-body">
+                    <div class="dash-feed-row-title">${esc(ev.message || ev.description || '')}</div>
+                    <div class="dash-feed-row-meta">
+                        <span class="dash-feed-pill dash-feed-pill--tag">${tag}</span>
+                        <span class="dash-feed-pill dash-feed-pill--muted">${who}</span>
+                        <span class="dash-feed-time">${when}</span>
+                    </div>
+                </div>
+            </div>`;
+        }).join('');
+        return;
+    }
+    el.innerHTML = `<div class="dash-feed-empty dash-feed-empty--soft">${esc(hint || 'No web audit entries yet. Configure log channels in Discord to track admin actions.')}</div>`;
 }
 
 // ─── Searchable Select Component ─────────────────────────────────────────────
