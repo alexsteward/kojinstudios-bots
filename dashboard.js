@@ -2410,16 +2410,20 @@ async function fetchAnalytics(guildId, days) {
                 catsEl.innerHTML = '<p class="dash-empty dash-empty--compact">No category data for this period.</p>';
             } else {
                 const maxC = Math.max(...cats.map(c => c.count), 1);
-                catsEl.innerHTML = cats.map((c, i) => `
+                const sum = cats.reduce((s, c) => s + (c.count || 0), 0) || 1;
+                catsEl.innerHTML = cats.map((c, i) => {
+                    const pctOfTotal = Math.round(((c.count || 0) / sum) * 100);
+                    return `
                     <div class="dash-analytics-cat-item" style="animation-delay:${i * 0.04}s">
                         <div class="dash-analytics-cat-top">
                             <span class="dash-analytics-cat-name" title="${escA(c.name)}">${esc(c.name)}</span>
-                            <span class="dash-analytics-cat-count">${c.count}</span>
+                            <span class="dash-analytics-cat-meta"><span class="dash-analytics-cat-count">${c.count}</span><span class="dash-analytics-cat-pct">${pctOfTotal}%</span></span>
                         </div>
                         <div class="dash-analytics-cat-bar" role="presentation" aria-hidden="true">
                             <div class="dash-analytics-cat-bar-fill" style="width:${(c.count / maxC) * 100}%"></div>
                         </div>
-                    </div>`).join('');
+                    </div>`;
+                }).join('');
             }
         }
         const byDay = data.by_day || [];
@@ -2437,16 +2441,43 @@ async function fetchAnalytics(guildId, days) {
 function renderChart(days) {
     const chart = $('analytics-chart');
     if (!chart) return;
-    if (!days.length) { chart.innerHTML = '<p class="dash-empty">No ticket activity in this period.</p>'; return; }
+    if (!days.length) {
+        chart.innerHTML = '<p class="dash-empty dash-empty--compact">No ticket activity in this period.</p>';
+        chart.style.removeProperty('--analytics-bars');
+        chart.style.removeProperty('--analytics-col-w');
+        chart.style.removeProperty('--analytics-gap');
+        return;
+    }
+    const n = days.length;
     const max = Math.max(...days.map(d => d.count), 1);
-    chart.innerHTML = `<div class="dash-bar-chart">${days.map((d, i) => {
-        const pct = Math.max((d.count / max) * 100, 3);
+    const gapPx = 3;
+    const colW = n > 75 ? 4 : n > 50 ? 5 : n > 32 ? 6 : n > 18 ? 8 : n > 12 ? 10 : 14;
+    chart.style.setProperty('--analytics-bars', String(n));
+    chart.style.setProperty('--analytics-col-w', `${colW}px`);
+    chart.style.setProperty('--analytics-gap', `${gapPx}px`);
+
+    const labelEvery = n > 45 ? Math.max(1, Math.ceil(n / 14))
+        : n > 24 ? Math.max(1, Math.ceil(n / 12))
+            : n > 14 ? Math.max(1, Math.ceil(n / 10))
+                : 1;
+
+    const barsHtml = days.map((d, i) => {
+        const pct = Math.max((d.count / max) * 100, 2);
         const dayLabel = d.label || d.date;
+        const showLab = (i % labelEvery === 0) || (i === n - 1);
         return `<div class="dash-bar-col" title="${escA(dayLabel)}: ${d.count} ticket${d.count !== 1 ? 's' : ''}">
-            <div class="dash-bar" style="height:${pct}%;--bar-i:${i}"></div>
-            <span class="dash-bar-label">${esc(dayLabel)}</span>
+            <div class="dash-bar dash-bar--analytics" style="height:${pct}%;--bar-i:${i}"></div>
+            <span class="dash-bar-label${showLab ? '' : ' dash-bar-label--faint'}">${showLab ? esc(dayLabel) : '\u00a0'}</span>
         </div>`;
-    }).join('')}</div>`;
+    }).join('');
+
+    const scrollHint = n > 18
+        ? '<p class="dash-analytics-chart-hint"><span class="dash-analytics-chart-hint-icon" aria-hidden="true"></span>Scroll horizontally to see every day in this range.</p>'
+        : '';
+
+    chart.innerHTML = `${scrollHint}<div class="dash-analytics-chart-scroll">
+        <div class="dash-analytics-chart-inner dash-bar-chart dash-bar-chart--analytics-bars">${barsHtml}</div>
+    </div>`;
 }
 
 // ─── Nav & Mobile ────────────────────────────────────────────────────────────
