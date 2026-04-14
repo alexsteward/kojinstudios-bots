@@ -243,73 +243,136 @@
                             <p class="dash-overview-page-context" id="overview-page-guild">—</p>
                         </header>
 
-                        <div class="dash-overview-stats-row">
-                            <div class="dash-stat-card dash-stat-card--accent" style="--c: var(--d-discord); --i: 0">
-                                <div class="dash-stat-icon">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-                                </div>
-                                <div class="dash-stat-body">
+                        <div class="dash-kpi-grid anim-in">
+                            <div class="dash-stat-card dash-kpi-card" style="--c: var(--d-green); --i: 0">
+                                <div class="dash-kpi-top">
                                     <span class="dash-stat-label">Status</span>
+                                    <div class="dash-stat-icon dash-kpi-icon">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                                    </div>
+                                </div>
+                                <div class="dash-kpi-main">
                                     <div id="overview-bot-status" class="dash-stat-value dash-stat-value--lead">—</div>
                                     <div id="overview-latency" class="dash-stat-sub">—</div>
                                 </div>
                             </div>
-                            <div class="dash-stat-card" style="--c: var(--d-yellow); --i: 1">
-                                <div class="dash-stat-icon">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                                </div>
-                                <div class="dash-stat-body">
+                            <div class="dash-stat-card dash-kpi-card" style="--c: var(--d-accent); --i: 1">
+                                <div class="dash-kpi-top">
                                     <span class="dash-stat-label">Plan</span>
+                                    <div class="dash-stat-icon dash-kpi-icon">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                                    </div>
+                                </div>
+                                <div class="dash-kpi-main">
                                     <div id="overview-subscription" class="dash-stat-value">—</div>
                                     <p id="overview-plan-hint" class="dash-stat-sub dash-stat-sub--muted">—</p>
                                 </div>
                             </div>
-                            <div class="dash-stat-card" style="--c: var(--d-accent); --i: 2">
-                                <div class="dash-stat-icon">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
-                                </div>
-                                <div class="dash-stat-body">
+                            <div class="dash-stat-card dash-kpi-card" style="--c: var(--d-accent); --i: 2">
+                                <div class="dash-kpi-top">
                                     <span class="dash-stat-label">Total tickets</span>
+                                    <div class="dash-stat-icon dash-kpi-icon">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
+                                    </div>
+                                </div>
+                                <div class="dash-kpi-main">
                                     <div id="overview-ticket-count" class="dash-stat-value">—</div>
                                     <div id="overview-ticket-sub" class="dash-stat-sub">—</div>
                                 </div>
                             </div>
-                            <div class="dash-stat-card" style="--c: var(--d-green); --i: 3">
-                                <div class="dash-stat-icon">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                                </div>
-                                <div class="dash-stat-body">
+                            <div class="dash-stat-card dash-kpi-card" style="--c: var(--d-discord); --i: 3">
+                                <div class="dash-kpi-top">
                                     <span class="dash-stat-label">Members</span>
-                                    <div id="overview-members" class="dash-stat-value">—</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="dash-overview-extras anim-in" style="--delay:.05s">
-                            <div class="dash-mini-stat">
-                                <span class="dash-mini-stat-label">Open tickets</span>
-                                <span id="overview-open-tickets" class="dash-mini-stat-value">—</span>
-                            </div>
-                            <div class="dash-mini-stat">
-                                <span class="dash-mini-stat-label">Panels deployed</span>
-                                <span id="overview-panel-count" class="dash-mini-stat-value" title="Ticket + application + appeal + custom embed panels">—</span>
-                            </div>
-                        </div>
-
-                        <div class="dash-overview-trend-row">
-                            <div class="dash-card dash-overview-trend anim-in" style="--delay:.1s">
-                                <div class="dash-trend-header">
-                                    <div class="dash-trend-title-row">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
-                                        <h3>Ticket trend</h3>
-                                        <span class="dash-trend-period">Last 7 days</span>
+                                    <div class="dash-stat-icon dash-kpi-icon">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                                     </div>
-                                    <div class="dash-trend-total" id="overview-trend-total">—</div>
                                 </div>
-                                <div id="overview-trend-chart" class="dash-overview-chart"></div>
+                                <div class="dash-kpi-main">
+                                    <div id="overview-members" class="dash-stat-value">—</div>
+                                    <p id="overview-members-sub" class="dash-stat-sub dash-stat-sub--muted">Server members</p>
+                                </div>
+                            </div>
+                            <div class="dash-stat-card dash-kpi-card" style="--c: var(--d-yellow); --i: 4">
+                                <div class="dash-kpi-top">
+                                    <span class="dash-stat-label">Avg. close time</span>
+                                    <div class="dash-stat-icon dash-kpi-icon">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                                    </div>
+                                </div>
+                                <div class="dash-kpi-main">
+                                    <div id="overview-avg-response" class="dash-stat-value">—</div>
+                                    <p id="overview-avg-sub" class="dash-stat-sub dash-stat-sub--muted">Tickets closed in selected period</p>
+                                </div>
+                            </div>
+                            <div class="dash-stat-card dash-kpi-card" style="--c: var(--d-green); --i: 5">
+                                <div class="dash-kpi-top">
+                                    <span class="dash-stat-label">Satisfaction</span>
+                                    <div class="dash-stat-icon dash-kpi-icon">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+                                    </div>
+                                </div>
+                                <div class="dash-kpi-main">
+                                    <div id="overview-satisfaction" class="dash-stat-value">—</div>
+                                    <p id="overview-satisfaction-sub" class="dash-stat-sub dash-stat-sub--muted">From ticket feedback</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="dash-uptime-card dash-card anim-in" style="--delay:.04s">
+                            <div class="dash-uptime-head">
+                                <div class="dash-uptime-head-left">
+                                    <span class="dash-uptime-dot" id="overview-uptime-dot" aria-hidden="true"></span>
+                                    <span class="dash-uptime-title">Uptime</span>
+                                    <span class="dash-uptime-meta" id="overview-uptime-meta">— last 30 days</span>
+                                </div>
+                                <span class="dash-uptime-state" id="overview-uptime-state">—</span>
+                            </div>
+                            <div class="dash-uptime-bars" id="overview-uptime-bars" role="img" aria-label="Daily uptime last 30 days"></div>
+                            <div class="dash-uptime-foot">
+                                <span>30 days ago</span>
+                                <span>Today</span>
+                            </div>
+                        </div>
+
+                        <div class="dash-overview-charts-row">
+                            <div class="dash-card dash-overview-trend anim-in" style="--delay:.08s">
+                                <div class="dash-trend-header">
+                                    <div class="dash-trend-title-block">
+                                        <div class="dash-trend-title-row">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+                                            <h3>Ticket trend</h3>
+                                            <span class="dash-trend-period">Last 7 days</span>
+                                        </div>
+                                        <p class="dash-chart-subtitle">Created vs closed per day</p>
+                                    </div>
+                                    <div class="dash-trend-header-right">
+                                        <div class="dash-trend-legend" aria-hidden="true">
+                                            <span><i class="dash-legend-dot dash-legend-dot--created"></i> Created</span>
+                                            <span><i class="dash-legend-dot dash-legend-dot--closed"></i> Closed</span>
+                                        </div>
+                                        <div class="dash-trend-total" id="overview-trend-total">—</div>
+                                    </div>
+                                </div>
+                                <div id="overview-trend-chart" class="dash-overview-chart dash-overview-chart--dual"></div>
                                 <div class="dash-trend-footer">
                                     <span class="dash-trend-hint" id="overview-trend-hint">Loading&hellip;</span>
                                     <a href="#" class="dash-trend-link" id="overview-trend-analytics-link">View full analytics →</a>
+                                </div>
+                            </div>
+                            <div class="dash-card dash-overview-hourly anim-in" style="--delay:.1s">
+                                <div class="dash-trend-header">
+                                    <div class="dash-trend-title-block">
+                                        <div class="dash-trend-title-row">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                                            <h3>Hourly activity</h3>
+                                            <span class="dash-trend-period">Tickets opened</span>
+                                        </div>
+                                        <p class="dash-chart-subtitle">By hour of day (UTC)</p>
+                                    </div>
+                                </div>
+                                <div id="overview-hourly-chart" class="dash-hourly-chart-wrap"></div>
+                                <div class="dash-trend-footer">
+                                    <span class="dash-trend-hint" id="overview-hourly-hint"></span>
                                 </div>
                             </div>
                         </div>

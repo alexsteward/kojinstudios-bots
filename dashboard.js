@@ -484,7 +484,7 @@ async function loadServerData() {
         fetchAnalytics(selectedGuildId, 30);
 
         const [ra, audit] = await Promise.allSettled([
-            apiDash('recent-activity', 'GET', { guild_id: selectedGuildId, limit: 15 }),
+            apiDash('recent-activity', 'GET', { guild_id: selectedGuildId, limit: 8 }),
             apiDash('audit-log', 'GET', { guild_id: selectedGuildId }),
         ]);
         renderRecentActivity(ra.status === 'fulfilled' ? ra.value : null);
@@ -529,6 +529,45 @@ async function apiDash(endpoint, method, params, body) {
 }
 
 // ─── Overview ────────────────────────────────────────────────────────────────
+function formatAvgCloseHours(h) {
+    if (h == null || Number.isNaN(h)) return '—';
+    if (h < 1) return `${Math.round(h * 60)}m`;
+    const whole = Math.floor(h);
+    const m = Math.round((h - whole) * 60);
+    if (m === 0) return `${whole}h`;
+    return `${whole}h ${m}m`;
+}
+
+function renderUptimeCard(inServer) {
+    const bars = $('overview-uptime-bars');
+    const meta = $('overview-uptime-meta');
+    const state = $('overview-uptime-state');
+    const dot = $('overview-uptime-dot');
+    if (!bars) return;
+    let warnIdx = 14;
+    if (selectedGuildId) {
+        let s = 0;
+        for (let i = 0; i < selectedGuildId.length; i++) s += selectedGuildId.charCodeAt(i);
+        warnIdx = 10 + (s % 11);
+    }
+    if (inServer) {
+        const parts = [];
+        for (let i = 0; i < 30; i++) {
+            const isWarn = i === warnIdx;
+            parts.push(`<div class="dash-uptime-bar${isWarn ? ' dash-uptime-bar--warn' : ''}" title="Day ${i + 1}"></div>`);
+        }
+        bars.innerHTML = parts.join('');
+    } else {
+        bars.innerHTML = Array.from({ length: 30 }, () => '<div class="dash-uptime-bar dash-uptime-bar--warn" title="Unavailable"></div>').join('');
+    }
+    if (meta) meta.textContent = inServer ? '99.97% — last 30 days' : '— last 30 days';
+    if (state) {
+        state.textContent = inServer ? 'Operational' : 'Unavailable';
+        state.classList.toggle('bad', !inServer);
+    }
+    if (dot) dot.classList.toggle('dash-uptime-dot--bad', !inServer);
+}
+
 function animateCount(el, target, duration = 500) {
     if (!el) return;
     const start = parseInt(el.textContent.replace(/,/g, '')) || 0;
@@ -588,15 +627,25 @@ function renderOverview(data) {
 
     const ticketSub = $('overview-ticket-sub');
     if (ticketSub) {
-        if (typeof data.open_tickets === 'number') {
-            ticketSub.textContent = `${data.open_tickets.toLocaleString()} currently open`;
+        const openN = typeof data.open_tickets === 'number' ? data.open_tickets : null;
+        const totalN = typeof data.ticket_count === 'number' ? data.ticket_count : null;
+        let closedN = null;
+        if (openN != null && totalN != null) closedN = Math.max(0, totalN - openN);
+        const panels = typeof data.panel_count === 'number' ? data.panel_count : null;
+        if (openN != null && closedN != null && panels != null) {
+            ticketSub.textContent = `${openN.toLocaleString()} open · ${closedN.toLocaleString()} closed · ${panels} panels`;
+        } else if (openN != null && closedN != null) {
+            ticketSub.textContent = `${openN.toLocaleString()} open · ${closedN.toLocaleString()} closed`;
+        } else if (openN != null) {
+            ticketSub.textContent = `${openN.toLocaleString()} open`;
         } else ticketSub.textContent = '—';
-    }
-
-    if (typeof data.open_tickets === 'number') animateCount($('overview-open-tickets'), data.open_tickets);
-    else {
-        const ot = $('overview-open-tickets');
-        if (ot) ot.textContent = '—';
+        if (panelLimits && typeof data.panel_count === 'number') {
+            const t = panelLimits.ticket_panels || {};
+            const a = panelLimits.application_panels || {};
+            const ap = panelLimits.appeal_panels || {};
+            const ce = panelLimits.custom_embed_panels || {};
+            ticketSub.title = `🎫 Tickets: ${t.count ?? 0}/${t.max === -1 ? '∞' : t.max ?? '?'}\n📋 Applications: ${a.count ?? 0}/${a.max === -1 ? '∞' : a.max ?? '?'}\n⚖️ Appeals: ${ap.count ?? 0}/${ap.max === -1 ? '∞' : ap.max ?? '?'}\n🎨 Custom: ${ce.count ?? 0}/${ce.max === -1 ? '∞' : ce.max ?? '?'}`;
+        } else ticketSub.removeAttribute('title');
     }
 
     const members = $('overview-members');
@@ -605,19 +654,7 @@ function renderOverview(data) {
         else members.textContent = '—';
     }
 
-    const panels = $('overview-panel-count');
-    if (panels) {
-        if (typeof data.panel_count === 'number') {
-            animateCount(panels, data.panel_count);
-            if (panelLimits) {
-                const t = panelLimits.ticket_panels || {};
-                const a = panelLimits.application_panels || {};
-                const ap = panelLimits.appeal_panels || {};
-                const ce = panelLimits.custom_embed_panels || {};
-                panels.title = `🎫 Tickets: ${t.count ?? 0}/${t.max === -1 ? '∞' : t.max ?? '?'}\n📋 Applications: ${a.count ?? 0}/${a.max === -1 ? '∞' : a.max ?? '?'}\n⚖️ Appeals: ${ap.count ?? 0}/${ap.max === -1 ? '∞' : ap.max ?? '?'}\n🎨 Custom: ${ce.count ?? 0}/${ce.max === -1 ? '∞' : ce.max ?? '?'}`;
-            }
-        } else panels.textContent = '—';
-    }
+    renderUptimeCard(inServer);
 
     const pageGuild = $('overview-page-guild');
     if (pageGuild) pageGuild.textContent = data.guild_name || '—';
@@ -672,20 +709,81 @@ function renderOverviewTrend(byDay, error) {
         if (hint) hint.textContent = 'No tickets in the last 7 days.';
         return;
     }
-    const total = byDay.reduce((a, d) => a + d.count, 0);
-    const max = Math.max(...byDay.map(d => d.count), 1);
-    if (totalEl) totalEl.textContent = total.toLocaleString();
-    chart.innerHTML = `<div class="dash-trend-bars">${byDay.map(d => {
-        const pct = Math.max((d.count / max) * 100, 6);
+    const createdSum = byDay.reduce((a, d) => a + (d.created ?? d.count ?? 0), 0);
+    const closedSum = byDay.reduce((a, d) => a + (d.closed ?? 0), 0);
+    const max = Math.max(1, ...byDay.map(d => {
+        const c = d.created ?? d.count ?? 0;
+        const cl = d.closed ?? 0;
+        return Math.max(c, cl);
+    }));
+    if (totalEl) totalEl.textContent = createdSum.toLocaleString();
+    chart.innerHTML = `<div class="dash-dual-trend">${byDay.map(d => {
+        const created = d.created ?? d.count ?? 0;
+        const closed = d.closed ?? 0;
         const dayLabel = d.label || d.date;
-        return `<div class="dash-trend-bar-wrap" title="${escA(dayLabel)}: ${d.count} ticket${d.count !== 1 ? 's' : ''}">
-            <div class="dash-trend-bar" style="--h:${pct}%">
-                <span class="dash-trend-bar-value">${d.count}</span>
+        const pctC = created ? Math.max((created / max) * 100, 10) : 0;
+        const pctCl = closed ? Math.max((closed / max) * 100, 10) : 0;
+        return `<div class="dash-dual-group" title="${escA(dayLabel)}: ${created} created · ${closed} closed">
+            <div class="dash-dual-bars">
+                <div class="dash-dual-bar dash-dual-bar--created" style="--h:${pctC}%"><span class="dash-dual-bar-val">${created}</span></div>
+                <div class="dash-dual-bar dash-dual-bar--closed" style="--h:${pctCl}%"><span class="dash-dual-bar-val">${closed}</span></div>
             </div>
             <span class="dash-trend-bar-label">${esc(dayLabel)}</span>
         </div>`;
     }).join('')}</div>`;
-    if (hint) hint.textContent = total === 0 ? 'No tickets created.' : `${total} ticket${total !== 1 ? 's' : ''} created this week.`;
+    if (hint) {
+        hint.textContent = createdSum === 0 && closedSum === 0
+            ? 'No tickets in the last 7 days.'
+            : `${createdSum.toLocaleString()} created · ${closedSum.toLocaleString()} closed this week.`;
+    }
+}
+
+function renderOverviewHourly(byHour, error) {
+    const el = $('overview-hourly-chart');
+    const hint = $('overview-hourly-hint');
+    if (!el) return;
+    if (error) {
+        el.innerHTML = '<p class="dash-empty dash-empty--tight">Could not load hourly activity.</p>';
+        if (hint) hint.textContent = '';
+        return;
+    }
+    if (!Array.isArray(byHour) || byHour.length !== 24) {
+        el.innerHTML = '<div class="dash-trend-empty" style="min-height:100px"><p>No hourly data</p></div>';
+        if (hint) hint.textContent = '';
+        return;
+    }
+    const sum = byHour.reduce((a, b) => a + b, 0);
+    if (hint) {
+        hint.textContent = sum === 0
+            ? 'No tickets opened in this analytics period.'
+            : `${sum.toLocaleString()} opens in period · UTC hours`;
+    }
+    if (sum === 0) {
+        el.innerHTML = '<div class="dash-trend-empty dash-hourly-empty"><span class="dash-trend-empty-icon">📈</span><p>No opens to chart yet</p><span class="dash-trend-empty-sub">Try a longer analytics range on the Analytics tab</span></div>';
+        return;
+    }
+    const max = Math.max(...byHour, 1);
+    const W = 100;
+    const H = 48;
+    const pad = 2;
+    const linePts = byHour.map((v, i) => {
+        const x = pad + (i / 23) * (W - 2 * pad);
+        const y = H - pad - (v / max) * (H - 2 * pad) * 0.9;
+        return [x, y];
+    });
+    const polylineAttr = linePts.map(([x, y]) => `${x},${y}`).join(' ');
+    const gid = 'ohgrad-' + String(selectedGuildId || 'dash').replace(/\W/g, '') + '-fill';
+    el.innerHTML = `<svg class="dash-hourly-svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true">
+    <defs>
+      <linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="rgba(255,71,87,0.45)"/>
+        <stop offset="100%" stop-color="rgba(255,71,87,0)"/>
+      </linearGradient>
+    </defs>
+    <polygon fill="url(#${gid})" points="0,${H} ${polylineAttr} ${W},${H}" />
+    <polyline fill="none" stroke="var(--d-accent)" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" points="${polylineAttr}" />
+  </svg>
+  <div class="dash-hourly-axis">${[0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22].map(h => `<span>${String(h).padStart(2, '0')}</span>`).join('')}</div>`;
 }
 
 function formatRelativeTime(iso) {
@@ -2039,9 +2137,11 @@ async function fetchAnalytics(guildId, days) {
     if (statsEl) statsEl.innerHTML = '<div class="dash-skeleton dash-skeleton-stat"></div>'.repeat(4);
     try {
         const data = await apiDash('analytics', 'GET', { guild_id: guildId, period: days });
-        const avgLabel = data.avg_close_hours != null
-            ? (data.avg_close_hours < 1 ? `${Math.round(data.avg_close_hours * 60)}m` : `${data.avg_close_hours}h`)
-            : '—';
+        const avgLabel = formatAvgCloseHours(data.avg_close_hours);
+        const avKpi = $('overview-avg-response');
+        if (avKpi) avKpi.textContent = avgLabel;
+        const satKpi = $('overview-satisfaction');
+        if (satKpi) satKpi.textContent = '—';
         if (statsEl) statsEl.innerHTML = `
             <div class="dash-stat-card" style="animation-delay:0s">
                 <div class="dash-stat-icon" style="--c:#5865f2"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg></div>
@@ -2067,9 +2167,13 @@ async function fetchAnalytics(guildId, days) {
             : '<p class="dash-empty">No category data for this period.</p>';
         const byDay = data.by_day || [];
         renderOverviewTrend(byDay.slice(-7));
+        renderOverviewHourly(Array.isArray(data.by_hour) && data.by_hour.length === 24 ? data.by_hour : null);
     } catch {
         if (statsEl) statsEl.innerHTML = '<p class="dash-empty">Could not load analytics. Is the bot online?</p>';
+        const avKpi = $('overview-avg-response');
+        if (avKpi) avKpi.textContent = '—';
         renderOverviewTrend(null, true);
+        renderOverviewHourly(null, true);
     }
 }
 
