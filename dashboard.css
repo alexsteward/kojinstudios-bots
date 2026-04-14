@@ -1903,6 +1903,236 @@ body.dashboard-page {
     transform: translateX(20px);
 }
 
+.dash-toggle--accent input:checked + .dash-toggle-track {
+    background: var(--d-accent);
+    box-shadow: 0 0 14px var(--d-accent-glow);
+}
+
+.dash-toggle--accent input:checked + .dash-toggle-track .dash-toggle-thumb {
+    transform: translateX(20px);
+}
+
+.dash-toggle--accent input:disabled + .dash-toggle-track {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ─── Configuration tab (reference-style sections) ───────────────── */
+.dash-config-page-head {
+    margin-bottom: 1.25rem;
+}
+
+.dash-config-page-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 1.35rem;
+    font-weight: 800;
+    margin: 0 0 0.35rem 0;
+    letter-spacing: -0.02em;
+}
+
+.dash-config-page-desc {
+    margin: 0;
+    font-size: 0.875rem;
+    color: var(--d-text-2);
+    line-height: 1.45;
+}
+
+.dash-config-card .dash-config-card-head {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+}
+
+.dash-config-icon {
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 11px;
+    background: linear-gradient(145deg, var(--d-surface-3), var(--d-surface-2));
+    border: 1px solid var(--d-border);
+    color: var(--d-accent);
+}
+
+.dash-config-icon svg {
+    width: 22px;
+    height: 22px;
+}
+
+.dash-config-card-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 1.0625rem;
+    font-weight: 700;
+    margin: 0 0 0.3rem 0;
+    color: var(--d-text);
+}
+
+.dash-config-card-sub {
+    margin: 0;
+    font-size: 0.8125rem;
+    color: var(--d-text-3);
+    line-height: 1.45;
+    max-width: 40rem;
+}
+
+.dash-config-role-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 1.35rem;
+}
+
+.dash-config-role-label-row {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-bottom: 0.3rem;
+}
+
+.dash-config-role-title {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--d-text-2);
+}
+
+.dash-config-role-hint {
+    margin: 0 0 0.55rem 0;
+    font-size: 0.8125rem;
+    color: var(--d-text-3);
+    line-height: 1.45;
+}
+
+.dash-config-ss .dash-ss-trigger {
+    min-height: 42px;
+}
+
+.dash-config-premium-banner {
+    display: none;
+    font-size: 0.8125rem;
+    padding: 0.65rem 0.9rem;
+    border-radius: var(--d-radius-sm);
+    background: rgba(255, 71, 87, 0.07);
+    border: 1px solid rgba(255, 71, 87, 0.22);
+    color: var(--d-text-2);
+    line-height: 1.45;
+    margin: 0 0 1rem 0;
+}
+
+.dash-config-premium-banner.is-visible {
+    display: block;
+}
+
+.dash-config-toggle-stack {
+    display: flex;
+    flex-direction: column;
+}
+
+.dash-toggle-row--cfg {
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 1.05rem 0;
+    border-bottom: 1px solid var(--d-border);
+    gap: 1rem;
+}
+
+.dash-toggle-row--cfg:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.dash-toggle-row-copy {
+    flex: 1;
+    min-width: 0;
+}
+
+.dash-toggle-title-line {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.35rem;
+}
+
+.dash-toggle-title {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--d-text);
+}
+
+.dash-toggle-desc {
+    margin: 0;
+    font-size: 0.75rem;
+    color: var(--d-text-3);
+    line-height: 1.5;
+    max-width: 36rem;
+}
+
+.dash-premium-pill {
+    font-size: 0.5625rem;
+    font-weight: 800;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    padding: 0.22rem 0.5rem;
+    border-radius: 4px;
+    background: rgba(255, 71, 87, 0.12);
+    color: var(--d-accent);
+    border: 1px solid rgba(255, 71, 87, 0.35);
+}
+
+.dash-config-card--auto {
+    border-color: rgba(255, 71, 87, 0.1);
+    box-shadow: 0 0 0 1px rgba(255, 71, 87, 0.04) inset;
+}
+
+.dash-auto-close-slider-wrap {
+    padding-top: 0.25rem;
+}
+
+.dash-auto-close-slider-wrap.is-disabled {
+    opacity: 0.45;
+    pointer-events: none;
+}
+
+.dash-auto-close-labels {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--d-text-2);
+    margin: 0.75rem 0 0.35rem 0;
+}
+
+.dash-auto-close-val {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 1.125rem;
+    font-weight: 800;
+    color: var(--d-text);
+}
+
+.dash-range {
+    width: 100%;
+    height: 8px;
+    border-radius: 4px;
+    accent-color: var(--d-accent);
+    margin: 0.35rem 0 0;
+    cursor: pointer;
+}
+
+.dash-range:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.dash-select--wide {
+    width: 100%;
+    max-width: 100%;
+}
+
 /* ================================================================
    OVERVIEW
    ================================================================ */

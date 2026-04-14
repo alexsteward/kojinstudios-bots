@@ -1072,6 +1072,38 @@ function renderConfig(cfg) {
     createSearchableSelect('cfg-support-roles', rOpts, cfg.support_role_ids || [], 'multi');
 
     $('cfg-emoji-style').value = cfg.emoji_style || 'heavy';
+
+    const ping = $('cfg-ping-support');
+    const thread = $('cfg-thread-mode');
+    const dm = $('cfg-dm-notify');
+    const ac = $('cfg-auto-close');
+    const hrs = $('cfg-auto-close-hours');
+    const hv = $('cfg-auto-close-val');
+    const premium = !!cfg.is_premium;
+    if (ping) ping.checked = !!cfg.ping_support_on_ticket;
+    if (thread) thread.checked = !!cfg.thread_mode;
+    if (dm) dm.checked = !!cfg.dm_ticket_notifications;
+    if (ac) ac.checked = !!cfg.auto_close_enabled;
+    if (hrs) {
+        const h = Number(cfg.auto_close_hours);
+        hrs.value = Number.isFinite(h) ? String(Math.min(168, Math.max(6, h))) : '48';
+    }
+    if (hv && hrs) hv.textContent = hrs.value;
+    applyConfigPremiumState(premium);
+    if (hrs && hv) {
+        hrs.oninput = () => { hv.textContent = hrs.value; };
+    }
+}
+
+function applyConfigPremiumState(premium) {
+    const ban = $('cfg-premium-banner');
+    if (ban) ban.classList.toggle('is-visible', !premium);
+    ['cfg-ping-support', 'cfg-thread-mode', 'cfg-dm-notify', 'cfg-auto-close', 'cfg-auto-close-hours'].forEach(id => {
+        const el = $(id);
+        if (el) el.disabled = !premium;
+    });
+    const wrap = $('cfg-auto-close-slider-wrap');
+    if (wrap) wrap.classList.toggle('is-disabled', !premium);
 }
 
 async function saveConfig() {
@@ -1098,11 +1130,16 @@ async function saveConfig() {
         admin_role_ids:             ssGetValue('cfg-admin-roles') || [],
         support_role_ids:           ssGetValue('cfg-support-roles') || [],
         emoji_style:                $('cfg-emoji-style').value,
+        ping_support_on_ticket:     !!$('cfg-ping-support')?.checked,
+        thread_mode:                !!$('cfg-thread-mode')?.checked,
+        dm_ticket_notifications:    !!$('cfg-dm-notify')?.checked,
+        auto_close_enabled:         !!$('cfg-auto-close')?.checked,
+        auto_close_hours:           parseInt($('cfg-auto-close-hours')?.value || '48', 10) || 48,
     };
 
     try {
         const res = await apiDash('config', 'PATCH', { guild_id: selectedGuildId }, body);
-        if (res.ok) {
+        if (res._ok && res.ok !== false) {
             toast('Configuration saved! A confirmation was sent to your server.', 'success');
             status.textContent = '✓ Saved';
             status.className = 'dash-save-status success';

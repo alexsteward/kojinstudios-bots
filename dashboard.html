@@ -438,67 +438,177 @@
 
                     <!-- Tab: Configuration -->
                     <div class="dash-tab-content" data-tab="config" id="tab-config">
-                        <div class="dash-card anim-in" style="--delay:0s">
-                            <div class="dash-card-head">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                                <h3>Log Channels</h3>
+                        <header class="dash-config-page-head anim-in">
+                            <h2 class="dash-config-page-title">Server configuration</h2>
+                            <p class="dash-config-page-desc">Manage channels, roles, and ticket behavior for this server.</p>
+                        </header>
+
+                        <div class="dash-card dash-config-card anim-in" style="--delay:0s">
+                            <div class="dash-config-card-head">
+                                <div class="dash-config-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/><line x1="10" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="14" y2="21"/></svg></div>
+                                <div>
+                                    <h3 class="dash-config-card-title">Channels</h3>
+                                    <p class="dash-config-card-sub">Where the bot sends logs for tickets, applications, and appeals.</p>
+                                </div>
                             </div>
-                            <p class="dash-card-desc">Where the bot sends logs for tickets, applications, and appeals.</p>
                             <div class="dash-form-grid">
                                 <div class="dash-field">
                                     <label>Ticket logs <span class="dash-help" data-tip="Channel where ticket transcripts, open/close events, and staff actions are logged. Only staff &amp; admins need access to this channel.">?</span></label>
-                                    <div class="dash-ss" id="cfg-log-channel" data-mode="single" data-placeholder="Search channels..."></div>
+                                    <div class="dash-ss dash-config-ss" id="cfg-log-channel" data-mode="single" data-placeholder="Search channels..."></div>
                                 </div>
                                 <div class="dash-field">
                                     <label>Application logs <span class="dash-help" data-tip="Channel where application submissions and review decisions are posted. Set this if you use the /apply system.">?</span></label>
-                                    <div class="dash-ss" id="cfg-app-log-channel" data-mode="single" data-placeholder="Search channels..."></div>
+                                    <div class="dash-ss dash-config-ss" id="cfg-app-log-channel" data-mode="single" data-placeholder="Search channels..."></div>
                                 </div>
                                 <div class="dash-field">
                                     <label>Appeal logs <span class="dash-help" data-tip="Channel where ban appeal submissions and review decisions are posted. Set this if you use the appeal panel system.">?</span></label>
-                                    <div class="dash-ss" id="cfg-appeal-log-channel" data-mode="single" data-placeholder="Search channels..."></div>
+                                    <div class="dash-ss dash-config-ss" id="cfg-appeal-log-channel" data-mode="single" data-placeholder="Search channels..."></div>
                                 </div>
                                 <div class="dash-field">
                                     <label>Admin logs (web) <span class="dash-help" data-tip="Web-exclusive channel for dashboard/admin changes (roles/config updates). Discord-side changes will also log here once set.">?</span></label>
-                                    <div class="dash-ss" id="cfg-admin-log-channel" data-mode="single" data-placeholder="Search channels..."></div>
+                                    <div class="dash-ss dash-config-ss" id="cfg-admin-log-channel" data-mode="single" data-placeholder="Search channels..."></div>
                                 </div>
                             </div>
                         </div>
-                        <div class="dash-card anim-in" style="--delay:.08s">
-                            <div class="dash-card-head">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                                <h3>Roles</h3>
+
+                        <div class="dash-card dash-config-card anim-in" style="--delay:.06s">
+                            <div class="dash-config-card-head">
+                                <div class="dash-config-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+                                <div>
+                                    <h3 class="dash-config-card-title">Roles &amp; permissions</h3>
+                                    <p class="dash-config-card-sub">Control who can manage tickets and configure the bot.</p>
+                                </div>
                             </div>
-                            <p class="dash-card-desc">Assign roles to control who can manage tickets and receive notifications.</p>
-                            <div class="dash-form-grid">
-                                <div class="dash-field">
-                                    <label>Staff roles <span class="dash-help" data-tip="Can see tickets, claim them, close/reopen, add/remove users, use quick responses, and view transcripts. This is your main support team role.">?</span></label>
-                                    <div class="dash-ss" id="cfg-staff-roles" data-mode="multi" data-placeholder="Search roles..."></div>
+                            <div class="dash-config-role-stack">
+                                <div class="dash-config-role-block">
+                                    <div class="dash-config-role-label-row">
+                                        <span class="dash-config-role-title">Staff roles</span>
+                                        <span class="dash-help" data-tip="Can see tickets, claim them, close/reopen, add/remove users, use quick responses, and view transcripts. This is your main support team role.">?</span>
+                                    </div>
+                                    <p class="dash-config-role-hint">Can view and respond to tickets.</p>
+                                    <div class="dash-ss dash-config-ss" id="cfg-staff-roles" data-mode="multi" data-placeholder="Search roles..."></div>
                                 </div>
-                                <div class="dash-field">
-                                    <label>Admin roles <span class="dash-help" data-tip="Full bot configuration access — can create/edit panels, change settings, manage roles, and delete tickets. Give this to server managers only.">?</span></label>
-                                    <div class="dash-ss" id="cfg-admin-roles" data-mode="multi" data-placeholder="Search roles..."></div>
+                                <div class="dash-config-role-block">
+                                    <div class="dash-config-role-label-row">
+                                        <span class="dash-config-role-title">Admin roles</span>
+                                        <span class="dash-help" data-tip="Full bot configuration access — can create/edit panels, change settings, manage roles, and delete tickets. Give this to server managers only.">?</span>
+                                    </div>
+                                    <p class="dash-config-role-hint">Full bot management access.</p>
+                                    <div class="dash-ss dash-config-ss" id="cfg-admin-roles" data-mode="multi" data-placeholder="Search roles..."></div>
                                 </div>
-                                <div class="dash-field">
-                                    <label>Support roles <span class="dash-help" data-tip="Get @pinged when a new ticket is created (if 'Ping support roles' is enabled below). Useful for on-call staff who need instant notification.">?</span></label>
-                                    <div class="dash-ss" id="cfg-support-roles" data-mode="multi" data-placeholder="Search roles..."></div>
+                                <div class="dash-config-role-block">
+                                    <div class="dash-config-role-label-row">
+                                        <span class="dash-config-role-title">Support roles</span>
+                                        <span class="dash-help" data-tip="Mentioned when a new ticket is created if ping support is enabled (Premium).">?</span>
+                                    </div>
+                                    <p class="dash-config-role-hint">Pinged when new tickets open (with Premium + ping enabled).</p>
+                                    <div class="dash-ss dash-config-ss" id="cfg-support-roles" data-mode="multi" data-placeholder="Search roles..."></div>
                                 </div>
                             </div>
                         </div>
-                        <div class="dash-card anim-in" style="--delay:.16s">
-                            <div class="dash-card-head">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/></svg>
-                                <h3>Settings</h3>
+
+                        <div class="dash-card dash-config-card anim-in" style="--delay:.12s">
+                            <div class="dash-config-card-head">
+                                <div class="dash-config-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+                                <div>
+                                    <h3 class="dash-config-card-title">Ticket behavior</h3>
+                                    <p class="dash-config-card-sub">Premium controls — upgrade to enable ping, threads, and DMs.</p>
+                                </div>
                             </div>
-                            <div class="dash-form-grid" style="margin-top:1rem;">
-                                <div class="dash-field">
-                                    <label for="cfg-emoji-style">Emoji style <span class="dash-help" data-tip="'Heavy' adds emojis to embeds, buttons, and messages for visual flair. 'Minimal' strips most emojis for a cleaner look.">?</span></label>
-                                    <select id="cfg-emoji-style" class="dash-select">
-                                        <option value="heavy">Heavy (lots of emojis)</option>
-                                        <option value="minimal">Minimal</option>
-                                    </select>
+                            <p class="dash-config-premium-banner" id="cfg-premium-banner">Upgrade to Premium to unlock ping support, thread mode, and DM notifications.</p>
+                            <div class="dash-config-toggle-stack">
+                                <div class="dash-toggle-row dash-toggle-row--cfg">
+                                    <div class="dash-toggle-row-copy">
+                                        <div class="dash-toggle-title-line">
+                                            <span class="dash-toggle-title">Ping support on new ticket</span>
+                                            <span class="dash-premium-pill">Premium</span>
+                                        </div>
+                                        <p class="dash-toggle-desc">Notify support roles when a new ticket is created.</p>
+                                    </div>
+                                    <label class="dash-toggle dash-toggle--accent">
+                                        <input type="checkbox" id="cfg-ping-support" />
+                                        <span class="dash-toggle-track"><span class="dash-toggle-thumb"></span></span>
+                                    </label>
+                                </div>
+                                <div class="dash-toggle-row dash-toggle-row--cfg">
+                                    <div class="dash-toggle-row-copy">
+                                        <div class="dash-toggle-title-line">
+                                            <span class="dash-toggle-title">Thread mode</span>
+                                            <span class="dash-premium-pill">Premium</span>
+                                        </div>
+                                        <p class="dash-toggle-desc">Create tickets as threads instead of channels (where supported).</p>
+                                    </div>
+                                    <label class="dash-toggle dash-toggle--accent">
+                                        <input type="checkbox" id="cfg-thread-mode" />
+                                        <span class="dash-toggle-track"><span class="dash-toggle-thumb"></span></span>
+                                    </label>
+                                </div>
+                                <div class="dash-toggle-row dash-toggle-row--cfg">
+                                    <div class="dash-toggle-row-copy">
+                                        <div class="dash-toggle-title-line">
+                                            <span class="dash-toggle-title">DM notifications</span>
+                                            <span class="dash-premium-pill">Premium</span>
+                                        </div>
+                                        <p class="dash-toggle-desc">Send the ticket author a DM when staff updates the ticket (when implemented in bot).</p>
+                                    </div>
+                                    <label class="dash-toggle dash-toggle--accent">
+                                        <input type="checkbox" id="cfg-dm-notify" />
+                                        <span class="dash-toggle-track"><span class="dash-toggle-thumb"></span></span>
+                                    </label>
                                 </div>
                             </div>
                         </div>
+
+                        <div class="dash-card dash-config-card dash-config-card--auto anim-in" style="--delay:.16s">
+                            <div class="dash-config-card-head">
+                                <div class="dash-config-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
+                                <div>
+                                    <div class="dash-toggle-title-line">
+                                        <h3 class="dash-config-card-title" style="margin:0">Auto-close</h3>
+                                        <span class="dash-premium-pill">Premium</span>
+                                    </div>
+                                    <p class="dash-config-card-sub">Close inactive tickets after a period with no messages.</p>
+                                </div>
+                            </div>
+                            <div class="dash-config-toggle-stack">
+                                <div class="dash-toggle-row dash-toggle-row--cfg">
+                                    <div class="dash-toggle-row-copy">
+                                        <span class="dash-toggle-title">Enable auto-close</span>
+                                        <p class="dash-toggle-desc">Automatically close tickets after inactivity.</p>
+                                    </div>
+                                    <label class="dash-toggle dash-toggle--accent">
+                                        <input type="checkbox" id="cfg-auto-close" />
+                                        <span class="dash-toggle-track"><span class="dash-toggle-thumb"></span></span>
+                                    </label>
+                                </div>
+                                <div class="dash-auto-close-slider-wrap" id="cfg-auto-close-slider-wrap">
+                                    <div class="dash-auto-close-labels">
+                                        <span>Inactivity period (hours)</span>
+                                        <span class="dash-auto-close-val" id="cfg-auto-close-val">48</span>
+                                    </div>
+                                    <p class="dash-toggle-desc">Close after this many hours without activity.</p>
+                                    <input type="range" class="dash-range" id="cfg-auto-close-hours" min="6" max="168" step="6" value="48" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="dash-card dash-config-card anim-in" style="--delay:.2s">
+                            <div class="dash-config-card-head">
+                                <div class="dash-config-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/></svg></div>
+                                <div>
+                                    <h3 class="dash-config-card-title">Appearance</h3>
+                                    <p class="dash-config-card-sub">Emoji density for panels and messages.</p>
+                                </div>
+                            </div>
+                            <div class="dash-field" style="margin:0">
+                                <label for="cfg-emoji-style">Emoji style <span class="dash-help" data-tip="'Heavy' adds emojis to embeds, buttons, and messages for visual flair. 'Minimal' strips most emojis for a cleaner look.">?</span></label>
+                                <select id="cfg-emoji-style" class="dash-select dash-select--wide">
+                                    <option value="heavy">Heavy (lots of emojis)</option>
+                                    <option value="minimal">Minimal</option>
+                                </select>
+                            </div>
+                        </div>
+
                         <div class="dash-actions">
                             <button type="button" class="dash-btn dash-btn-primary" id="cfg-save-btn">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
