@@ -429,18 +429,98 @@ body.dashboard-page {
 }
 
 .dash-sidebar-pick {
-    display: none;
-    padding: 0.85rem 0.85rem 0.5rem;
+    display: block;
+    flex-shrink: 0;
+    padding: 0.85rem 0.85rem 0.65rem;
     border-bottom: 1px solid var(--d-border);
 }
 
-.dash-layout--no-server .dash-sidebar-pick {
-    display: block;
+.dash-layout--no-server .dash-side-nav {
+    opacity: 0.5;
+    pointer-events: none;
 }
 
-.dash-layout--no-server .dash-side-nav {
-    opacity: 0.42;
-    pointer-events: none;
+.dash-sidebar-server-dd {
+    position: relative;
+    margin-top: 0.35rem;
+}
+
+.dash-sidebar-server-trigger {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.55rem 0.6rem;
+    background: rgba(22, 29, 39, 0.55);
+    border: 1px solid var(--d-border);
+    border-radius: var(--d-radius);
+    color: var(--d-text);
+    font-size: 0.8125rem;
+    font-weight: 700;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    letter-spacing: -0.02em;
+    cursor: pointer;
+    text-align: left;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.dash-sidebar-server-trigger:hover {
+    border-color: rgba(255, 71, 87, 0.35);
+    box-shadow: 0 0 0 1px rgba(255, 71, 87, 0.06);
+}
+
+.dash-sidebar-server-trigger[aria-expanded="true"] .dash-sidebar-server-chevron {
+    transform: rotate(180deg);
+}
+
+.dash-sidebar-server-trigger-icon {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--d-surface-2);
+    border: 1px solid var(--d-border);
+}
+
+.dash-sidebar-server-trigger-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.dash-sidebar-server-trigger-label {
+    flex: 1;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.dash-sidebar-server-chevron {
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    opacity: 0.55;
+    transition: transform 0.2s var(--d-ease);
+}
+
+.dash-sidebar-server-menu {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(100% + 6px);
+    z-index: 9000;
+    max-height: min(52vh, 380px);
+    overflow-y: auto;
+    padding: 0.4rem;
+    background: var(--d-surface);
+    border: 1px solid var(--d-border);
+    border-radius: var(--d-radius);
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.45);
 }
 
 .dash-server-name {
@@ -469,7 +549,8 @@ body.dashboard-page {
     position: sticky;
     top: 64px;
     height: calc(100vh - 64px);
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: visible;
     animation: fadeSlideLeft 0.4s var(--d-ease-out) both;
     z-index: 800;
 }
@@ -488,16 +569,16 @@ body.dashboard-page {
 
 .dash-sidebar-top {
     flex: 1;
-    overflow-y: auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
     overflow-x: hidden;
+    overflow-y: visible;
     padding: 0;
 }
 
-.dash-sidebar-top::-webkit-scrollbar { width: 4px; }
-.dash-sidebar-top::-webkit-scrollbar-track { background: transparent; }
-.dash-sidebar-top::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.08); border-radius: 4px; }
-
 .dash-sidebar-brand {
+    flex-shrink: 0;
     display: flex;
     align-items: center;
     gap: 0.75rem;
@@ -548,6 +629,17 @@ body.dashboard-page {
 .dash-sidebar-section {
     padding: 1.15rem 0.85rem 1.25rem;
 }
+
+.dash-sidebar-section.dash-sidebar-section--nav {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.dash-sidebar-section.dash-sidebar-section--nav::-webkit-scrollbar { width: 4px; }
+.dash-sidebar-section.dash-sidebar-section--nav::-webkit-scrollbar-track { background: transparent; }
+.dash-sidebar-section.dash-sidebar-section--nav::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.08); border-radius: 4px; }
 
 .dash-sidebar-section-head {
     margin-bottom: 0.9rem;
@@ -3490,10 +3582,10 @@ body.dashboard-page {
     box-shadow: none;
 }
 
-/* Scrollbar for sidebar on desktop */
+/* Scrollbar for sidebar nav on desktop */
 @media (min-width: 769px) {
-    .dash-sidebar-top::-webkit-scrollbar { width: 4px; }
-    .dash-sidebar-top::-webkit-scrollbar-thumb { background: var(--d-surface-3); border-radius: 4px; }
+    .dash-sidebar-section.dash-sidebar-section--nav::-webkit-scrollbar { width: 4px; }
+    .dash-sidebar-section.dash-sidebar-section--nav::-webkit-scrollbar-thumb { background: var(--d-surface-3); border-radius: 4px; }
 }
 
 /* ================================================================

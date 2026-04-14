@@ -140,16 +140,23 @@
                         <div class="dash-sidebar-section-head">
                             <span class="dash-sidebar-kicker">Workspace</span>
                             <h2 class="dash-sidebar-title">Your servers</h2>
-                            <p class="dash-sidebar-desc">Choose where to manage the Tickets bot.</p>
+                            <p class="dash-sidebar-desc">Click to open the list and pick where to manage the bot.</p>
                         </div>
-                        <div id="dashboard-guild-list" class="dash-guild-list"></div>
+                        <div class="dash-sidebar-server-dd">
+                            <button type="button" class="dash-sidebar-server-trigger" id="dash-sidebar-server-trigger" aria-expanded="false" aria-haspopup="listbox" aria-controls="dash-sidebar-server-menu">
+                                <span class="dash-sidebar-server-trigger-icon" id="dash-sidebar-server-trigger-icon" aria-hidden="true"></span>
+                                <span class="dash-sidebar-server-trigger-label" id="dash-sidebar-server-trigger-label">Select a server</span>
+                                <svg class="dash-sidebar-server-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+                            </button>
+                            <div class="dash-sidebar-server-menu" id="dash-sidebar-server-menu" role="listbox" hidden></div>
+                        </div>
                         <p id="discord-no-servers" class="dash-no-servers" style="display:none;">No servers with manage permissions found.</p>
                     </div>
                     <div class="dash-sidebar-section dash-sidebar-section--nav">
                         <div class="dash-sidebar-section-head">
-                            <span class="dash-sidebar-kicker">Workspace</span>
+                            <span class="dash-sidebar-kicker">Dashboard</span>
                             <h2 class="dash-sidebar-title">Navigation</h2>
-                            <p class="dash-sidebar-desc">Jump to a section after you open a server.</p>
+                            <p class="dash-sidebar-desc">Sections open after you choose a server above.</p>
                         </div>
                         <nav class="dash-side-nav" id="dash-side-nav" aria-label="Dashboard sections">
                             <button type="button" class="dash-side-nav-item dash-nav-tab active" data-tab="overview">
@@ -205,7 +212,7 @@
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="M12 18v-6"/><path d="M9 15h6"/></svg>
                         </div>
                         <h1>Welcome to your Dashboard</h1>
-                        <p>Select a server from the list on the left to open the dashboard.</p>
+                        <p>Open <strong>Your servers</strong> in the sidebar and pick a server to continue.</p>
                     </div>
                 </div>
 

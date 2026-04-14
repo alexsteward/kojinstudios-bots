@@ -75,7 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
         })
     );
 
-    initServerPickerDropdown();
+    initServerDropdowns();
 
     // Quick-action tab shortcuts (overview)
     document.querySelectorAll('[data-go-tab]').forEach(a => {
@@ -110,7 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.addEventListener('keydown', (e) => {
         if (e.key !== 'Escape') return;
-        closeServerPickerMenu();
+        closeServerMenus();
         if ($('dash-panel-editor')?.style.display === 'flex') { closePanelEditor(); return; }
         if ($('app-panel-editor')?.style.display === 'flex') { closeAppPanelEditor(); return; }
         if ($('appeal-panel-editor')?.style.display === 'flex') { closeAppealPanelEditor(); return; }
@@ -242,11 +242,11 @@ function renderGuildList(guilds) {
     const other   = Array.isArray(guilds.otherGuilds) ? guilds.otherGuilds : [];
     const all     = [...withBot, ...other];
     const botSet  = new Set(withBot.map(g => g.id));
-    const list    = $('dashboard-guild-list');
-    const menu    = $('dash-server-picker-menu');
+    const toolbarMenu = $('dash-server-picker-menu');
+    const sidebarMenu = $('dash-sidebar-server-menu');
     const noSrv   = $('discord-no-servers');
 
-    function guildRowHtml(g, inMenu) {
+    function guildOptionHtml(g) {
         const has = botSet.has(g.id);
         const mc = g.memberCount != null && g.memberCount > 0
             ? `${Number(g.memberCount).toLocaleString()} members`
@@ -256,8 +256,7 @@ function renderGuildList(guilds) {
         else if (mc) metaLine = mc;
         else if (has) metaLine = 'Tickets bot connected';
         const active = selectedGuildId === g.id;
-        const cls = inMenu ? 'dash-server-picker-option' : 'dash-guild-btn';
-        return `<button type="button" class="${cls}${active ? ' active' : ''}" data-id="${escA(g.id)}" role="${inMenu ? 'option' : 'button'}"${inMenu ? ` aria-selected="${active ? 'true' : 'false'}"` : ''}>
+        return `<button type="button" class="dash-server-picker-option${active ? ' active' : ''}" data-id="${escA(g.id)}" role="option" aria-selected="${active ? 'true' : 'false'}">
             <div class="dash-guild-icon-wrap">
             ${g.icon ? `<img src="${escA(g.icon)}" alt="">` : `<span class="dash-guild-initial">${esc((g.name || '?')[0])}</span>`}
             </div>
@@ -272,62 +271,102 @@ function renderGuildList(guilds) {
     }
 
     if (!all.length) {
-        if (list) list.innerHTML = '';
-        if (menu) { menu.innerHTML = ''; menu.setAttribute('hidden', ''); }
+        if (toolbarMenu) { toolbarMenu.innerHTML = ''; toolbarMenu.setAttribute('hidden', ''); }
+        if (sidebarMenu) { sidebarMenu.innerHTML = ''; sidebarMenu.setAttribute('hidden', ''); }
         if (noSrv) noSrv.style.display = 'block';
+        setSidebarServerTriggerPlaceholder();
         return;
     }
     if (noSrv) noSrv.style.display = 'none';
 
-    const rows = all.map(g => guildRowHtml(g, false)).join('');
-    const menuRows = all.map(g => guildRowHtml(g, true)).join('');
-
-    if (list) list.innerHTML = rows;
-    if (menu) menu.innerHTML = menuRows;
-
-    list?.querySelectorAll('.dash-guild-btn').forEach(btn => {
-        const g = all.find(x => x.id === btn.dataset.id);
-        if (g) btn.addEventListener('click', () => selectServer(g));
-    });
-    menu?.querySelectorAll('.dash-server-picker-option').forEach(btn => {
-        const g = all.find(x => x.id === btn.dataset.id);
-        if (g) btn.addEventListener('click', () => { selectServer(g); closeServerPickerMenu(); });
-    });
+    const menuRows = all.map(g => guildOptionHtml(g)).join('');
+    if (toolbarMenu) toolbarMenu.innerHTML = menuRows;
+    if (sidebarMenu) sidebarMenu.innerHTML = menuRows;
 
     if (selectedGuild) updateServerPickerButton(selectedGuild);
+    else setSidebarServerTriggerPlaceholder();
 }
 
-function closeServerPickerMenu() {
-    const menu = $('dash-server-picker-menu');
-    const btn = $('dash-server-picker-btn');
-    if (menu) menu.setAttribute('hidden', '');
-    if (btn) btn.setAttribute('aria-expanded', 'false');
+function findGuildById(rawId) {
+    if (!guildsDataCache || rawId == null) return null;
+    const withBot = Array.isArray(guildsDataCache.guildsWithBot) ? guildsDataCache.guildsWithBot : (guildsDataCache.guilds || []);
+    const other = Array.isArray(guildsDataCache.otherGuilds) ? guildsDataCache.otherGuilds : [];
+    const all = [...withBot, ...other];
+    const sid = String(rawId);
+    return all.find(x => String(x.id) === sid) || null;
 }
 
-function initServerPickerDropdown() {
-    const wrap = document.querySelector('.dash-server-picker-wrap');
-    const btn = $('dash-server-picker-btn');
-    const menu = $('dash-server-picker-menu');
-    if (!btn || !menu) return;
-    btn.addEventListener('click', (e) => {
+function setSidebarServerTriggerPlaceholder() {
+    const lab = $('dash-sidebar-server-trigger-label');
+    const ic = $('dash-sidebar-server-trigger-icon');
+    if (lab) lab.textContent = 'Select a server';
+    if (ic) ic.innerHTML = '';
+}
+
+function closeServerMenus() {
+    const toolbarMenu = $('dash-server-picker-menu');
+    const sidebarMenu = $('dash-sidebar-server-menu');
+    const tb = $('dash-server-picker-btn');
+    const sb = $('dash-sidebar-server-trigger');
+    if (toolbarMenu) toolbarMenu.setAttribute('hidden', '');
+    if (sidebarMenu) sidebarMenu.setAttribute('hidden', '');
+    if (tb) tb.setAttribute('aria-expanded', 'false');
+    if (sb) sb.setAttribute('aria-expanded', 'false');
+}
+
+function initServerDropdowns() {
+    function bindDropdown(triggerId, menuId, wrapSelector) {
+        const btn = $(triggerId);
+        const menu = $(menuId);
+        const wrap = document.querySelector(wrapSelector);
+        if (!btn || !menu) return;
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const otherTriggerId = triggerId === 'dash-sidebar-server-trigger' ? 'dash-server-picker-btn' : 'dash-sidebar-server-trigger';
+            const otherMenuId = menuId === 'dash-sidebar-server-menu' ? 'dash-server-picker-menu' : 'dash-sidebar-server-menu';
+            const ob = $(otherTriggerId);
+            const om = $(otherMenuId);
+            if (om) om.setAttribute('hidden', '');
+            if (ob) ob.setAttribute('aria-expanded', 'false');
+
+            const isClosed = menu.hasAttribute('hidden');
+            if (isClosed) {
+                menu.removeAttribute('hidden');
+                btn.setAttribute('aria-expanded', 'true');
+            } else {
+                menu.setAttribute('hidden', '');
+                btn.setAttribute('aria-expanded', 'false');
+            }
+        });
+        if (wrap) wrap.addEventListener('click', (e) => e.stopPropagation());
+    }
+
+    bindDropdown('dash-sidebar-server-trigger', 'dash-sidebar-server-menu', '.dash-sidebar-server-dd');
+    bindDropdown('dash-server-picker-btn', 'dash-server-picker-menu', '.dash-server-picker-wrap');
+    document.addEventListener('click', () => closeServerMenus());
+
+    function onGuildOptionPick(e) {
+        const btn = e.target.closest('.dash-server-picker-option');
+        if (!btn?.dataset?.id) return;
+        e.preventDefault();
         e.stopPropagation();
-        if (!selectedGuildId) return;
-        const isClosed = menu.hasAttribute('hidden');
-        if (isClosed) {
-            menu.removeAttribute('hidden');
-            btn.setAttribute('aria-expanded', 'true');
-        } else {
-            closeServerPickerMenu();
+        const g = findGuildById(btn.dataset.id);
+        if (g) {
+            selectServer(g);
+            closeServerMenus();
         }
-    });
-    document.addEventListener('click', () => closeServerPickerMenu());
-    if (wrap) wrap.addEventListener('click', (e) => e.stopPropagation());
+    }
+    document.querySelector('.dash-sidebar-server-dd')?.addEventListener('click', onGuildOptionPick);
+    document.querySelector('.dash-server-picker-wrap')?.addEventListener('click', onGuildOptionPick);
 }
 
 function updateServerPickerButton(guild) {
     const label = $('detail-server-name');
     const icon = $('dash-server-picker-icon');
+    const sLab = $('dash-sidebar-server-trigger-label');
+    const sIcon = $('dash-sidebar-server-trigger-icon');
     if (label) label.textContent = guild.name || '—';
+    if (sLab) sLab.textContent = guild.name || '—';
     if (icon) {
         if (guild.icon) {
             icon.innerHTML = `<img src="${escA(guild.icon)}" alt="">`;
@@ -335,13 +374,17 @@ function updateServerPickerButton(guild) {
             icon.innerHTML = `<span class="dash-guild-initial">${esc((guild.name || '?')[0])}</span>`;
         }
     }
+    if (sIcon) {
+        if (guild.icon) {
+            sIcon.innerHTML = `<img src="${escA(guild.icon)}" alt="">`;
+        } else {
+            sIcon.innerHTML = `<span class="dash-guild-initial">${esc((guild.name || '?')[0])}</span>`;
+        }
+    }
     document.querySelectorAll('.dash-server-picker-option').forEach(opt => {
         const on = opt.dataset.id === guild.id;
         opt.classList.toggle('active', on);
         opt.setAttribute('aria-selected', on ? 'true' : 'false');
-    });
-    document.querySelectorAll('.dash-guild-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.id === guild.id);
     });
 }
 
@@ -408,9 +451,9 @@ function backToServers() {
     $('dash-welcome').style.display = 'flex';
     $('dash-server').style.display  = 'none';
     document.querySelector('.dash-layout')?.classList.add('dash-layout--no-server');
-    closeServerPickerMenu();
+    closeServerMenus();
+    setSidebarServerTriggerPlaceholder();
 
-    document.querySelectorAll('.dash-guild-btn').forEach(b => b.classList.remove('active'));
 }
 
 function switchTab(tab) {
