@@ -445,19 +445,30 @@ body.dashboard-page {
 }
 
 .dash-sidebar-workspace {
-    flex: 1;
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    padding: 0.85rem 0.85rem 1rem;
+    border-bottom: 1px solid var(--d-border);
+    overflow: visible;
+}
+
+.dash-sidebar-pages {
+    margin-top: auto;
+    flex: 0 1 auto;
     min-height: 0;
     display: flex;
     flex-direction: column;
-    padding: 0.85rem 0.85rem 0.75rem;
-    border-bottom: 1px solid var(--d-border);
+    padding: 0 0.85rem 1rem;
+    padding-top: clamp(2.25rem, 10vh, 5rem);
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
     overflow-x: hidden;
     overflow-y: auto;
 }
 
-.dash-sidebar-workspace::-webkit-scrollbar { width: 4px; }
-.dash-sidebar-workspace::-webkit-scrollbar-track { background: transparent; }
-.dash-sidebar-workspace::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.08); border-radius: 4px; }
+.dash-sidebar-pages::-webkit-scrollbar { width: 4px; }
+.dash-sidebar-pages::-webkit-scrollbar-track { background: transparent; }
+.dash-sidebar-pages::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.08); border-radius: 4px; }
 
 .dash-sidebar-section-head--workspace {
     margin-bottom: 0.65rem;
@@ -468,13 +479,14 @@ body.dashboard-page {
 }
 
 .dash-sidebar-nav-label {
-    margin: 0.85rem 0 0.45rem;
+    margin: 0 0 0.55rem;
     padding: 0 0.35rem;
     font-size: 0.625rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.1em;
     color: var(--d-text-3);
+    flex-shrink: 0;
 }
 
 .dash-layout--no-server .dash-sidebar-nav-label {
@@ -619,7 +631,7 @@ body.dashboard-page {
     display: flex;
     flex-direction: column;
     overflow-x: hidden;
-    overflow-y: visible;
+    overflow-y: hidden;
     padding: 0;
 }
 
@@ -3622,8 +3634,8 @@ body.dashboard-page {
 
 /* Scrollbar for sidebar nav on desktop */
 @media (min-width: 769px) {
-    .dash-sidebar-workspace::-webkit-scrollbar { width: 4px; }
-    .dash-sidebar-workspace::-webkit-scrollbar-thumb { background: var(--d-surface-3); border-radius: 4px; }
+    .dash-sidebar-pages::-webkit-scrollbar { width: 4px; }
+    .dash-sidebar-pages::-webkit-scrollbar-thumb { background: var(--d-surface-3); border-radius: 4px; }
 }
 
 /* ================================================================
