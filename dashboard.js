@@ -93,8 +93,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // Analytics period buttons
     document.querySelectorAll('.dash-period-btn').forEach(b =>
         b.addEventListener('click', () => {
-            document.querySelectorAll('.dash-period-btn').forEach(x => x.classList.remove('active'));
+            document.querySelectorAll('.dash-period-btn').forEach(x => {
+                x.classList.remove('active');
+                x.setAttribute('aria-selected', 'false');
+            });
             b.classList.add('active');
+            b.setAttribute('aria-selected', 'true');
             fetchAnalytics(selectedGuildId, b.dataset.days);
         })
     );
@@ -508,7 +512,8 @@ async function loadServerData() {
         fetchAppealPanels();
         fetchCustomEmbeds();
         fetchQR();
-        await fetchAnalytics(selectedGuildId, 30);
+        const analyticsDays = document.querySelector('.dash-period-btn.active')?.dataset?.days || '30';
+        await fetchAnalytics(selectedGuildId, analyticsDays);
 
         const [ra, audit] = await Promise.allSettled([
             apiDash('recent-activity', 'GET', { guild_id: selectedGuildId, limit: 8 }),
@@ -2336,7 +2341,11 @@ async function deleteQR(name) {
 async function fetchAnalytics(guildId, days) {
     const statsEl = $('analytics-stats');
     const catsEl = $('analytics-categories');
-    const chartEl = $('analytics-chart');
+    const rangeLabel = String(days || '30');
+    const headline = $('analytics-headline');
+    if (headline) {
+        headline.textContent = `Last ${rangeLabel} days — tickets opened, categories, and average close time.`;
+    }
     if (statsEl) statsEl.innerHTML = '<div class="dash-skeleton dash-skeleton-stat"></div>'.repeat(4);
     try {
         const data = await apiDash('analytics', 'GET', { guild_id: guildId, period: days });
@@ -2353,28 +2362,66 @@ async function fetchAnalytics(guildId, days) {
         const avKpi = $('overview-avg-response');
         if (avKpi) avKpi.textContent = avgLabel;
         if (statsEl) statsEl.innerHTML = `
-            <div class="dash-stat-card" style="animation-delay:0s">
-                <div class="dash-stat-icon" style="--c:#5865f2"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg></div>
-                <div><span class="dash-stat-label">Total tickets</span><div class="dash-stat-value">${data.total || 0}</div></div>
+            <div class="dash-stat-card dash-kpi-card" style="--c:#5865f2;--i:0">
+                <div class="dash-kpi-top">
+                    <span class="dash-stat-label">Total tickets</span>
+                    <div class="dash-stat-icon dash-kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+                </div>
+                <div class="dash-kpi-main">
+                    <div class="dash-stat-value">${data.total || 0}</div>
+                    <p class="dash-stat-sub dash-stat-sub--muted">In selected range</p>
+                </div>
             </div>
-            <div class="dash-stat-card" style="animation-delay:.06s">
-                <div class="dash-stat-icon" style="--c:#22c55e"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></div>
-                <div><span class="dash-stat-label">Open</span><div class="dash-stat-value">${data.open || 0}</div></div>
+            <div class="dash-stat-card dash-kpi-card" style="--c:#22c55e;--i:1">
+                <div class="dash-kpi-top">
+                    <span class="dash-stat-label">Open</span>
+                    <div class="dash-stat-icon dash-kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></div>
+                </div>
+                <div class="dash-kpi-main">
+                    <div class="dash-stat-value">${data.open || 0}</div>
+                    <p class="dash-stat-sub dash-stat-sub--muted">Still open now</p>
+                </div>
             </div>
-            <div class="dash-stat-card" style="animation-delay:.12s">
-                <div class="dash-stat-icon" style="--c:#f87171"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
-                <div><span class="dash-stat-label">Closed</span><div class="dash-stat-value">${data.closed || 0}</div></div>
+            <div class="dash-stat-card dash-kpi-card" style="--c:#f87171;--i:2">
+                <div class="dash-kpi-top">
+                    <span class="dash-stat-label">Closed</span>
+                    <div class="dash-stat-icon dash-kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+                </div>
+                <div class="dash-kpi-main">
+                    <div class="dash-stat-value">${data.closed || 0}</div>
+                    <p class="dash-stat-sub dash-stat-sub--muted">Resolved in range</p>
+                </div>
             </div>
-            <div class="dash-stat-card" style="animation-delay:.18s">
-                <div class="dash-stat-icon" style="--c:#f59e0b"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
-                <div><span class="dash-stat-label">Avg. close time</span><div class="dash-stat-value">${avgLabel}</div></div>
+            <div class="dash-stat-card dash-kpi-card" style="--c:#f59e0b;--i:3">
+                <div class="dash-kpi-top">
+                    <span class="dash-stat-label">Avg. close time</span>
+                    <div class="dash-stat-icon dash-kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
+                </div>
+                <div class="dash-kpi-main">
+                    <div class="dash-stat-value">${avgLabel}</div>
+                    <p class="dash-stat-sub dash-stat-sub--muted">Mean time to close</p>
+                </div>
             </div>
         `;
         renderChart(data.by_day || []);
         const cats = data.by_category || [];
-        if (catsEl) catsEl.innerHTML = cats.length
-            ? cats.map((c, i) => `<div class="dash-cat-stat" style="animation-delay:${i * 0.04}s"><span>${esc(c.name)}</span><span class="dash-cat-count">${c.count}</span></div>`).join('')
-            : '<p class="dash-empty">No category data for this period.</p>';
+        if (catsEl) {
+            if (!cats.length) {
+                catsEl.innerHTML = '<p class="dash-empty dash-empty--compact">No category data for this period.</p>';
+            } else {
+                const maxC = Math.max(...cats.map(c => c.count), 1);
+                catsEl.innerHTML = cats.map((c, i) => `
+                    <div class="dash-analytics-cat-item" style="animation-delay:${i * 0.04}s">
+                        <div class="dash-analytics-cat-top">
+                            <span class="dash-analytics-cat-name" title="${escA(c.name)}">${esc(c.name)}</span>
+                            <span class="dash-analytics-cat-count">${c.count}</span>
+                        </div>
+                        <div class="dash-analytics-cat-bar" role="presentation" aria-hidden="true">
+                            <div class="dash-analytics-cat-bar-fill" style="width:${(c.count / maxC) * 100}%"></div>
+                        </div>
+                    </div>`).join('');
+            }
+        }
         const byDay = data.by_day || [];
         renderOverviewTrend(byDay.slice(-7));
         renderOverviewHourly(Array.isArray(data.by_hour) && data.by_hour.length === 24 ? data.by_hour : null);
