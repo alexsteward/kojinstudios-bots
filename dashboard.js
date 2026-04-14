@@ -18,6 +18,8 @@ let guildsDataCache = null;
 let previousDashTab = null;
 let qrEditingOriginalLabel = null;
 let qrCache = [];
+/** Synced with Analytics period; drives Overview ticket trend slice + refetch. */
+let overviewTrendDays = 7;
 
 const TAB_LABELS = {
     overview: 'Overview',
@@ -90,7 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Analytics period buttons
+    // Analytics period buttons (kept in sync with Overview ticket trend)
     document.querySelectorAll('.dash-period-btn').forEach(b =>
         b.addEventListener('click', () => {
             document.querySelectorAll('.dash-period-btn').forEach(x => {
@@ -99,13 +101,30 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             b.classList.add('active');
             b.setAttribute('aria-selected', 'true');
+            overviewTrendDays = parseInt(b.dataset.days, 10) || 7;
+            syncOverviewTrendPeriodButtons(overviewTrendDays);
             fetchAnalytics(selectedGuildId, b.dataset.days);
         })
     );
 
+    document.querySelectorAll('.dash-overview-trend-period').forEach(b =>
+        b.addEventListener('click', () => {
+            overviewTrendDays = parseInt(b.dataset.days, 10) || 7;
+            syncOverviewTrendPeriodButtons(overviewTrendDays);
+            document.querySelectorAll('#tab-analytics .dash-period-btn').forEach(x => {
+                const on = x.dataset.days === String(overviewTrendDays);
+                x.classList.toggle('active', on);
+                x.setAttribute('aria-selected', on ? 'true' : 'false');
+            });
+            if (selectedGuildId) fetchAnalytics(selectedGuildId, String(overviewTrendDays));
+            else toast('Select a server first.', 'error');
+        })
+    );
+
     on('analytics-refresh-btn', 'click', () => {
-        const active = document.querySelector('.dash-period-btn.active');
-        const days = active?.dataset?.days || '30';
+        const active = document.querySelector('#tab-analytics .dash-period-btn.active')
+            || document.querySelector('.dash-period-btn.active');
+        const days = active?.dataset?.days || '7';
         if (selectedGuildId) fetchAnalytics(selectedGuildId, days);
         else toast('Select a server first.', 'error');
     });
@@ -467,11 +486,15 @@ async function refreshOverviewData() {
     try {
         const statusData = await api('server-status', { guild_id: selectedGuildId });
         renderOverview(statusData);
-        const days = document.querySelector('.dash-period-btn.active')?.dataset?.days || '30';
+        const days = document.querySelector('#tab-analytics .dash-period-btn.active')?.dataset?.days
+            || document.querySelector('.dash-period-btn.active')?.dataset?.days
+            || '7';
+        overviewTrendDays = parseInt(days, 10) || 7;
+        syncOverviewTrendPeriodButtons(overviewTrendDays);
         await fetchAnalytics(selectedGuildId, days);
         const [ra, audit] = await Promise.allSettled([
-            apiDash('recent-activity', 'GET', { guild_id: selectedGuildId, limit: 8 }),
-            apiDash('audit-log', 'GET', { guild_id: selectedGuildId, limit: 12 }),
+            apiDash('recent-activity', 'GET', { guild_id: selectedGuildId, limit: 14 }),
+            apiDash('audit-log', 'GET', { guild_id: selectedGuildId, limit: 18 }),
         ]);
         renderRecentActivity(ra.status === 'fulfilled' ? ra.value : null);
         renderAuditLog(audit.status === 'fulfilled' ? audit.value : null);
@@ -512,12 +535,16 @@ async function loadServerData() {
         fetchAppealPanels();
         fetchCustomEmbeds();
         fetchQR();
-        const analyticsDays = document.querySelector('.dash-period-btn.active')?.dataset?.days || '30';
+        const analyticsDays = document.querySelector('#tab-analytics .dash-period-btn.active')?.dataset?.days
+            || document.querySelector('.dash-period-btn.active')?.dataset?.days
+            || '7';
+        overviewTrendDays = parseInt(analyticsDays, 10) || 7;
+        syncOverviewTrendPeriodButtons(overviewTrendDays);
         await fetchAnalytics(selectedGuildId, analyticsDays);
 
         const [ra, audit] = await Promise.allSettled([
-            apiDash('recent-activity', 'GET', { guild_id: selectedGuildId, limit: 8 }),
-            apiDash('audit-log', 'GET', { guild_id: selectedGuildId, limit: 12 }),
+            apiDash('recent-activity', 'GET', { guild_id: selectedGuildId, limit: 14 }),
+            apiDash('audit-log', 'GET', { guild_id: selectedGuildId, limit: 18 }),
         ]);
         renderRecentActivity(ra.status === 'fulfilled' ? ra.value : null);
         renderAuditLog(audit.status === 'fulfilled' ? audit.value : null);
@@ -743,10 +770,20 @@ async function syncPanelCounts() {
     await Promise.allSettled([fetchPanelLimits(), refreshOverviewStats()]);
 }
 
+function syncOverviewTrendPeriodButtons(days) {
+    const d = String(days);
+    document.querySelectorAll('.dash-overview-trend-period').forEach(b => {
+        const on = b.dataset.days === d;
+        b.classList.toggle('active', on);
+        b.setAttribute('aria-selected', on ? 'true' : 'false');
+    });
+}
+
 function renderOverviewTrend(byDay, error) {
     const chart = $('overview-trend-chart');
     const hint = $('overview-trend-hint');
     const totalEl = $('overview-trend-total');
+    const rangeLabel = $('overview-trend-range-label');
     const link = $('overview-trend-analytics-link');
     if (!chart) return;
     if (link) {
@@ -756,6 +793,8 @@ function renderOverviewTrend(byDay, error) {
             document.querySelector('.dash-nav-tab[data-tab="analytics"]')?.click();
         };
     }
+    const nDays = overviewTrendDays || 7;
+    if (rangeLabel) rangeLabel.textContent = `Last ${nDays} days`;
     if (error) {
         chart.innerHTML = '';
         if (totalEl) totalEl.textContent = '—';
@@ -765,7 +804,7 @@ function renderOverviewTrend(byDay, error) {
     if (!byDay || !byDay.length) {
         chart.innerHTML = '<div class="dash-trend-empty"><span class="dash-trend-empty-icon">📊</span><p>No ticket activity yet</p><span class="dash-trend-empty-sub">Tickets will appear here once created</span></div>';
         if (totalEl) totalEl.textContent = '0';
-        if (hint) hint.textContent = 'No tickets in the last 7 days.';
+        if (hint) hint.textContent = `No tickets in the last ${nDays} days.`;
         return;
     }
     const createdSum = byDay.reduce((a, d) => a + (d.created ?? d.count ?? 0), 0);
@@ -776,24 +815,78 @@ function renderOverviewTrend(byDay, error) {
         return Math.max(c, cl);
     }));
     if (totalEl) totalEl.textContent = createdSum.toLocaleString();
-    chart.innerHTML = `<div class="dash-dual-trend">${byDay.map(d => {
-        const created = d.created ?? d.count ?? 0;
-        const closed = d.closed ?? 0;
-        const dayLabel = d.label || d.date;
-        const pctC = created ? Math.max((created / max) * 100, 10) : 0;
-        const pctCl = closed ? Math.max((closed / max) * 100, 10) : 0;
-        return `<div class="dash-dual-group" title="${escA(dayLabel)}: ${created} created · ${closed} closed">
-            <div class="dash-dual-bars">
-                <div class="dash-dual-bar dash-dual-bar--created" style="--h:${pctC}%"><span class="dash-dual-bar-val">${created}</span></div>
-                <div class="dash-dual-bar dash-dual-bar--closed" style="--h:${pctCl}%"><span class="dash-dual-bar-val">${closed}</span></div>
-            </div>
-            <span class="dash-trend-bar-label">${esc(dayLabel)}</span>
-        </div>`;
-    }).join('')}</div>`;
+
+    const n = byDay.length;
+    const W = 100;
+    const H = 62;
+    const padL = 4;
+    const padR = 4;
+    const padT = 5;
+    const padB = 12;
+    const innerW = W - padL - padR;
+    const innerH = H - padT - padB;
+    const xAt = i => (n <= 1 ? padL + innerW / 2 : padL + (i / (n - 1)) * innerW);
+    const yAt = v => padT + innerH - (v / max) * innerH * 0.94;
+    const ptsCreated = byDay.map((d, i) => {
+        const v = d.created ?? d.count ?? 0;
+        return `${xAt(i).toFixed(3)},${yAt(v).toFixed(3)}`;
+    }).join(' ');
+    const ptsClosed = byDay.map((d, i) => {
+        const v = d.closed ?? 0;
+        return `${xAt(i).toFixed(3)},${yAt(v).toFixed(3)}`;
+    }).join(' ');
+    const polyCreated = byDay.map((d, i) => [xAt(i), yAt(d.created ?? d.count ?? 0)]);
+    const polyClosed = byDay.map((d, i) => [xAt(i), yAt(d.closed ?? 0)]);
+    const baseY = padT + innerH;
+    function lineAreaPath(pts) {
+        if (!pts.length) return '';
+        let d = `M ${pts[0][0].toFixed(3)},${pts[0][1].toFixed(3)}`;
+        for (let i = 1; i < pts.length; i++) d += ` L ${pts[i][0].toFixed(3)},${pts[i][1].toFixed(3)}`;
+        d += ` L ${pts[pts.length - 1][0].toFixed(3)},${baseY.toFixed(3)} L ${pts[0][0].toFixed(3)},${baseY.toFixed(3)} Z`;
+        return d;
+    }
+    const areaCreated = lineAreaPath(polyCreated);
+    const areaClosed = lineAreaPath(polyClosed);
+    const uid = 'ovt-' + String(selectedGuildId || 'x').replace(/\W/g, '') + '-' + n;
+    const g1 = `${uid}-gc`;
+    const g2 = `${uid}-gcl`;
+    const labelEvery = n > 40 ? Math.ceil(n / 10) : n > 18 ? Math.ceil(n / 8) : n > 10 ? Math.ceil(n / 6) : 1;
+    const labelIdx = new Set([0, n - 1]);
+    for (let i = labelEvery; i < n - 1; i += labelEvery) labelIdx.add(i);
+    const axisLabels = [...labelIdx].sort((a, b) => a - b).map(i => {
+        const lab = byDay[i].label || byDay[i].date;
+        return `<span class="dash-trend-line-axis-item">${esc(lab)}</span>`;
+    }).join('');
+
+    chart.innerHTML = `<div class="dash-trend-line-chart">
+        <svg class="dash-trend-line-svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true">
+            <defs>
+                <linearGradient id="${g1}" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="rgba(255,71,87,0.35)"/>
+                    <stop offset="100%" stop-color="rgba(255,71,87,0)"/>
+                </linearGradient>
+                <linearGradient id="${g2}" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="rgba(52,211,153,0.22)"/>
+                    <stop offset="100%" stop-color="rgba(52,211,153,0)"/>
+                </linearGradient>
+            </defs>
+            <g stroke="rgba(255,255,255,0.06)" stroke-width="0.35">
+                <line x1="${padL}" y1="${(padT + innerH * 0.25).toFixed(2)}" x2="${(padL + innerW).toFixed(2)}" y2="${(padT + innerH * 0.25).toFixed(2)}"/>
+                <line x1="${padL}" y1="${(padT + innerH * 0.5).toFixed(2)}" x2="${(padL + innerW).toFixed(2)}" y2="${(padT + innerH * 0.5).toFixed(2)}"/>
+                <line x1="${padL}" y1="${(padT + innerH * 0.75).toFixed(2)}" x2="${(padL + innerW).toFixed(2)}" y2="${(padT + innerH * 0.75).toFixed(2)}"/>
+            </g>
+            <line x1="${padL}" y1="${baseY.toFixed(2)}" x2="${(padL + innerW).toFixed(2)}" y2="${baseY.toFixed(2)}" stroke="rgba(255,255,255,0.1)" stroke-width="0.45"/>
+            <path d="${areaCreated}" fill="url(#${g1})" />
+            <path d="${areaClosed}" fill="url(#${g2})" />
+            <polyline fill="none" stroke="var(--d-accent)" stroke-width="1.35" stroke-linejoin="round" stroke-linecap="round" points="${ptsCreated}" />
+            <polyline fill="none" stroke="#34d399" stroke-width="1.35" stroke-linejoin="round" stroke-linecap="round" points="${ptsClosed}" />
+        </svg>
+        <div class="dash-trend-line-axis">${axisLabels}</div>
+    </div>`;
     if (hint) {
         hint.textContent = createdSum === 0 && closedSum === 0
-            ? 'No tickets in the last 7 days.'
-            : `${createdSum.toLocaleString()} created · ${closedSum.toLocaleString()} closed this week.`;
+            ? `No tickets in the last ${nDays} days.`
+            : `${createdSum.toLocaleString()} created · ${closedSum.toLocaleString()} closed in this range.`;
     }
 }
 
@@ -2426,8 +2519,8 @@ async function fetchAnalytics(guildId, days) {
                 }).join('');
             }
         }
-        const byDay = data.by_day || [];
-        renderOverviewTrend(byDay.slice(-7));
+        const td = overviewTrendDays || 7;
+        renderOverviewTrend((data.by_day || []).slice(-td));
         renderOverviewHourly(Array.isArray(data.by_hour) && data.by_hour.length === 24 ? data.by_hour : null);
     } catch {
         if (statsEl) statsEl.innerHTML = '<p class="dash-empty">Could not load analytics. Is the bot online?</p>';
