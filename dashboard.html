@@ -701,31 +701,57 @@
 
                     <!-- Tab: Quick Responses -->
                     <div class="dash-tab-content" data-tab="responses" id="tab-responses">
-                        <div class="dash-card anim-in">
-                            <div class="dash-card-head">
+                        <div class="dash-qr-page anim-in">
+                            <div class="dash-qr-page-head">
                                 <div>
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                                    <h3>Quick Responses</h3>
-                                    <span class="dash-panel-count" id="qr-count-badge"></span>
+                                    <h2 class="dash-qr-page-title">Quick responses</h2>
+                                    <p class="dash-qr-page-sub" id="qr-usage-sub">0/5 responses used</p>
                                 </div>
-                                <button type="button" class="dash-btn dash-btn-primary dash-btn-sm" id="qr-add-btn">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                <button type="button" class="dash-btn dash-btn-primary dash-qr-add-btn" id="qr-add-btn">
+                                    <svg class="dash-qr-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                                     Add response
                                 </button>
                             </div>
-                            <p class="dash-card-desc">Canned replies staff can send with <code>/response</code>. Supports <code>{customer}</code> and <code>{user}</code> placeholders.</p>
+                            <p class="dash-qr-hint">Canned replies staff send with <code>/response</code>. Use <code>{customer}</code> or <code>{user}</code> for the ticket author.</p>
+
+                            <div class="dash-qr-usage-card">
+                                <div class="dash-qr-usage-top">
+                                    <span>Usage</span>
+                                    <span id="qr-usage-text">0 of 5</span>
+                                </div>
+                                <div class="dash-qr-usage-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="qr-usage-bar-wrap">
+                                    <div class="dash-qr-usage-fill" id="qr-usage-fill" style="width:0%"></div>
+                                </div>
+                            </div>
+
+                            <div id="qr-empty" class="dash-qr-empty" style="display:none;">
+                                <div class="dash-qr-empty-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+                                <p>No quick responses yet. Create your first one!</p>
+                            </div>
                             <div id="qr-list" class="dash-qr-list"></div>
                         </div>
-                        <div class="dash-card anim-in" id="qr-form-card" style="display:none;">
-                            <div class="dash-card-head">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                                <h3 id="qr-form-title">Add quick response</h3>
-                            </div>
-                            <div class="dash-field"><label for="qr-label">Label</label><input type="text" id="qr-label" class="dash-input" placeholder="e.g. Greeting" maxlength="100"></div>
-                            <div class="dash-field"><label for="qr-message">Message</label><textarea id="qr-message" class="dash-textarea" placeholder="Hi {customer}, thanks for reaching out!" rows="4"></textarea></div>
-                            <div class="dash-actions">
-                                <button type="button" class="dash-btn dash-btn-primary dash-btn-sm" id="qr-save-btn">Save</button>
-                                <button type="button" class="dash-btn dash-btn-ghost dash-btn-sm" id="qr-cancel-btn">Cancel</button>
+
+                        <div id="qr-modal" class="dash-qr-modal" aria-hidden="true">
+                            <div class="dash-qr-modal__backdrop" id="qr-modal-backdrop"></div>
+                            <div class="dash-qr-modal__panel" role="dialog" aria-labelledby="qr-modal-title">
+                                <div class="dash-qr-modal__head">
+                                    <h3 id="qr-modal-title">New response</h3>
+                                    <button type="button" class="dash-qr-modal__close" id="qr-modal-close" aria-label="Close">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                                    </button>
+                                </div>
+                                <div class="dash-field">
+                                    <label for="qr-label">Label</label>
+                                    <input type="text" id="qr-label" class="dash-input" placeholder="e.g. Welcome" maxlength="100" autocomplete="off">
+                                </div>
+                                <div class="dash-field">
+                                    <label for="qr-message">Content</label>
+                                    <textarea id="qr-message" class="dash-textarea" placeholder="Type the response message…" rows="5"></textarea>
+                                </div>
+                                <div class="dash-qr-modal__actions">
+                                    <button type="button" class="dash-btn dash-btn-ghost dash-btn-sm" id="qr-cancel-btn">Cancel</button>
+                                    <button type="button" class="dash-btn dash-btn-primary dash-btn-sm" id="qr-save-btn">Create</button>
+                                </div>
                             </div>
                         </div>
                     </div>

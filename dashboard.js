@@ -16,6 +16,8 @@ let editingCustomEmbedId = null;
 let lastConfigSaveTime = 0;
 let guildsDataCache = null;
 let previousDashTab = null;
+let qrEditingOriginalLabel = null;
+let qrCache = [];
 
 const TAB_LABELS = {
     overview: 'Overview',
@@ -61,6 +63,8 @@ document.addEventListener('DOMContentLoaded', () => {
     on('qr-add-btn',               'click', showQRForm);
     on('qr-save-btn',              'click', saveQR);
     on('qr-cancel-btn',            'click', hideQRForm);
+    on('qr-modal-backdrop',       'click', hideQRForm);
+    on('qr-modal-close',          'click', hideQRForm);
 
     // Close panel editor on backdrop click
     const backdrop = document.querySelector('.dash-panel-editor-backdrop');
@@ -2150,30 +2154,105 @@ function loadEditorChannelSelect(selectId, selectedId) {
 }
 
 // ─── Quick Responses ─────────────────────────────────────────────────────────
+function qrModalOnEscape(e) {
+    if (e.key === 'Escape') hideQRForm();
+}
+
+function openQRModal() {
+    const modal = $('qr-modal');
+    if (!modal) return;
+    modal.classList.add('is-open');
+    modal.setAttribute('aria-hidden', 'false');
+    document.addEventListener('keydown', qrModalOnEscape);
+}
+
+function closeQRModal() {
+    const modal = $('qr-modal');
+    if (!modal) return;
+    modal.classList.remove('is-open');
+    modal.setAttribute('aria-hidden', 'true');
+    document.removeEventListener('keydown', qrModalOnEscape);
+}
+
 async function fetchQR() {
     const list = $('qr-list');
+    const empty = $('qr-empty');
+    const sub = $('qr-usage-sub');
+    const usageText = $('qr-usage-text');
+    const usageFill = $('qr-usage-fill');
+    const usageBarWrap = $('qr-usage-bar-wrap');
+    const addBtn = $('qr-add-btn');
     if (!list) return;
     try {
         const data = await apiDash('quick-responses', 'GET', { guild_id: selectedGuildId });
-        const qr   = data.responses || [];
-        const qrBadge = $('qr-count-badge');
-        if (qrBadge) {
-            const qrMax = panelLimits?.quick_responses?.max ?? 5;
-            qrBadge.textContent = `${qr.length}/${qrMax === -1 ? '∞' : qrMax}`;
+        const qr = data.responses || [];
+        qrCache = qr;
+        const qrMax = panelLimits?.quick_responses?.max ?? 5;
+        const unlimited = qrMax === -1;
+        const count = panelLimits?.quick_responses != null
+            ? (panelLimits.quick_responses.count ?? qr.length)
+            : qr.length;
+        const pct = unlimited ? 100 : Math.min(100, qrMax > 0 ? (count / qrMax) * 100 : 0);
+
+        if (sub) {
+            sub.textContent = unlimited
+                ? `${qr.length} response${qr.length === 1 ? '' : 's'}`
+                : `${qr.length}/${qrMax} responses used`;
         }
+        if (usageText) {
+            usageText.textContent = unlimited ? `${count} (unlimited)` : `${count} of ${qrMax}`;
+        }
+        if (usageFill) {
+            usageFill.classList.toggle('dash-qr-usage-fill--unlimited', unlimited);
+            usageFill.style.width = unlimited ? '100%' : `${pct}%`;
+        }
+        if (usageBarWrap) {
+            usageBarWrap.setAttribute('aria-valuenow', String(Math.round(pct)));
+            usageBarWrap.setAttribute('aria-valuemax', '100');
+        }
+        if (addBtn) {
+            const atLimit = !unlimited && count >= qrMax;
+            addBtn.disabled = !!atLimit;
+        }
+
+        if (empty) empty.style.display = qr.length ? 'none' : '';
+
         if (!qr.length) {
-            list.innerHTML = '<p class="dash-empty">No quick responses yet.</p>';
+            list.innerHTML = '';
         } else {
-            list.innerHTML = qr.map(r => `<div class="dash-qr-item">
-                <div class="dash-qr-label">${esc(r.label)}</div>
-                <div class="dash-qr-msg">${esc(r.message)}</div>
-                <button class="dash-qr-delete" data-name="${escA(r.label)}">&times;</button>
-            </div>`).join('');
+            const rowIcon = `<div class="dash-qr-row-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>`;
+            list.innerHTML = qr.map((r, i) => `
+                <div class="dash-qr-row">
+                    ${rowIcon}
+                    <div class="dash-qr-row-body">
+                        <div class="dash-qr-row-top">
+                            <span class="dash-qr-label">${esc(r.label)}</span>
+                            <span class="dash-qr-used">Used 0×</span>
+                        </div>
+                        <div class="dash-qr-msg">${esc(r.message || '')}</div>
+                    </div>
+                    <div class="dash-qr-row-actions">
+                        <button type="button" class="dash-qr-edit" data-idx="${i}" title="Edit" aria-label="Edit">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                        </button>
+                        <button type="button" class="dash-qr-delete" data-name="${escA(r.label)}" title="Delete" aria-label="Delete">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                        </button>
+                    </div>
+                </div>`).join('');
+            list.querySelectorAll('.dash-qr-edit').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const idx = parseInt(btn.getAttribute('data-idx'), 10);
+                    openQRModalEdit(Number.isFinite(idx) ? idx : 0);
+                });
+            });
             list.querySelectorAll('.dash-qr-delete').forEach(btn =>
                 btn.addEventListener('click', () => deleteQR(btn.dataset.name))
             );
         }
     } catch {
+        qrCache = [];
+        if (empty) empty.style.display = 'none';
         list.innerHTML = '<p class="dash-empty">Could not load responses.</p>';
     }
 }
@@ -2186,29 +2265,58 @@ function showQRForm() {
             return;
         }
     }
-    $('qr-form-card').style.display = 'block';
-    $('qr-label').value   = '';
+    qrEditingOriginalLabel = null;
+    const title = $('qr-modal-title');
+    if (title) title.textContent = 'New response';
+    const saveBtn = $('qr-save-btn');
+    if (saveBtn) saveBtn.textContent = 'Create';
+    $('qr-label').value = '';
     $('qr-message').value = '';
+    openQRModal();
+    $('qr-label').focus();
+}
+
+function openQRModalEdit(idx) {
+    const r = qrCache[idx];
+    if (!r) return;
+    qrEditingOriginalLabel = r.label;
+    const title = $('qr-modal-title');
+    if (title) title.textContent = 'Edit response';
+    const saveBtn = $('qr-save-btn');
+    if (saveBtn) saveBtn.textContent = 'Save';
+    $('qr-label').value = r.label;
+    $('qr-message').value = r.message || '';
+    openQRModal();
     $('qr-label').focus();
 }
 
 function hideQRForm() {
-    $('qr-form-card').style.display = 'none';
+    closeQRModal();
+    qrEditingOriginalLabel = null;
 }
 
 async function saveQR() {
-    const label   = $('qr-label').value.trim();
+    const label = $('qr-label').value.trim();
     const message = $('qr-message').value.trim();
     if (!label || !message) { toast('Label and message are required.', 'error'); return; }
+    const orig = qrEditingOriginalLabel;
+    const btn = $('qr-save-btn');
+    if (btn) btn.disabled = true;
     try {
+        if (orig && orig !== label) {
+            const del = await apiDash('quick-responses', 'DELETE', { guild_id: selectedGuildId, name: orig });
+            if (del.error) throw new Error(del.error);
+        }
         const res = await apiDash('quick-responses', 'POST', { guild_id: selectedGuildId }, { guild_id: selectedGuildId, label, message });
         if (res.error) throw new Error(res.error);
         hideQRForm();
         fetchQR();
         await fetchPanelLimits();
-        toast('Quick response added!');
+        toast(orig ? 'Quick response updated!' : 'Quick response added!');
     } catch (err) {
         toast(err.message || 'Failed to save.', 'error');
+    } finally {
+        if (btn) btn.disabled = false;
     }
 }
 
