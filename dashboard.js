@@ -15,6 +15,7 @@ let cachedGuildEmojis = [];
 let editingCustomEmbedId = null;
 let lastConfigSaveTime = 0;
 let guildsDataCache = null;
+let previousDashTab = null;
 
 const TAB_LABELS = {
     overview: 'Overview',
@@ -431,6 +432,8 @@ function backToServers() {
 }
 
 function switchTab(tab) {
+    const fromTab = previousDashTab;
+    previousDashTab = tab;
     document.querySelectorAll('.dash-nav-tab').forEach(t =>
         t.classList.toggle('active', t.dataset.tab === tab)
     );
@@ -445,6 +448,26 @@ function switchTab(tab) {
             c.style.animation = '';
         }
     });
+    if (tab === 'overview' && selectedGuildId && fromTab != null && fromTab !== 'overview') {
+        refreshOverviewData();
+    }
+}
+
+/** Light refresh when returning to Overview so new tickets / analytics show without a full reload. */
+async function refreshOverviewData() {
+    if (!selectedGuildId) return;
+    try {
+        const statusData = await api('server-status', { guild_id: selectedGuildId });
+        renderOverview(statusData);
+        const days = document.querySelector('.dash-period-btn.active')?.dataset?.days || '30';
+        await fetchAnalytics(selectedGuildId, days);
+        const [ra, audit] = await Promise.allSettled([
+            apiDash('recent-activity', 'GET', { guild_id: selectedGuildId, limit: 8 }),
+            apiDash('audit-log', 'GET', { guild_id: selectedGuildId, limit: 12 }),
+        ]);
+        renderRecentActivity(ra.status === 'fulfilled' ? ra.value : null);
+        renderAuditLog(audit.status === 'fulfilled' ? audit.value : null);
+    } catch { /* ignore */ }
 }
 
 // ─── Data loading ────────────────────────────────────────────────────────────
@@ -481,14 +504,20 @@ async function loadServerData() {
         fetchAppealPanels();
         fetchCustomEmbeds();
         fetchQR();
-        fetchAnalytics(selectedGuildId, 30);
+        await fetchAnalytics(selectedGuildId, 30);
 
         const [ra, audit] = await Promise.allSettled([
             apiDash('recent-activity', 'GET', { guild_id: selectedGuildId, limit: 8 }),
-            apiDash('audit-log', 'GET', { guild_id: selectedGuildId }),
+            apiDash('audit-log', 'GET', { guild_id: selectedGuildId, limit: 12 }),
         ]);
         renderRecentActivity(ra.status === 'fulfilled' ? ra.value : null);
         renderAuditLog(audit.status === 'fulfilled' ? audit.value : null);
+        if (ra.status === 'fulfilled' && ra.value && ra.value._ok === false && ra.value.error) {
+            toast(`Recent activity: ${ra.value.error}`, 'error');
+        }
+        if (audit.status === 'fulfilled' && audit.value && audit.value._ok === false && audit.value.error) {
+            toast(`Audit log: ${audit.value.error}`, 'error');
+        }
 
         const failed = [status, config, channels, roles, emojis].filter(r => r.status === 'rejected');
         if (failed.length === 4) {
@@ -525,7 +554,18 @@ async function apiDash(endpoint, method, params, body) {
     }
     if (body) opts.body = JSON.stringify(body);
     const res = await fetch(`${BASE}/.netlify/functions/dashboard-api?${qs}`, opts);
-    return res.json();
+    let data = {};
+    try {
+        data = await res.json();
+    } catch {
+        data = { error: 'Invalid response from dashboard API' };
+    }
+    data._ok = res.ok;
+    data._status = res.status;
+    if (!res.ok && !data.error) {
+        data.error = data.message || `Request failed (${res.status})`;
+    }
+    return data;
 }
 
 // ─── Overview ────────────────────────────────────────────────────────────────
@@ -538,29 +578,39 @@ function formatAvgCloseHours(h) {
     return `${whole}h ${m}m`;
 }
 
-function renderUptimeCard(inServer) {
+function renderUptimeCard(data) {
+    const inServer = data && data.tickets === true;
     const bars = $('overview-uptime-bars');
     const meta = $('overview-uptime-meta');
     const state = $('overview-uptime-state');
     const dot = $('overview-uptime-dot');
     if (!bars) return;
-    let warnIdx = 14;
-    if (selectedGuildId) {
-        let s = 0;
-        for (let i = 0; i < selectedGuildId.length; i++) s += selectedGuildId.charCodeAt(i);
-        warnIdx = 10 + (s % 11);
-    }
-    if (inServer) {
-        const parts = [];
-        for (let i = 0; i < 30; i++) {
-            const isWarn = i === warnIdx;
-            parts.push(`<div class="dash-uptime-bar${isWarn ? ' dash-uptime-bar--warn' : ''}" title="Day ${i + 1}"></div>`);
-        }
-        bars.innerHTML = parts.join('');
+
+    const dayList = Array.isArray(data?.uptime_bars) ? data.uptime_bars : null;
+    if (dayList && dayList.length === 30) {
+        bars.innerHTML = dayList.map(d => {
+            const st = d.state || 'unknown';
+            let extra = '';
+            if (st === 'down') extra = ' dash-uptime-bar--warn';
+            else if (st === 'unknown') extra = ' dash-uptime-bar--unknown';
+            const title = `${d.date || ''}: ${st === 'ok' ? 'Bot reachable' : st === 'down' ? 'Bot not in server when checked' : 'No check that day'}`;
+            return `<div class="dash-uptime-bar${extra}" title="${escA(title)}"></div>`;
+        }).join('');
     } else {
-        bars.innerHTML = Array.from({ length: 30 }, () => '<div class="dash-uptime-bar dash-uptime-bar--warn" title="Unavailable"></div>').join('');
+        bars.innerHTML = Array.from({ length: 30 }, (_, i) =>
+            `<div class="dash-uptime-bar${inServer ? '' : ' dash-uptime-bar--warn'}" title="${inServer ? `Day ${i + 1}` : 'Unavailable'}"></div>`
+        ).join('');
     }
-    if (meta) meta.textContent = inServer ? '99.97% — last 30 days' : '— last 30 days';
+
+    if (meta) {
+        const pct = data?.uptime_pct;
+        const sub = data?.uptime_sub || '';
+        if (typeof pct === 'number' && !Number.isNaN(pct)) {
+            meta.textContent = sub ? `${pct}% — last 30 days · ${sub}` : `${pct}% — last 30 days`;
+        } else {
+            meta.textContent = sub || (inServer ? 'Collecting daily samples when you open the dashboard' : '— last 30 days');
+        }
+    }
     if (state) {
         state.textContent = inServer ? 'Operational' : 'Unavailable';
         state.classList.toggle('bad', !inServer);
@@ -654,7 +704,7 @@ function renderOverview(data) {
         else members.textContent = '—';
     }
 
-    renderUptimeCard(inServer);
+    renderUptimeCard(data);
 
     const pageGuild = $('overview-page-guild');
     if (pageGuild) pageGuild.textContent = data.guild_name || '—';
@@ -804,6 +854,10 @@ function formatRelativeTime(iso) {
 function renderRecentActivity(data) {
     const el = $('overview-recent-activity');
     if (!el) return;
+    if (data && data._ok === false && data.error) {
+        el.innerHTML = `<div class="dash-feed-empty">Could not load recent activity. ${esc(data.error)}</div>`;
+        return;
+    }
     const tickets = data?.tickets;
     if (!tickets || !tickets.length) {
         el.innerHTML = '<div class="dash-feed-empty">No recent tickets yet.</div>';
@@ -831,6 +885,10 @@ function renderRecentActivity(data) {
 function renderAuditLog(data) {
     const el = $('overview-audit-log');
     if (!el) return;
+    if (data && data._ok === false && data.error) {
+        el.innerHTML = `<div class="dash-feed-empty">Could not load audit log. ${esc(data.error)}</div>`;
+        return;
+    }
     const events = data?.events;
     const hint = data?.hint;
     if (Array.isArray(events) && events.length) {
@@ -2137,11 +2195,18 @@ async function fetchAnalytics(guildId, days) {
     if (statsEl) statsEl.innerHTML = '<div class="dash-skeleton dash-skeleton-stat"></div>'.repeat(4);
     try {
         const data = await apiDash('analytics', 'GET', { guild_id: guildId, period: days });
+        if (!data._ok) {
+            if (statsEl) statsEl.innerHTML = `<p class="dash-empty">${esc(data.error || 'Could not load analytics.')}</p>`;
+            const avKpi = $('overview-avg-response');
+            if (avKpi) avKpi.textContent = '—';
+            renderOverviewTrend(null, true);
+            renderOverviewHourly(null, true);
+            toast(data.error || 'Analytics unavailable. Set DASHBOARD_BACKEND_URL on Netlify and ensure the bot API is reachable.', 'error');
+            return;
+        }
         const avgLabel = formatAvgCloseHours(data.avg_close_hours);
         const avKpi = $('overview-avg-response');
         if (avKpi) avKpi.textContent = avgLabel;
-        const satKpi = $('overview-satisfaction');
-        if (satKpi) satKpi.textContent = '—';
         if (statsEl) statsEl.innerHTML = `
             <div class="dash-stat-card" style="animation-delay:0s">
                 <div class="dash-stat-icon" style="--c:#5865f2"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg></div>

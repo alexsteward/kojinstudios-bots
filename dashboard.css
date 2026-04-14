@@ -1931,7 +1931,7 @@ body.dashboard-page {
 
 .dash-kpi-grid {
     display: grid;
-    grid-template-columns: repeat(6, minmax(0, 1fr));
+    grid-template-columns: repeat(5, minmax(0, 1fr));
     gap: 0.75rem;
     margin-bottom: 1rem;
 }
@@ -1971,7 +1971,6 @@ body.dashboard-page {
 .dash-kpi-grid .dash-stat-card:nth-child(3) { --i: 2; }
 .dash-kpi-grid .dash-stat-card:nth-child(4) { --i: 3; }
 .dash-kpi-grid .dash-stat-card:nth-child(5) { --i: 4; }
-.dash-kpi-grid .dash-stat-card:nth-child(6) { --i: 5; }
 
 /* Legacy — keep if older markup referenced */
 .dash-overview-stats-row {
@@ -2144,6 +2143,11 @@ body.dashboard-page {
 
 .dash-uptime-bar--warn {
     background: rgba(217, 119, 6, 0.92);
+}
+
+.dash-uptime-bar--unknown {
+    background: rgba(100, 116, 139, 0.45);
+    min-height: 10px;
 }
 
 .dash-uptime-foot {
