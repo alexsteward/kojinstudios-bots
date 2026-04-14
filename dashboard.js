@@ -566,11 +566,12 @@ function renderOverviewTrend(byDay, error) {
     if (totalEl) totalEl.textContent = total.toLocaleString();
     chart.innerHTML = `<div class="dash-trend-bars">${byDay.map(d => {
         const pct = Math.max((d.count / max) * 100, 6);
-        return `<div class="dash-trend-bar-wrap" title="${d.date}: ${d.count} ticket${d.count !== 1 ? 's' : ''}">
+        const dayLabel = d.label || d.date;
+        return `<div class="dash-trend-bar-wrap" title="${escA(dayLabel)}: ${d.count} ticket${d.count !== 1 ? 's' : ''}">
             <div class="dash-trend-bar" style="--h:${pct}%">
                 <span class="dash-trend-bar-value">${d.count}</span>
             </div>
-            <span class="dash-trend-bar-label">${d.date}</span>
+            <span class="dash-trend-bar-label">${esc(dayLabel)}</span>
         </div>`;
     }).join('')}</div>`;
     if (hint) hint.textContent = total === 0 ? 'No tickets created.' : `${total} ticket${total !== 1 ? 's' : ''} created this week.`;
@@ -1900,9 +1901,10 @@ function renderChart(days) {
     const max = Math.max(...days.map(d => d.count), 1);
     chart.innerHTML = `<div class="dash-bar-chart">${days.map((d, i) => {
         const pct = Math.max((d.count / max) * 100, 3);
-        return `<div class="dash-bar-col" title="${d.date}: ${d.count} ticket${d.count !== 1 ? 's' : ''}">
+        const dayLabel = d.label || d.date;
+        return `<div class="dash-bar-col" title="${escA(dayLabel)}: ${d.count} ticket${d.count !== 1 ? 's' : ''}">
             <div class="dash-bar" style="height:${pct}%;--bar-i:${i}"></div>
-            <span class="dash-bar-label">${d.date}</span>
+            <span class="dash-bar-label">${esc(dayLabel)}</span>
         </div>`;
     }).join('')}</div>`;
 }
