@@ -33,6 +33,7 @@ const TAB_LABELS = {
 document.addEventListener('DOMContentLoaded', () => {
     initMobileMenu();
     initNavScroll();
+    initOverviewFeedLayoutSync();
 
     const user   = stored(STORAGE_USER);
     const guilds = stored(STORAGE_GUILDS);
@@ -478,6 +479,9 @@ function switchTab(tab) {
     if (tab === 'overview' && selectedGuildId && fromTab != null && fromTab !== 'overview') {
         refreshOverviewData();
     }
+    if (tab === 'overview') {
+        requestAnimationFrame(() => syncOverviewFeedLayout());
+    }
 }
 
 /** Light refresh when returning to Overview so new tickets / analytics show without a full reload. */
@@ -569,6 +573,9 @@ async function loadServerData() {
     $('dash-loading').style.opacity = '0';
     setTimeout(() => { $('dash-loading').style.display = 'none'; }, 250);
     document.querySelectorAll('.dash-tab-content').forEach(c => { c.style.transition = 'opacity 0.35s'; c.style.opacity = '1'; });
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => syncOverviewFeedLayout());
+    });
 }
 
 async function api(endpoint, params) {
@@ -779,6 +786,14 @@ function syncOverviewTrendPeriodButtons(days) {
     });
 }
 
+function clearOverviewTrendChartVars(chart) {
+    if (!chart) return;
+    chart.style.removeProperty('--overview-trend-bars');
+    chart.style.removeProperty('--overview-trend-col-w');
+    chart.style.removeProperty('--overview-trend-gap');
+}
+
+/** Grouped daily bars (created vs closed) — same visual language as Analytics. */
 function renderOverviewTrend(byDay, error) {
     const chart = $('overview-trend-chart');
     const hint = $('overview-trend-hint');
@@ -797,12 +812,14 @@ function renderOverviewTrend(byDay, error) {
     if (rangeLabel) rangeLabel.textContent = `Last ${nDays} days`;
     if (error) {
         chart.innerHTML = '';
+        clearOverviewTrendChartVars(chart);
         if (totalEl) totalEl.textContent = '—';
         if (hint) hint.textContent = 'Could not load trend.';
         return;
     }
     if (!byDay || !byDay.length) {
         chart.innerHTML = '<div class="dash-trend-empty"><span class="dash-trend-empty-icon">📊</span><p>No ticket activity yet</p><span class="dash-trend-empty-sub">Tickets will appear here once created</span></div>';
+        clearOverviewTrendChartVars(chart);
         if (totalEl) totalEl.textContent = '0';
         if (hint) hint.textContent = `No tickets in the last ${nDays} days.`;
         return;
@@ -817,71 +834,40 @@ function renderOverviewTrend(byDay, error) {
     if (totalEl) totalEl.textContent = createdSum.toLocaleString();
 
     const n = byDay.length;
-    const W = 100;
-    const H = 62;
-    const padL = 4;
-    const padR = 4;
-    const padT = 5;
-    const padB = 12;
-    const innerW = W - padL - padR;
-    const innerH = H - padT - padB;
-    const xAt = i => (n <= 1 ? padL + innerW / 2 : padL + (i / (n - 1)) * innerW);
-    const yAt = v => padT + innerH - (v / max) * innerH * 0.94;
-    const ptsCreated = byDay.map((d, i) => {
-        const v = d.created ?? d.count ?? 0;
-        return `${xAt(i).toFixed(3)},${yAt(v).toFixed(3)}`;
-    }).join(' ');
-    const ptsClosed = byDay.map((d, i) => {
-        const v = d.closed ?? 0;
-        return `${xAt(i).toFixed(3)},${yAt(v).toFixed(3)}`;
-    }).join(' ');
-    const polyCreated = byDay.map((d, i) => [xAt(i), yAt(d.created ?? d.count ?? 0)]);
-    const polyClosed = byDay.map((d, i) => [xAt(i), yAt(d.closed ?? 0)]);
-    const baseY = padT + innerH;
-    function lineAreaPath(pts) {
-        if (!pts.length) return '';
-        let d = `M ${pts[0][0].toFixed(3)},${pts[0][1].toFixed(3)}`;
-        for (let i = 1; i < pts.length; i++) d += ` L ${pts[i][0].toFixed(3)},${pts[i][1].toFixed(3)}`;
-        d += ` L ${pts[pts.length - 1][0].toFixed(3)},${baseY.toFixed(3)} L ${pts[0][0].toFixed(3)},${baseY.toFixed(3)} Z`;
-        return d;
-    }
-    const areaCreated = lineAreaPath(polyCreated);
-    const areaClosed = lineAreaPath(polyClosed);
-    const uid = 'ovt-' + String(selectedGuildId || 'x').replace(/\W/g, '') + '-' + n;
-    const g1 = `${uid}-gc`;
-    const g2 = `${uid}-gcl`;
-    const labelEvery = n > 40 ? Math.ceil(n / 10) : n > 18 ? Math.ceil(n / 8) : n > 10 ? Math.ceil(n / 6) : 1;
-    const labelIdx = new Set([0, n - 1]);
-    for (let i = labelEvery; i < n - 1; i += labelEvery) labelIdx.add(i);
-    const axisLabels = [...labelIdx].sort((a, b) => a - b).map(i => {
-        const lab = byDay[i].label || byDay[i].date;
-        return `<span class="dash-trend-line-axis-item">${esc(lab)}</span>`;
+    const gapPx = 3;
+    const colW = n > 75 ? 10 : n > 50 ? 12 : n > 32 ? 14 : n > 18 ? 16 : n > 12 ? 18 : 22;
+    chart.style.setProperty('--overview-trend-bars', String(n));
+    chart.style.setProperty('--overview-trend-col-w', `${colW}px`);
+    chart.style.setProperty('--overview-trend-gap', `${gapPx}px`);
+
+    const labelEvery = n > 45 ? Math.max(1, Math.ceil(n / 14))
+        : n > 24 ? Math.max(1, Math.ceil(n / 12))
+            : n > 14 ? Math.max(1, Math.ceil(n / 10))
+                : 1;
+
+    const colsHtml = byDay.map((d, i) => {
+        const created = d.created ?? d.count ?? 0;
+        const closed = d.closed ?? 0;
+        const pctC = created > 0 ? Math.max((created / max) * 100, 4) : 0;
+        const pctCl = closed > 0 ? Math.max((closed / max) * 100, 4) : 0;
+        const dayLabel = d.label || d.date;
+        const showLab = (i % labelEvery === 0) || (i === n - 1);
+        const title = `${escA(dayLabel)}: ${created} created, ${closed} closed`;
+        return `<div class="dash-bar-col dash-bar-col--overview-dual" title="${title}">
+            <div class="dash-overview-dual-bar-pair">
+                <div class="dash-bar dash-bar--ov-created" style="height:${pctC}%"></div>
+                <div class="dash-bar dash-bar--ov-closed" style="height:${pctCl}%"></div>
+            </div>
+            <span class="dash-bar-label${showLab ? '' : ' dash-bar-label--faint'}">${showLab ? esc(dayLabel) : '\u00a0'}</span>
+        </div>`;
     }).join('');
 
-    chart.innerHTML = `<div class="dash-trend-line-chart">
-        <svg class="dash-trend-line-svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true">
-            <defs>
-                <linearGradient id="${g1}" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stop-color="rgba(255,71,87,0.35)"/>
-                    <stop offset="100%" stop-color="rgba(255,71,87,0)"/>
-                </linearGradient>
-                <linearGradient id="${g2}" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stop-color="rgba(52,211,153,0.22)"/>
-                    <stop offset="100%" stop-color="rgba(52,211,153,0)"/>
-                </linearGradient>
-            </defs>
-            <g stroke="rgba(255,255,255,0.06)" stroke-width="0.35">
-                <line x1="${padL}" y1="${(padT + innerH * 0.25).toFixed(2)}" x2="${(padL + innerW).toFixed(2)}" y2="${(padT + innerH * 0.25).toFixed(2)}"/>
-                <line x1="${padL}" y1="${(padT + innerH * 0.5).toFixed(2)}" x2="${(padL + innerW).toFixed(2)}" y2="${(padT + innerH * 0.5).toFixed(2)}"/>
-                <line x1="${padL}" y1="${(padT + innerH * 0.75).toFixed(2)}" x2="${(padL + innerW).toFixed(2)}" y2="${(padT + innerH * 0.75).toFixed(2)}"/>
-            </g>
-            <line x1="${padL}" y1="${baseY.toFixed(2)}" x2="${(padL + innerW).toFixed(2)}" y2="${baseY.toFixed(2)}" stroke="rgba(255,255,255,0.1)" stroke-width="0.45"/>
-            <path d="${areaCreated}" fill="url(#${g1})" />
-            <path d="${areaClosed}" fill="url(#${g2})" />
-            <polyline fill="none" stroke="var(--d-accent)" stroke-width="1.35" stroke-linejoin="round" stroke-linecap="round" points="${ptsCreated}" />
-            <polyline fill="none" stroke="#34d399" stroke-width="1.35" stroke-linejoin="round" stroke-linecap="round" points="${ptsClosed}" />
-        </svg>
-        <div class="dash-trend-line-axis">${axisLabels}</div>
+    const scrollHint = n > 14
+        ? '<p class="dash-analytics-chart-hint dash-overview-trend-hint"><span class="dash-analytics-chart-hint-icon" aria-hidden="true"></span>Scroll horizontally to see every day in this range.</p>'
+        : '';
+
+    chart.innerHTML = `${scrollHint}<div class="dash-analytics-chart-scroll dash-overview-trend-scroll">
+        <div class="dash-overview-trend-inner dash-bar-chart dash-bar-chart--overview-dual">${colsHtml}</div>
     </div>`;
     if (hint) {
         hint.textContent = createdSum === 0 && closedSum === 0
@@ -925,7 +911,8 @@ function renderOverviewHourly(byHour, error) {
     });
     const polylineAttr = linePts.map(([x, y]) => `${x},${y}`).join(' ');
     const gid = 'ohgrad-' + String(selectedGuildId || 'dash').replace(/\W/g, '') + '-fill';
-    el.innerHTML = `<svg class="dash-hourly-svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true">
+    el.innerHTML = `<div class="dash-hourly-svg-wrap">
+  <svg class="dash-hourly-svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
     <defs>
       <linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1">
         <stop offset="0%" stop-color="rgba(255,71,87,0.45)"/>
@@ -935,7 +922,27 @@ function renderOverviewHourly(byHour, error) {
     <polygon fill="url(#${gid})" points="0,${H} ${polylineAttr} ${W},${H}" />
     <polyline fill="none" stroke="var(--d-accent)" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" points="${polylineAttr}" />
   </svg>
+</div>
   <div class="dash-hourly-axis">${[0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22].map(h => `<span>${String(h).padStart(2, '0')}</span>`).join('')}</div>`;
+}
+
+let overviewFeedLayoutRo = null;
+function syncOverviewFeedLayout() {
+    const grid = document.querySelector('.dash-overview-bottom-grid');
+    const actions = document.querySelector('.dash-overview-col--actions');
+    if (!grid || !actions) return;
+    const h = Math.round(actions.getBoundingClientRect().height);
+    if (h > 0) grid.style.setProperty('--overview-actions-height', `${h}px`);
+}
+
+function initOverviewFeedLayoutSync() {
+    const actions = document.querySelector('.dash-overview-col--actions');
+    if (!actions || overviewFeedLayoutRo) return;
+    const run = () => requestAnimationFrame(syncOverviewFeedLayout);
+    overviewFeedLayoutRo = new ResizeObserver(run);
+    overviewFeedLayoutRo.observe(actions);
+    window.addEventListener('resize', run, { passive: true });
+    run();
 }
 
 function formatRelativeTime(iso) {
@@ -958,11 +965,13 @@ function renderRecentActivity(data) {
     if (!el) return;
     if (data && data._ok === false && data.error) {
         el.innerHTML = `<div class="dash-feed-empty">Could not load recent activity. ${esc(data.error)}</div>`;
+        requestAnimationFrame(() => syncOverviewFeedLayout());
         return;
     }
     const tickets = data?.tickets;
     if (!tickets || !tickets.length) {
         el.innerHTML = '<div class="dash-feed-empty">No recent tickets yet.</div>';
+        requestAnimationFrame(() => syncOverviewFeedLayout());
         return;
     }
     el.innerHTML = tickets.map(t => {
@@ -982,6 +991,7 @@ function renderRecentActivity(data) {
             </div>
         </div>`;
     }).join('');
+    requestAnimationFrame(() => syncOverviewFeedLayout());
 }
 
 function renderAuditLog(data) {
@@ -989,6 +999,7 @@ function renderAuditLog(data) {
     if (!el) return;
     if (data && data._ok === false && data.error) {
         el.innerHTML = `<div class="dash-feed-empty">Could not load audit log. ${esc(data.error)}</div>`;
+        requestAnimationFrame(() => syncOverviewFeedLayout());
         return;
     }
     const events = data?.events;
@@ -1009,9 +1020,11 @@ function renderAuditLog(data) {
                 </div>
             </div>`;
         }).join('');
+        requestAnimationFrame(() => syncOverviewFeedLayout());
         return;
     }
     el.innerHTML = `<div class="dash-feed-empty dash-feed-empty--soft">${esc(hint || 'No web audit entries yet. Configure log channels in Discord to track admin actions.')}</div>`;
+    requestAnimationFrame(() => syncOverviewFeedLayout());
 }
 
 // ─── Searchable Select Component ─────────────────────────────────────────────

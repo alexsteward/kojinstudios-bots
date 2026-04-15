@@ -2409,7 +2409,7 @@ body.dashboard-page {
 .dash-overview-charts-row .dash-overview-trend {
     display: flex;
     flex-direction: column;
-    min-height: 360px;
+    min-height: 280px;
 }
 
 .dash-overview-charts-row .dash-overview-trend .dash-trend-footer {
@@ -2531,50 +2531,70 @@ body.dashboard-page {
 
 .dash-overview-chart--dual {
     flex: 1;
-    min-height: 220px;
+    min-height: 180px;
     display: flex;
     flex-direction: column;
     margin-bottom: 0.75rem;
 }
 
-.dash-trend-line-chart {
-    flex: 1;
-    min-height: 220px;
-    width: 100%;
+.dash-overview-trend-scroll {
+    margin-top: 0;
+}
+
+.dash-overview-trend-hint {
+    margin-top: 0;
+}
+
+.dash-overview-trend-inner {
+    min-width: max(100%, calc(var(--overview-trend-bars, 1) * (var(--overview-trend-col-w, 16px) + var(--overview-trend-gap, 3px)) - var(--overview-trend-gap, 3px)));
+}
+
+.dash-bar-chart.dash-bar-chart--overview-dual {
+    display: flex;
+    align-items: flex-end;
+    height: 200px;
+    padding-top: 0.5rem;
+    gap: var(--overview-trend-gap, 3px);
+}
+
+.dash-bar-chart--overview-dual .dash-bar-col--overview-dual {
+    flex: 0 0 var(--overview-trend-col-w, 16px);
     display: flex;
     flex-direction: column;
-    gap: 0.4rem;
-}
-
-.dash-trend-line-svg {
-    width: 100%;
-    height: 240px;
-    min-height: 200px;
-    flex: 1 1 auto;
-    display: block;
-}
-
-.dash-trend-line-axis {
-    display: flex;
-    flex-wrap: nowrap;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 0.2rem;
-    width: 100%;
-    font-size: clamp(0.5rem, 0.9vw, 0.625rem);
-    font-weight: 600;
-    color: var(--d-text-3);
-    letter-spacing: 0.02em;
-    line-height: 1.2;
-}
-
-.dash-trend-line-axis-item {
-    flex: 1 1 0;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.35rem;
     min-width: 0;
-    text-align: center;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    height: 100%;
+}
+
+.dash-overview-dual-bar-pair {
+    flex: 1;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 3px;
+    width: 100%;
+    min-height: 0;
+}
+
+.dash-bar-chart--overview-dual .dash-bar.dash-bar--ov-created,
+.dash-bar-chart--overview-dual .dash-bar.dash-bar--ov-closed {
+    flex: 1 1 0;
+    width: auto;
+    min-width: 0;
+    max-width: 9px;
+    border-radius: 4px 4px 2px 2px;
+}
+
+.dash-bar-chart--overview-dual .dash-bar--ov-created {
+    background: linear-gradient(180deg, var(--d-accent) 0%, #c73e52 65%, rgba(180, 40, 55, 0.45) 100%);
+    box-shadow: 0 0 10px rgba(255, 71, 87, 0.22);
+}
+
+.dash-bar-chart--overview-dual .dash-bar--ov-closed {
+    background: linear-gradient(180deg, #34d399 0%, #059669 65%, rgba(5, 150, 105, 0.4) 100%);
+    box-shadow: 0 0 10px rgba(52, 211, 153, 0.2);
 }
 
 .dash-hourly-chart-wrap {
@@ -2585,9 +2605,16 @@ body.dashboard-page {
     gap: 0.5rem;
 }
 
+.dash-hourly-svg-wrap {
+    width: 100%;
+    aspect-ratio: 100 / 48;
+    max-height: 88px;
+    display: block;
+}
+
 .dash-hourly-svg {
     width: 100%;
-    height: 72px;
+    height: 100%;
     display: block;
 }
 
@@ -2613,22 +2640,23 @@ body.dashboard-page {
 }
 
 .dash-overview-bottom-grid {
+    --overview-actions-height: 380px;
     display: grid;
     grid-template-columns: minmax(280px, 1.25fr) minmax(200px, 0.85fr) minmax(200px, 0.85fr);
     gap: 1rem;
-    align-items: stretch;
-    min-height: 420px;
+    align-items: start;
 }
 
 .dash-overview-col--feed .dash-feed-card,
 .dash-overview-col--audit .dash-feed-card {
-    min-height: 360px;
+    height: var(--overview-actions-height);
+    max-height: var(--overview-actions-height);
+    min-height: 0;
 }
 
 .dash-overview-col--feed .dash-feed-list,
 .dash-overview-col--audit .dash-feed-list {
-    max-height: none;
-    min-height: 300px;
+    min-height: 0;
     flex: 1 1 auto;
 }
 
@@ -2692,11 +2720,12 @@ body.dashboard-page {
     border: 1px solid var(--d-border);
     border-radius: var(--d-radius);
     padding: 1rem 1.1rem;
-    min-height: 260px;
+    min-height: 0;
     display: flex;
     flex-direction: column;
     min-width: 0;
     height: 100%;
+    overflow: hidden;
 }
 
 .dash-feed-head {
@@ -2726,7 +2755,9 @@ body.dashboard-page {
 .dash-feed-list {
     flex: 1 1 auto;
     overflow-y: auto;
-    max-height: min(70vh, 640px);
+    overflow-x: hidden;
+    min-height: 0;
+    -webkit-overflow-scrolling: touch;
     display: flex;
     flex-direction: column;
     gap: 0.45rem;
