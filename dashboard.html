@@ -12,6 +12,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400..700;1,9..40,400..700&display=swap" rel="stylesheet">
 </head>
 <body class="dashboard-page">
 
@@ -125,16 +126,20 @@
     </div>
 
     <!-- ─── Dashboard App ────────────────────────────────── -->
-    <div id="dashboard-content" class="dash-app" style="display:none;">
+    <div id="dashboard-content" class="dash-app dash-app--desk" style="display:none;">
         <div class="dash-layout">
 
             <!-- Sidebar -->
             <aside class="dash-sidebar">
                 <div class="dash-sidebar-top">
-                    <a href="index.html" class="dash-sidebar-brand">
-                        <span class="dash-sidebar-brand-mark" aria-hidden="true"></span>
-                        <img src="images/logo.png" alt="">
-                        <span class="dash-sidebar-brand-text">Kojin<strong>Bots</strong></span>
+                    <a href="index.html" class="dash-sidebar-brand dash-sidebar-brand--desk">
+                        <span class="dash-sidebar-desk-logo" aria-hidden="true">
+                            <img src="images/logo.png" alt="" class="dash-sidebar-desk-logo-img" width="32" height="32">
+                        </span>
+                        <span class="dash-sidebar-desk-nameblock">
+                            <span class="dash-sidebar-brand-text dash-sidebar-desk-title">Kojin<strong>Bots</strong></span>
+                            <span class="dash-sidebar-desk-pill">Tickets</span>
+                        </span>
                     </a>
                     <div class="dash-sidebar-workspace" id="dash-sidebar-workspace">
                         <div class="dash-sidebar-section-head dash-sidebar-section-head--workspace">

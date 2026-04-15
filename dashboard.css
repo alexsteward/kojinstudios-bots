@@ -5111,3 +5111,488 @@ body.dashboard-page {
     border-radius: var(--d-radius);
     background: var(--d-surface);
 }
+
+/* ================================================================
+   Whisper desk theme — internal UI only (sidebar + Overview)
+   Tokens aligned with server-whisper-desk-main / shadcn palette
+   ================================================================ */
+#dashboard-content.dash-app--desk {
+    --wd-bg: hsl(240 10% 5%);
+    --wd-sidebar: hsl(240 10% 6%);
+    --wd-border: hsl(240 6% 16%);
+    --wd-muted: hsl(240 5% 50%);
+    --wd-card: hsl(240 8% 8%);
+    --wd-primary: hsl(0 72% 51%);
+    --wd-primary-soft: hsla(0, 72%, 51%, 0.1);
+    --wd-primary-border: hsla(0, 72%, 51%, 0.2);
+    --wd-accent-fill: hsl(240 6% 16%);
+    --wd-success: hsl(142 71% 45%);
+}
+
+#dashboard-content.dash-app--desk .dash-sidebar,
+#dashboard-content.dash-app--desk #tab-overview,
+#dashboard-content.dash-app--desk #dash-server .dash-server-header,
+#dashboard-content.dash-app--desk .dash-welcome {
+    font-family: 'DM Sans', 'Inter', system-ui, sans-serif;
+}
+
+#dashboard-content.dash-app--desk .dash-main {
+    background: var(--wd-bg);
+    color: hsl(0 0% 93%);
+}
+
+#dashboard-content.dash-app--desk .dash-sidebar {
+    background: var(--wd-sidebar);
+    border-right: 1px solid hsl(240 6% 14%);
+    box-shadow: none;
+}
+
+#dashboard-content.dash-app--desk .dash-sidebar::before {
+    display: none;
+}
+
+/* Brand row — icon tile + title + pill */
+#dashboard-content.dash-app--desk .dash-sidebar-brand.dash-sidebar-brand--desk {
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.875rem 1rem;
+    min-height: 3.5rem;
+    border-bottom-color: hsl(240 6% 14%);
+}
+
+#dashboard-content.dash-app--desk .dash-sidebar-brand--desk:hover .dash-sidebar-desk-logo-img {
+    transform: none;
+    box-shadow: none;
+}
+
+#dashboard-content.dash-app--desk .dash-sidebar-desk-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 0.5rem;
+    background: var(--wd-primary);
+    box-shadow: 0 0 0 1px hsla(0, 72%, 51%, 0.25);
+    flex-shrink: 0;
+}
+
+#dashboard-content.dash-app--desk .dash-sidebar-brand--desk .dash-sidebar-desk-logo-img {
+    width: 1.15rem;
+    height: 1.15rem;
+    border-radius: 3px;
+    object-fit: cover;
+    box-shadow: none;
+    transform: none;
+}
+
+#dashboard-content.dash-app--desk .dash-sidebar-desk-nameblock {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    min-width: 0;
+    flex: 1;
+}
+
+#dashboard-content.dash-app--desk .dash-sidebar-desk-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+#dashboard-content.dash-app--desk .dash-sidebar-desk-pill {
+    font-size: 0.5625rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 0.2rem 0.45rem;
+    border-radius: 0.375rem;
+    background: var(--wd-primary-soft);
+    color: var(--wd-primary);
+    flex-shrink: 0;
+}
+
+#dashboard-content.dash-app--desk .dash-sidebar-workspace {
+    padding: 0.75rem 0.75rem 0.5rem;
+    border-bottom: 1px solid hsl(240 6% 14%);
+}
+
+#dashboard-content.dash-app--desk .dash-sidebar-kicker {
+    color: var(--wd-muted);
+    letter-spacing: 0.1em;
+    font-size: 0.5625rem;
+}
+
+#dashboard-content.dash-app--desk .dash-sidebar-desc {
+    color: var(--wd-muted);
+    font-size: 0.6875rem;
+}
+
+#dashboard-content.dash-app--desk .dash-sidebar-server-trigger {
+    border-radius: 0.5rem;
+    border: 1px solid transparent;
+    background: transparent;
+    transition: background 0.15s, border-color 0.15s;
+}
+
+#dashboard-content.dash-app--desk .dash-sidebar-server-trigger:hover {
+    background: hsl(240 6% 12%);
+    border-color: hsl(240 6% 18%);
+}
+
+#dashboard-content.dash-app--desk .dash-sidebar-nav-label {
+    font-size: 0.5625rem;
+    letter-spacing: 0.12em;
+    color: var(--wd-muted);
+    margin-top: 0.75rem;
+    margin-bottom: 0.35rem;
+    padding-left: 0.35rem;
+}
+
+#dashboard-content.dash-app--desk .dash-side-nav {
+    padding: 0 0.35rem 0.5rem;
+    gap: 0.2rem;
+}
+
+#dashboard-content.dash-app--desk .dash-side-nav-item {
+    border-radius: 0.5rem;
+    padding: 0.6rem 0.75rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: hsl(240 5% 55%);
+    background: transparent;
+    border: 1px solid transparent;
+}
+
+#dashboard-content.dash-app--desk .dash-side-nav-item:hover {
+    background: hsl(240 6% 12%);
+    color: hsl(0 0% 93%);
+}
+
+#dashboard-content.dash-app--desk .dash-side-nav-item.active {
+    background: var(--wd-primary-soft);
+    color: var(--wd-primary);
+    border-color: var(--wd-primary-border);
+    box-shadow: none;
+}
+
+#dashboard-content.dash-app--desk .dash-side-nav-item.active svg {
+    color: var(--wd-primary);
+    opacity: 1;
+}
+
+#dashboard-content.dash-app--desk .dash-side-nav-item svg {
+    width: 1rem;
+    height: 1rem;
+    opacity: 0.85;
+}
+
+#dashboard-content.dash-app--desk .dash-sidebar-bottom {
+    background: transparent;
+    border-top-color: hsl(240 6% 14%);
+}
+
+#dashboard-content.dash-app--desk .dash-user-card {
+    background: hsl(240 6% 10%);
+    border: 1px solid hsl(240 6% 16%);
+    border-radius: 0.5rem;
+    box-shadow: none;
+}
+
+#dashboard-content.dash-app--desk .dash-user-display {
+    font-family: inherit;
+    font-size: 0.8125rem;
+}
+
+#dashboard-content.dash-app--desk .dash-user-handle {
+    color: var(--wd-muted);
+}
+
+#dashboard-content.dash-app--desk .dash-logout-btn:hover {
+    background: hsla(0, 72%, 51%, 0.12);
+    border-color: hsla(0, 72%, 51%, 0.25);
+    color: var(--wd-primary);
+}
+
+/* Top toolbar — whisper-style strip */
+#dashboard-content.dash-app--desk #dash-server .dash-server-header::after {
+    display: none;
+}
+
+#dashboard-content.dash-app--desk #dash-server .dash-server-header {
+    margin: -0.5rem -0.25rem 1.25rem;
+    padding: 0.65rem 0.85rem;
+    border-radius: 0.5rem;
+    border: 1px solid hsl(240 6% 16%);
+    background: hsla(240, 10%, 5%, 0.72);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+}
+
+#dashboard-content.dash-app--desk .dash-bc-muted {
+    color: var(--wd-muted);
+    font-size: 0.75rem;
+}
+
+#dashboard-content.dash-app--desk .dash-bc-current {
+    color: hsl(0 0% 93%);
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+#dashboard-content.dash-app--desk .dash-toolbar-search-hint kbd {
+    background: hsl(240 6% 14%);
+    border-color: hsl(240 6% 20%);
+    font-size: 0.625rem;
+}
+
+/* ─── Overview tab only — glass surfaces ─── */
+#dashboard-content.dash-app--desk #tab-overview {
+    max-width: 1280px;
+    margin: 0 auto;
+}
+
+#dashboard-content.dash-app--desk #tab-overview .dash-overview-page-head {
+    margin-bottom: 1.75rem;
+}
+
+#dashboard-content.dash-app--desk #tab-overview .dash-overview-page-title {
+    font-family: inherit;
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    color: hsl(0 0% 93%);
+}
+
+#dashboard-content.dash-app--desk #tab-overview .dash-overview-page-context {
+    color: var(--wd-muted);
+    font-size: 0.8125rem;
+}
+
+#dashboard-content.dash-app--desk #tab-overview .dash-kpi-grid {
+    gap: 1rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (min-width: 1024px) {
+    #dashboard-content.dash-app--desk #tab-overview .dash-kpi-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (min-width: 1280px) {
+    #dashboard-content.dash-app--desk #tab-overview .dash-kpi-grid {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+}
+
+#dashboard-content.dash-app--desk #tab-overview .dash-kpi-card {
+    padding: 1.25rem;
+    background: hsla(240, 8%, 8%, 0.55);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid hsla(240, 6%, 22%, 0.55);
+    border-radius: 0.75rem;
+    box-shadow: none;
+}
+
+#dashboard-content.dash-app--desk #tab-overview .dash-kpi-card::before,
+#dashboard-content.dash-app--desk #tab-overview .dash-kpi-card::after {
+    display: none;
+}
+
+#dashboard-content.dash-app--desk #tab-overview .dash-kpi-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 36px rgba(0, 0, 0, 0.18);
+    border-color: hsla(240, 6%, 28%, 0.65);
+}
+
+#dashboard-content.dash-app--desk #tab-overview .dash-stat-label {
+    font-size: 0.6875rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--wd-muted);
+}
+
+#dashboard-content.dash-app--desk #tab-overview .dash-stat-value {
+    font-family: inherit;
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+#dashboard-content.dash-app--desk #tab-overview .dash-stat-sub,
+#dashboard-content.dash-app--desk #tab-overview .dash-stat-sub--muted {
+    font-size: 0.6875rem;
+    color: var(--wd-muted);
+}
+
+#dashboard-content.dash-app--desk #tab-overview .dash-kpi-icon {
+    opacity: 0.9;
+}
+
+#dashboard-content.dash-app--desk #tab-overview .dash-uptime-card {
+    padding: 1.25rem;
+    background: hsla(240, 8%, 8%, 0.55);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid hsla(240, 6%, 22%, 0.55);
+    border-radius: 0.75rem;
+    box-shadow: none;
+}
+
+#dashboard-content.dash-app--desk #tab-overview .dash-uptime-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+#dashboard-content.dash-app--desk #tab-overview .dash-uptime-meta {
+    color: var(--wd-muted);
+    font-size: 0.75rem;
+}
+
+#dashboard-content.dash-app--desk #tab-overview .dash-uptime-state {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--wd-success);
+}
+
+#dashboard-content.dash-app--desk #tab-overview .dash-overview-trend,
+#dashboard-content.dash-app--desk #tab-overview .dash-overview-hourly {
+    background: hsla(240, 8%, 8%, 0.55);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid hsla(240, 6%, 22%, 0.55);
+    border-radius: 0.75rem;
+    box-shadow: none;
+}
+
+#dashboard-content.dash-app--desk #tab-overview .dash-overview-hourly::before {
+    display: none;
+}
+
+#dashboard-content.dash-app--desk #tab-overview .dash-trend-title-row h3 {
+    font-family: inherit;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+#dashboard-content.dash-app--desk #tab-overview .dash-chart-subtitle {
+    color: var(--wd-muted);
+    font-size: 0.75rem;
+}
+
+#dashboard-content.dash-app--desk #tab-overview .dash-trend-period {
+    background: hsl(240 6% 14%);
+    color: var(--wd-muted);
+}
+
+#dashboard-content.dash-app--desk #tab-overview .dash-overview-trend-periods {
+    background: hsl(240 6% 10%);
+    border-color: hsl(240 6% 18%);
+}
+
+#dashboard-content.dash-app--desk #tab-overview .dash-overview-trend-period.active {
+    background: var(--wd-primary-soft);
+    color: var(--wd-primary);
+    box-shadow: 0 0 0 1px var(--wd-primary-border);
+}
+
+#dashboard-content.dash-app--desk #tab-overview .dash-trend-total {
+    color: var(--wd-primary);
+}
+
+#dashboard-content.dash-app--desk #tab-overview .dash-analytics-chart-scroll {
+    background: hsl(240 6% 10%);
+    border-color: hsl(240 6% 18%);
+}
+
+#dashboard-content.dash-app--desk #tab-overview .dash-trend-hint,
+#dashboard-content.dash-app--desk #tab-overview .dash-trend-link {
+    font-size: 0.75rem;
+}
+
+/* Quick actions + feeds */
+#dashboard-content.dash-app--desk #tab-overview .dash-quick-actions-head {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: hsl(0 0% 93%);
+    text-transform: none;
+    letter-spacing: 0;
+}
+
+#dashboard-content.dash-app--desk #tab-overview .dash-quick-action-card {
+    padding: 1rem;
+    border-radius: 0.75rem;
+    background: hsla(240, 8%, 8%, 0.45);
+    border: 1px solid hsla(240, 6%, 22%, 0.45);
+    transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+
+#dashboard-content.dash-app--desk #tab-overview .dash-quick-action-card:hover {
+    border-color: hsla(240, 6%, 30%, 0.8);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+    transform: translateY(-2px);
+}
+
+#dashboard-content.dash-app--desk #tab-overview .dash-qa-icon {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 0.5rem;
+    background: var(--wd-primary-soft) !important;
+    color: var(--wd-primary);
+}
+
+#dashboard-content.dash-app--desk #tab-overview .dash-qa-icon svg {
+    color: var(--wd-primary);
+}
+
+#dashboard-content.dash-app--desk #tab-overview .dash-overview-cta {
+    padding: 1rem;
+    border-radius: 0.75rem;
+    background: linear-gradient(135deg, hsla(0, 72%, 51%, 0.15), hsla(0, 72%, 51%, 0.04));
+    border: 1px solid hsla(0, 72%, 51%, 0.22);
+}
+
+#dashboard-content.dash-app--desk #tab-overview .dash-overview-cta-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+#dashboard-content.dash-app--desk #tab-overview .dash-overview-cta-desc {
+    font-size: 0.75rem;
+    color: var(--wd-muted);
+}
+
+#dashboard-content.dash-app--desk #tab-overview .dash-overview-cta-btn {
+    border-radius: 0.5rem;
+    background: var(--wd-primary);
+    color: #fff;
+    border: none;
+}
+
+#dashboard-content.dash-app--desk #tab-overview .dash-feed-card {
+    background: hsla(240, 8%, 8%, 0.55);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid hsla(240, 6%, 22%, 0.55);
+    border-radius: 0.75rem;
+}
+
+#dashboard-content.dash-app--desk #tab-overview .dash-feed-head {
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: none;
+    letter-spacing: 0;
+    color: hsl(0 0% 93%);
+}
+
+#dashboard-content.dash-app--desk #tab-overview .dash-live-badge {
+    font-size: 0.625rem;
+    background: var(--wd-primary-soft);
+    color: var(--wd-primary);
+    border-color: var(--wd-primary-border);
+}
