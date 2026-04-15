@@ -631,17 +631,18 @@ function renderUptimeCard(data) {
 
     const dayList = Array.isArray(data?.uptime_bars) ? data.uptime_bars : null;
     if (dayList && dayList.length === 30) {
-        bars.innerHTML = dayList.map(d => {
+        bars.innerHTML = dayList.map((d, idx) => {
             const st = d.state || 'unknown';
             let extra = '';
             if (st === 'down') extra = ' dash-uptime-bar--warn';
             else if (st === 'unknown') extra = ' dash-uptime-bar--unknown';
-            const title = `${d.date || ''}: ${st === 'ok' ? 'Bot reachable' : st === 'down' ? 'Bot not in server when checked' : 'No check that day'}`;
+            const dayNum = idx + 1;
+            const title = `Day ${dayNum} of 30 · ${d.date || '—'} · ${st === 'ok' ? 'Bot reachable' : st === 'down' ? 'Bot not in server when checked' : 'No check that day'}`;
             return `<div class="dash-uptime-bar${extra}" title="${escA(title)}"></div>`;
         }).join('');
     } else {
         bars.innerHTML = Array.from({ length: 30 }, (_, i) =>
-            `<div class="dash-uptime-bar${inServer ? '' : ' dash-uptime-bar--warn'}" title="${inServer ? `Day ${i + 1}` : 'Unavailable'}"></div>`
+            `<div class="dash-uptime-bar${inServer ? '' : ' dash-uptime-bar--warn'}" title="${escA(inServer ? `Day ${i + 1} of 30 · sample ${i + 1} — ${i < 29 ? 'Operational' : 'Today'}` : 'Unavailable')}"></div>`
         ).join('');
     }
 
@@ -847,8 +848,13 @@ function renderOverviewTrend(byDay, error) {
         const pctCl = closed > 0 ? Math.max((closed / max) * 100, 4) : 0;
         const dayLabel = d.label || d.date;
         const showLab = (i % labelEvery === 0) || (i === n - 1);
-        const title = `${escA(dayLabel)}: ${created} created, ${closed} closed`;
+        const title = `${escA(dayLabel)} · ${created} created, ${closed} closed`;
+        const tipDate = esc(dayLabel);
         return `<div class="dash-bar-col dash-bar-col--overview-dual" title="${title}">
+            <div class="dash-overview-bar-tip" role="tooltip">
+                <span class="dash-overview-bar-tip-date">${tipDate}</span>
+                <span class="dash-overview-bar-tip-stats"><strong>${created}</strong> created · <strong>${closed}</strong> closed</span>
+            </div>
             <div class="dash-overview-dual-bar-pair">
                 <div class="dash-bar dash-bar--ov-created" style="height:${pctC}%"></div>
                 <div class="dash-bar dash-bar--ov-closed" style="height:${pctCl}%"></div>
@@ -902,6 +908,12 @@ function renderOverviewHourly(byHour, error) {
     });
     const polylineAttr = linePts.map(([x, y]) => `${x},${y}`).join(' ');
     const gid = 'ohgrad-' + String(selectedGuildId || 'dash').replace(/\W/g, '') + '-fill';
+    const hitLayer = byHour.map((v, i) => {
+        const label = `${String(i).padStart(2, '0')}:00 UTC`;
+        const opens = `${v} open${v === 1 ? '' : 's'}`;
+        const tip = escA(`${label} · ${opens}`);
+        return `<div class="dash-hourly-hit" title="${tip}" style="--i:${i}"></div>`;
+    }).join('');
     el.innerHTML = `<div class="dash-hourly-svg-wrap">
   <svg class="dash-hourly-svg dash-hourly-svg--fill" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true">
     <defs>
@@ -913,6 +925,7 @@ function renderOverviewHourly(byHour, error) {
     <polygon fill="url(#${gid})" points="0,${H} ${polylineAttr} ${W},${H}" />
     <polyline fill="none" stroke="var(--d-accent)" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" points="${polylineAttr}" />
   </svg>
+  <div class="dash-hourly-hit-layer" role="presentation">${hitLayer}</div>
 </div>
   <div class="dash-hourly-axis">${[0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22].map(h => `<span>${String(h).padStart(2, '0')}</span>`).join('')}</div>`;
 }
@@ -967,14 +980,20 @@ function renderRecentActivity(data) {
     }
     el.innerHTML = tickets.map(t => {
         const rel = formatRelativeTime(t.created_at);
-        const title = esc(t.title || `Ticket #${t.ticket_number ?? ''}`);
-        const cat = esc(t.category || 'General');
-        const st = esc((t.status || 'open').replace(/_/g, ' '));
-        return `<div class="dash-feed-row" role="listitem">
+        const num = t.ticket_number != null && t.ticket_number !== '' ? String(t.ticket_number) : '—';
+        const rawTitle = t.title || 'Ticket';
+        const rawCat = t.category || 'General';
+        const rawSt = (t.status || 'open').replace(/_/g, ' ');
+        const titleLine = esc(rawTitle);
+        const cat = esc(rawCat);
+        const st = esc(rawSt);
+        const rowTitle = escA(`${rawTitle} · #${num} · ${rawCat} · ${rawSt} · ${rel}`);
+        return `<div class="dash-feed-row" role="listitem" title="${rowTitle}">
             <div class="dash-feed-row-icon" aria-hidden="true">🎫</div>
             <div class="dash-feed-row-body">
-                <div class="dash-feed-row-title">${title}</div>
+                <div class="dash-feed-row-title">${titleLine}</div>
                 <div class="dash-feed-row-meta">
+                    <span class="dash-feed-pill dash-feed-pill--ticket">#${esc(num)}</span>
                     <span class="dash-feed-pill">${cat}</span>
                     <span class="dash-feed-pill dash-feed-pill--muted">${st}</span>
                     <span class="dash-feed-time">${esc(rel)}</span>

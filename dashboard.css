@@ -2544,7 +2544,7 @@ body.dashboard-page {
     flex-direction: column;
     min-height: 0;
     width: 100%;
-    overflow: hidden;
+    overflow: visible;
 }
 
 .dash-overview-trend-inner.dash-bar-chart--overview-dual {
@@ -2571,6 +2571,70 @@ body.dashboard-page {
     gap: 0.35rem;
     min-width: 0;
     height: 100%;
+    position: relative;
+    z-index: 0;
+    padding-top: 2.35rem;
+    box-sizing: border-box;
+}
+
+.dash-bar-chart--overview-dual .dash-bar-col--overview-dual:hover {
+    z-index: 4;
+}
+
+.dash-overview-bar-tip {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    min-width: max(100%, 7.5rem);
+    max-width: 11rem;
+    padding: 0.45rem 0.55rem;
+    border-radius: var(--d-radius-xs);
+    background: var(--d-surface-3);
+    border: 1px solid var(--d-border-hover);
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.45);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.15s ease, visibility 0.15s;
+    text-align: center;
+}
+
+.dash-overview-bar-tip-date {
+    display: block;
+    font-size: 0.625rem;
+    font-weight: 700;
+    color: var(--d-text);
+    letter-spacing: 0.02em;
+    margin-bottom: 0.2rem;
+}
+
+.dash-overview-bar-tip-stats {
+    display: block;
+    font-size: 0.5625rem;
+    font-weight: 500;
+    color: var(--d-text-2);
+    line-height: 1.35;
+}
+
+.dash-overview-bar-tip-stats strong:first-of-type {
+    color: var(--d-accent);
+    font-weight: 800;
+}
+
+.dash-overview-bar-tip-stats strong:last-of-type {
+    color: var(--d-green);
+    font-weight: 800;
+}
+
+.dash-bar-col--overview-dual:hover .dash-overview-bar-tip {
+    opacity: 1;
+    visibility: visible;
+}
+
+.dash-bar-col--overview-dual:focus-within .dash-overview-bar-tip {
+    opacity: 1;
+    visibility: visible;
 }
 
 .dash-overview-dual-bar-pair {
@@ -2649,6 +2713,29 @@ body.dashboard-page {
     min-height: 160px;
     aspect-ratio: unset;
     max-height: none;
+    position: relative;
+}
+
+.dash-hourly-hit-layer {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: row;
+    pointer-events: none;
+}
+
+.dash-hourly-hit {
+    flex: 1 1 0;
+    min-width: 0;
+    height: 100%;
+    pointer-events: auto;
+    cursor: default;
+    border-radius: 2px;
+    transition: background 0.12s ease;
+}
+
+.dash-hourly-hit:hover {
+    background: rgba(255, 71, 87, 0.1);
 }
 
 .dash-overview-hourly .dash-hourly-svg--fill {
@@ -2865,6 +2952,21 @@ body.dashboard-page {
     font-family: ui-monospace, monospace;
     font-size: 0.6rem;
     letter-spacing: 0.02em;
+}
+
+.dash-feed-pill--ticket {
+    font-family: ui-monospace, 'Consolas', monospace;
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    color: var(--d-accent);
+    background: var(--d-accent-soft);
+    border-color: rgba(255, 71, 87, 0.28);
+}
+
+.dash-feed-row:hover {
+    border-color: rgba(255, 71, 87, 0.2);
+    background: rgba(255, 71, 87, 0.06);
 }
 
 .dash-feed-time {
