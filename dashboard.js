@@ -834,11 +834,6 @@ function renderOverviewTrend(byDay, error) {
     if (totalEl) totalEl.textContent = createdSum.toLocaleString();
 
     const n = byDay.length;
-    const gapPx = 3;
-    const colW = n > 75 ? 10 : n > 50 ? 12 : n > 32 ? 14 : n > 18 ? 16 : n > 12 ? 18 : 22;
-    chart.style.setProperty('--overview-trend-bars', String(n));
-    chart.style.setProperty('--overview-trend-col-w', `${colW}px`);
-    chart.style.setProperty('--overview-trend-gap', `${gapPx}px`);
 
     const labelEvery = n > 45 ? Math.max(1, Math.ceil(n / 14))
         : n > 24 ? Math.max(1, Math.ceil(n / 12))
@@ -862,11 +857,7 @@ function renderOverviewTrend(byDay, error) {
         </div>`;
     }).join('');
 
-    const scrollHint = n > 14
-        ? '<p class="dash-analytics-chart-hint dash-overview-trend-hint"><span class="dash-analytics-chart-hint-icon" aria-hidden="true"></span>Scroll horizontally to see every day in this range.</p>'
-        : '';
-
-    chart.innerHTML = `${scrollHint}<div class="dash-analytics-chart-scroll dash-overview-trend-scroll">
+    chart.innerHTML = `<div class="dash-overview-trend-fit">
         <div class="dash-overview-trend-inner dash-bar-chart dash-bar-chart--overview-dual">${colsHtml}</div>
     </div>`;
     if (hint) {
@@ -912,7 +903,7 @@ function renderOverviewHourly(byHour, error) {
     const polylineAttr = linePts.map(([x, y]) => `${x},${y}`).join(' ');
     const gid = 'ohgrad-' + String(selectedGuildId || 'dash').replace(/\W/g, '') + '-fill';
     el.innerHTML = `<div class="dash-hourly-svg-wrap">
-  <svg class="dash-hourly-svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+  <svg class="dash-hourly-svg dash-hourly-svg--fill" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true">
     <defs>
       <linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1">
         <stop offset="0%" stop-color="rgba(255,71,87,0.45)"/>
