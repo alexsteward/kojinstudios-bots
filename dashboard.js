@@ -220,6 +220,31 @@ function formatUtcHourAxis12(h) {
     return `${n - 12}p`;
 }
 
+/** Overview hourly x-axis: 12a/2a… for 1d; 00–22 (2h ticks) for multi-day aggregates. */
+function buildOverviewHourlyAxisHtml() {
+    const ticks = [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22];
+    const useClock = (overviewTrendDays || 7) === 1;
+    return ticks.map(h => {
+        const label = useClock ? formatUtcHourAxis12(h) : String(h).padStart(2, '0');
+        const h1 = String((h + 1) % 24).padStart(2, '0');
+        const title = useClock
+            ? `${String(h).padStart(2, '0')}:00 UTC`
+            : `UTC ${String(h).padStart(2, '0')}:00–${h1}:00 · all opens in this hour bucket across your selected period`;
+        return `<span title="${escA(title)}">${esc(label)}</span>`;
+    }).join('');
+}
+
+function setOverviewHourlySubtitle() {
+    const sub = $('overview-hourly-subtitle');
+    if (!sub) return;
+    const n = overviewTrendDays || 7;
+    if (n === 1) {
+        sub.textContent = 'Opens grouped by UTC hour for the selected calendar day.';
+    } else {
+        sub.textContent = `UTC clock-hour totals across the full ${n}d range (not a single-day timeline).`;
+    }
+}
+
 /** Analytics window shown under hourly chart (same UTC range as ticket trend). */
 function formatHourlyPeriodFoot() {
     const n = Math.max(1, Math.min(365, overviewTrendDays || 7));
@@ -1065,26 +1090,60 @@ function renderOverviewHourly(byHour, error) {
     const hint = $('overview-hourly-hint');
     if (!el) return;
     if (error) {
+        el.className = 'dash-hourly-chart-wrap';
         el.innerHTML = '<p class="dash-empty dash-empty--tight">Could not load hourly activity.</p>';
         if (hint) hint.textContent = '';
+        const subE = $('overview-hourly-subtitle');
+        if (subE) subE.textContent = 'By hour of day (UTC)';
         return;
     }
     if (!Array.isArray(byHour) || byHour.length !== 24) {
+        el.className = 'dash-hourly-chart-wrap';
         el.innerHTML = '<div class="dash-trend-empty" style="min-height:100px"><p>No hourly data</p></div>';
         if (hint) hint.textContent = '';
+        const subB = $('overview-hourly-subtitle');
+        if (subB) subB.textContent = 'By hour of day (UTC)';
         return;
     }
+    const periodN = overviewTrendDays || 7;
+    el.className = 'dash-hourly-chart-wrap' + (periodN === 1 ? ' dash-hourly-chart-wrap--1d' : ' dash-hourly-chart-wrap--agg');
+    setOverviewHourlySubtitle();
     const sum = byHour.reduce((a, b) => a + b, 0);
     if (hint) {
         hint.textContent = sum === 0
-            ? 'No tickets opened in this analytics period.'
-            : `${sum.toLocaleString()} opens in period · UTC hours`;
+            ? 'No opens in this range — switch period or wait for new tickets.'
+            : `${sum.toLocaleString()} opens · ${periodN === 1 ? 'UTC day' : `rolled up across ${periodN}d`}`;
     }
     if (sum === 0) {
-        el.innerHTML = '<div class="dash-trend-empty dash-hourly-empty"><span class="dash-trend-empty-icon">📈</span><p>No opens to chart yet</p><span class="dash-trend-empty-sub">Try a longer analytics range on the Analytics tab</span></div>';
+        const axisHtml = buildOverviewHourlyAxisHtml();
+        const periodHtml = esc(formatHourlyPeriodFoot());
+        const egid = 'oh-empty-grad-' + String(selectedGuildId || 'dash').replace(/\W/g, '');
+        el.innerHTML = `<div class="dash-hourly-empty-rich">
+  <div class="dash-hourly-empty-visual" aria-hidden="true">
+    <svg class="dash-hourly-empty-svg" viewBox="0 0 100 48" preserveAspectRatio="none">
+      <defs>
+        <linearGradient id="${egid}" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="rgba(255,71,87,0.08)"/>
+          <stop offset="100%" stop-color="rgba(255,71,87,0)"/>
+        </linearGradient>
+      </defs>
+      <polygon fill="url(#${egid})" points="0,48 0,42 16,40 32,41 50,38 68,39 84,37 100,36 100,48"/>
+      <polyline fill="none" stroke="rgba(148,163,184,0.45)" stroke-width="1" stroke-dasharray="4 3" stroke-linecap="round"
+        points="2,42 18,40 34,41 50,38 66,39 82,37 98,36"/>
+    </svg>
+    <div class="dash-hourly-axis dash-hourly-axis--ghost">${axisHtml}</div>
+    <div class="dash-hourly-period-range dash-hourly-period-range--ghost">${periodHtml}</div>
+  </div>
+  <div class="dash-hourly-empty-msg">
+    <p class="dash-hourly-empty-title">Nothing to plot yet</p>
+    <p class="dash-hourly-empty-desc">Opens will stack into these UTC hour buckets once tickets come in. <strong>1d</strong> is the tightest slice; <strong>30d / 90d</strong> smooths busy servers.</p>
+  </div>
+</div>`;
         return;
     }
     const max = Math.max(...byHour, 1);
+    const rawPeak = Math.max(...byHour);
+    const solePeakHour = rawPeak > 0 && byHour.filter(x => x === rawPeak).length === 1;
     const W = 100;
     const H = 48;
     const pad = 2;
@@ -1114,7 +1173,8 @@ function renderOverviewHourly(byHour, error) {
         const opensPhrase = v === 1 ? '1 open' : `${v} opens`;
         const aria = escA(`${label} · ${opensPhrase}`);
         const z = v === 0 ? ' dash-hourly-val--zero' : '';
-        return `<span class="dash-hourly-val${z}" aria-label="${aria}">${esc(String(v))}${hourlyColTip(v, i)}</span>`;
+        const pk = solePeakHour && v === rawPeak ? ' dash-hourly-val--peak' : '';
+        return `<span class="dash-hourly-val${z}${pk}" aria-label="${aria}">${esc(String(v))}${hourlyColTip(v, i)}</span>`;
     }).join('');
     el.innerHTML = `<div class="dash-hourly-svg-wrap">
   <svg class="dash-hourly-svg dash-hourly-svg--fill" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true">
@@ -1130,8 +1190,7 @@ function renderOverviewHourly(byHour, error) {
   <div class="dash-hourly-hit-layer" role="presentation">${hitLayer}</div>
 </div>
   <div class="dash-hourly-values-row" aria-hidden="true">${valuesRow}</div>
-  <div class="dash-hourly-axis">${[0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22].map(h =>
-        `<span title="${escA(String(h).padStart(2, '0') + ':00 UTC')}">${esc(formatUtcHourAxis12(h))}</span>`).join('')}</div>
+  <div class="dash-hourly-axis">${buildOverviewHourlyAxisHtml()}</div>
   <div class="dash-hourly-period-range" aria-hidden="true">${esc(formatHourlyPeriodFoot())}</div>`;
 }
 
