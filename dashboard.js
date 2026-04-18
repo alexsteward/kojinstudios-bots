@@ -211,6 +211,23 @@ function formatUtcMd(d, alwaysYear) {
     return alwaysYear ? `${m}/${day}/${y}` : `${m}/${day}`;
 }
 
+/** Clock labels for overview hourly bottom axis (UTC). */
+function formatUtcHourAxis12(h) {
+    const n = Number(h);
+    if (n === 0 || n === 24) return '12a';
+    if (n < 12) return `${n}a`;
+    if (n === 12) return '12p';
+    return `${n - 12}p`;
+}
+
+/** Analytics window shown under hourly chart (same UTC range as ticket trend). */
+function formatHourlyPeriodFoot() {
+    const n = Math.max(1, Math.min(365, overviewTrendDays || 7));
+    const { start, end } = analyticsUtcRangeForPeriod(n);
+    const needsYear = start.getUTCFullYear() !== end.getUTCFullYear();
+    return `${formatUtcMd(start, needsYear)}–${formatUtcMd(end, needsYear)} · ${n}d · UTC`;
+}
+
 function kojinActorHeaders() {
     const h = {};
     const user = stored(STORAGE_USER) || null;
@@ -1049,7 +1066,9 @@ function renderOverviewHourly(byHour, error) {
   <div class="dash-hourly-hit-layer" role="presentation">${hitLayer}</div>
 </div>
   <div class="dash-hourly-values-row" aria-hidden="true">${valuesRow}</div>
-  <div class="dash-hourly-axis">${[0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22].map(h => `<span>${String(h).padStart(2, '0')}</span>`).join('')}</div>`;
+  <div class="dash-hourly-axis">${[0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22].map(h =>
+        `<span title="${escA(String(h).padStart(2, '0') + ':00 UTC')}">${esc(formatUtcHourAxis12(h))}</span>`).join('')}</div>
+  <div class="dash-hourly-period-range" aria-hidden="true">${esc(formatHourlyPeriodFoot())}</div>`;
 }
 
 let overviewFeedLayoutRo = null;

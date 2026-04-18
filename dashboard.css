@@ -2969,12 +2969,32 @@ body.dashboard-page {
 .dash-hourly-axis {
     display: flex;
     justify-content: space-between;
-    font-size: 0.5625rem;
+    font-size: clamp(0.52rem, 1.35vw, 0.6875rem);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: var(--d-text-2);
+    letter-spacing: 0.02em;
+    padding: 0.15rem 0.1rem 0;
+    gap: 0.05rem;
+}
+
+.dash-hourly-axis span {
+    flex: 1 1 0;
+    min-width: 0;
+    text-align: center;
+    text-transform: none;
+}
+
+.dash-hourly-period-range {
+    margin-top: 0.35rem;
+    padding: 0 0.15rem;
+    font-size: clamp(0.58rem, 1.2vw, 0.72rem);
     font-weight: 600;
+    font-variant-numeric: tabular-nums;
     color: var(--d-text-3);
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
-    padding: 0 0.1rem;
+    text-align: center;
+    line-height: 1.35;
+    letter-spacing: 0.01em;
 }
 
 .dash-hourly-empty {
