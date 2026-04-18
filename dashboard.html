@@ -131,9 +131,18 @@
 
             <button type="button" id="dash-sidebar-backdrop" class="dash-sidebar-backdrop" hidden aria-hidden="true" tabindex="-1" title="Close menu"></button>
 
-            <!-- Sidebar: workspace + server + account -->
+            <!-- Sidebar — Whisper desk rail (brand → workspace → pages nav → account) -->
             <aside class="dash-sidebar" id="dash-sidebar">
                 <div class="dash-sidebar-top">
+                    <a href="index.html" class="dash-sidebar-brand dash-sidebar-brand--desk">
+                        <span class="dash-sidebar-desk-logo" aria-hidden="true">
+                            <img src="images/logo.png" alt="" class="dash-sidebar-desk-logo-img" width="32" height="32">
+                        </span>
+                        <span class="dash-sidebar-desk-nameblock">
+                            <span class="dash-sidebar-brand-text dash-sidebar-desk-title">Kojin<strong>Bots</strong></span>
+                            <span class="dash-sidebar-desk-pill">Tickets</span>
+                        </span>
+                    </a>
                     <div class="dash-sidebar-workspace" id="dash-sidebar-workspace">
                         <section class="dash-sidebar-zone dash-sidebar-zone--workspace" aria-labelledby="dash-ws-kicker">
                             <div class="dash-sidebar-section-head dash-sidebar-section-head--workspace">
@@ -151,13 +160,9 @@
                             <p id="discord-no-servers" class="dash-no-servers" style="display:none;">No servers with manage permissions found.</p>
                         </section>
                     </div>
-                    <div class="dash-sidebar-middle">
-                    <section class="dash-sidebar-zone dash-sidebar-zone--pages" aria-labelledby="dash-pages-kicker">
-                        <div class="dash-sidebar-section-head dash-sidebar-section-head--pages">
-                            <span class="dash-sidebar-kicker" id="dash-pages-kicker">Pages</span>
-                            <p class="dash-sidebar-desc">Overview, settings, panels, and more.</p>
-                        </div>
-                        <nav id="dash-side-nav" class="dash-sidebar-pages-links dash-side-nav" aria-label="Dashboard sections">
+                    <div class="dash-sidebar-zone dash-sidebar-zone--nav" aria-labelledby="dash-pages-kicker">
+                        <span class="dash-sidebar-kicker" id="dash-pages-kicker">Pages</span>
+                        <nav id="dash-side-nav" class="dash-side-nav" aria-label="Dashboard sections">
                             <button type="button" class="dash-side-nav-item dash-nav-tab active" data-tab="overview">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
                                 Overview
@@ -179,7 +184,6 @@
                                 Analytics
                             </button>
                         </nav>
-                    </section>
                     </div>
                 </div>
                 <div class="dash-sidebar-bottom">

@@ -554,9 +554,7 @@ body.dashboard-shell-mode .dash-sidebar-backdrop {
     margin: 0 0.05rem;
 }
 
-/* Sidebar: workspace (server) — fixed height; Pages fills remaining scroll.
-   Workspace sits above Pages in a higher stacking layer so the open server menu
-   (position: absolute) is never covered by the Pages block. */
+/* Whisper-desk rail: workspace above nav; workspace stacks above nav for open server menu */
 .dash-sidebar-workspace {
     flex: 0 0 auto;
     min-height: 0;
@@ -576,40 +574,32 @@ body.dashboard-shell-mode .dash-sidebar-backdrop {
     border-bottom: none;
 }
 
-/* Fills space between Workspace and account card; centers Pages + nav vertically */
-.dash-sidebar-middle {
+/* Nav column: fills remaining height under workspace (scrolls if needed) */
+.dash-sidebar-zone--nav {
     flex: 1 1 auto;
     min-height: 0;
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: stretch;
-    padding: 0.35rem 0;
-    overflow: visible;
+    gap: 0.35rem;
+    padding: 0.55rem 0.85rem 0.75rem;
+    border-top: 1px solid var(--d-border);
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
     position: relative;
     z-index: 0;
 }
 
-/* Pages + section nav: sits in the vertical middle of the sidebar (under Workspace) */
-.dash-sidebar-zone--pages {
-    flex: 0 0 auto;
-    min-height: 0;
-    display: flex;
-    flex-direction: column;
-    margin-top: 0;
-    padding: 0.85rem 0.85rem 0.65rem;
-    border: 1px solid var(--d-border);
-    border-radius: var(--d-radius-sm);
-    background: rgba(12, 16, 22, 0.35);
-    overflow: visible;
-    position: relative;
-    z-index: 0;
+.dash-sidebar-zone--nav > .dash-sidebar-kicker {
+    padding: 0 0.35rem;
+    margin-bottom: 0.1rem;
 }
 
-.dash-side-nav.dash-sidebar-pages-links {
+.dash-side-nav {
     display: flex;
     flex-direction: column;
-    gap: 0.38rem;
+    gap: 0.25rem;
     width: 100%;
 }
 
@@ -666,12 +656,10 @@ body.dashboard-shell-mode .dash-sidebar-backdrop {
     margin: 0;
 }
 
-.dash-sidebar-section-head--pages {
-    margin-bottom: 0.65rem;
-}
-
-.dash-sidebar-section-head--pages .dash-sidebar-desc {
-    margin: 0;
+.dash-sidebar-brand--desk {
+    flex-shrink: 0;
+    text-decoration: none;
+    color: inherit;
 }
 
 .dash-sidebar-server-dd {
@@ -5925,16 +5913,10 @@ body.dashboard-shell-mode .dash-sidebar-backdrop {
     border-color: var(--d-border-hover);
 }
 
-#dashboard-content.dash-app--desk .dash-sidebar-middle {
-    padding: 0.25rem 0;
-}
-
-#dashboard-content.dash-app--desk .dash-sidebar-zone--pages {
-    margin-top: 0;
-    padding: 0.75rem 0.75rem 0.55rem;
-    border-color: var(--d-border);
-    border-radius: 0.5rem;
-    background: color-mix(in srgb, var(--d-surface-2) 55%, transparent);
+#dashboard-content.dash-app--desk .dash-sidebar-zone--nav {
+    padding: 0.5rem 0.75rem 0.65rem;
+    border-top-color: var(--d-border);
+    background: transparent;
 }
 
 #dashboard-content.dash-app--desk .dash-side-nav {
