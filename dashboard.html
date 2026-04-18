@@ -160,6 +160,7 @@
                             <p id="discord-no-servers" class="dash-no-servers" style="display:none;">No servers with manage permissions found.</p>
                         </section>
                         <section class="dash-sidebar-zone dash-sidebar-zone--pages" aria-labelledby="dash-sidebar-nav-label">
+                            <div class="dash-sidebar-pages-inner">
                             <h2 class="dash-sidebar-nav-label" id="dash-sidebar-nav-label">Pages</h2>
                             <nav class="dash-side-nav" id="dash-side-nav" aria-label="Dashboard sections">
                             <button type="button" class="dash-side-nav-item dash-nav-tab active" data-tab="overview">
@@ -183,6 +184,7 @@
                                 Analytics
                             </button>
                             </nav>
+                            </div>
                         </section>
                     </div>
                 </div>
@@ -393,49 +395,7 @@
 
                         <div class="dash-overview-bottom-grid">
                             <aside class="dash-overview-col dash-overview-col--actions">
-                                <div class="dash-quick-actions-head">Quick actions</div>
-                                <div class="dash-quick-actions-stack">
-                                    <a href="#" class="dash-quick-action-card" data-go-tab="config">
-                                        <div class="dash-qa-icon" style="--c: #94a3b8">
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/></svg>
-                                        </div>
-                                        <div class="dash-qa-copy">
-                                            <span class="dash-qa-label">Configuration</span>
-                                            <span class="dash-qa-desc">Logs, roles &amp; bot settings</span>
-                                        </div>
-                                        <svg class="dash-qa-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-                                    </a>
-                                    <a href="#" class="dash-quick-action-card" data-go-tab="panels">
-                                        <div class="dash-qa-icon" style="--c: var(--d-accent)">
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 12l2 2 4-4"/></svg>
-                                        </div>
-                                        <div class="dash-qa-copy">
-                                            <span class="dash-qa-label">Panels</span>
-                                            <span class="dash-qa-desc">Ticket, application &amp; appeal panels</span>
-                                        </div>
-                                        <svg class="dash-qa-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-                                    </a>
-                                    <a href="#" class="dash-quick-action-card" data-go-tab="analytics">
-                                        <div class="dash-qa-icon" style="--c: var(--d-discord)">
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
-                                        </div>
-                                        <div class="dash-qa-copy">
-                                            <span class="dash-qa-label">Analytics</span>
-                                            <span class="dash-qa-desc">Volume, categories &amp; trends</span>
-                                        </div>
-                                        <svg class="dash-qa-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-                                    </a>
-                                    <a href="#" class="dash-quick-action-card" data-go-tab="responses">
-                                        <div class="dash-qa-icon" style="--c: var(--d-green)">
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                                        </div>
-                                        <div class="dash-qa-copy">
-                                            <span class="dash-qa-label">Quick responses</span>
-                                            <span class="dash-qa-desc">Canned replies for staff</span>
-                                        </div>
-                                        <svg class="dash-qa-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-                                    </a>
-                                </div>
+                                <p class="dash-overview-pages-hint">Other sections live under <strong>Pages</strong> in the sidebar.</p>
                                 <div class="dash-overview-cta">
                                     <h4 class="dash-overview-cta-title">Subscription</h4>
                                     <p class="dash-overview-cta-desc">Upgrade or manage your Tickets bot plan.</p>
