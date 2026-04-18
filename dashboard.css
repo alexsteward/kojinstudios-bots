@@ -606,10 +606,11 @@ body.dashboard-shell-mode .dash-sidebar-backdrop {
     z-index: 0;
 }
 
-.dash-side-nav {
+.dash-side-nav.dash-sidebar-pages-links {
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
+    gap: 0.38rem;
+    width: 100%;
 }
 
 .dash-side-nav-item {
@@ -665,19 +666,12 @@ body.dashboard-shell-mode .dash-sidebar-backdrop {
     margin: 0;
 }
 
-.dash-sidebar-nav-label {
-    margin: 0 0 0.45rem;
-    padding: 0 0.35rem;
-    font-size: 0.625rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--d-text-3);
+.dash-sidebar-section-head--pages {
+    margin-bottom: 0.65rem;
 }
 
-h2.dash-sidebar-nav-label {
-    font-family: inherit;
-    line-height: 1.3;
+.dash-sidebar-section-head--pages .dash-sidebar-desc {
+    margin: 0;
 }
 
 .dash-sidebar-server-dd {
@@ -5941,15 +5935,6 @@ h2.dash-sidebar-nav-label {
     border-color: var(--d-border);
     border-radius: 0.5rem;
     background: color-mix(in srgb, var(--d-surface-2) 55%, transparent);
-}
-
-#dashboard-content.dash-app--desk .dash-sidebar-nav-label {
-    font-size: 0.5625rem;
-    letter-spacing: 0.12em;
-    color: var(--wd-muted);
-    margin-top: 0;
-    margin-bottom: 0.35rem;
-    padding-left: 0.35rem;
 }
 
 #dashboard-content.dash-app--desk .dash-side-nav {
