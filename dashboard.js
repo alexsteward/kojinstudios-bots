@@ -225,7 +225,10 @@ function formatHourlyPeriodFoot() {
     const n = Math.max(1, Math.min(365, overviewTrendDays || 7));
     const { start, end } = analyticsUtcRangeForPeriod(n);
     const needsYear = start.getUTCFullYear() !== end.getUTCFullYear();
-    return `${formatUtcMd(start, needsYear)}–${formatUtcMd(end, needsYear)} · ${n}d · UTC`;
+    const a = formatUtcMd(start, needsYear);
+    const b = formatUtcMd(end, needsYear);
+    if (n === 1 || a === b) return `${a} · UTC`;
+    return `${a}–${b} · ${n}d · UTC`;
 }
 
 function kojinActorHeaders() {
@@ -910,8 +913,60 @@ function clearOverviewTrendChartVars(chart) {
     chart.style.removeProperty('--overview-trend-gap');
 }
 
-/** Grouped daily bars (created vs closed) — same visual language as Analytics. */
-function renderOverviewTrend(byDay, error) {
+/**
+ * 1d ticket trend: 24 UTC-hour columns (opens), axis 12a/2a/… like hourly activity.
+ * Returns true if this view handled rendering.
+ */
+function renderOverviewTrendAsHourly(chart, totalEl, hint, byHour, byDay) {
+    if (!Array.isArray(byHour) || byHour.length !== 24) return false;
+    const day0 = Array.isArray(byDay) && byDay[0] ? byDay[0] : null;
+    const sumH = byHour.reduce((a, b) => a + b, 0);
+    const createdDay = day0 ? (day0.created ?? day0.count ?? 0) : sumH;
+    const closedDay = day0 ? (day0.closed ?? 0) : 0;
+    if (sumH === 0 && createdDay === 0 && closedDay === 0) {
+        chart.innerHTML = '<div class="dash-trend-empty"><span class="dash-trend-empty-icon">📊</span><p>No ticket activity yet</p><span class="dash-trend-empty-sub">No opens in the last UTC calendar day</span></div>';
+        clearOverviewTrendChartVars(chart);
+        if (totalEl) totalEl.textContent = '0';
+        if (hint) hint.textContent = 'No tickets in the last UTC day.';
+        const subE = $('overview-trend-subtitle');
+        if (subE) subE.textContent = 'Opens by UTC hour (UTC day)';
+        return true;
+    }
+    const max = Math.max(1, ...byHour);
+    if (totalEl) totalEl.textContent = (createdDay || sumH).toLocaleString();
+    const colsHtml = byHour.map((v, i) => {
+        const pct = v > 0 ? Math.max((v / max) * 100, 3) : 0;
+        const h12 = formatUtcHourAxis12(i);
+        const showLab = (i % 2 === 0) || i === 23;
+        const h24 = `${String(i).padStart(2, '0')}:00`;
+        const a11y = escA(`${h24} UTC · ${v} open${v === 1 ? '' : 's'}`);
+        return `<div class="dash-bar-col dash-bar-col--overview-dual dash-bar-col--ov-hourly-trend" aria-label="${a11y}">
+            <div class="dash-overview-bar-tip" aria-hidden="true">
+                <span class="dash-overview-bar-tip-date">${esc(h12)} UTC</span>
+                <span class="dash-overview-bar-tip-stats"><strong>${v}</strong> open${v === 1 ? '' : 's'}</span>
+            </div>
+            <div class="dash-overview-dual-bar-pair dash-overview-dual-bar-pair--opens-only">
+                <div class="dash-bar dash-bar--ov-created" style="height:${pct}%"></div>
+            </div>
+            <span class="dash-bar-label${showLab ? '' : ' dash-bar-label--faint'}">${showLab ? esc(h12) : '\u00a0'}</span>
+        </div>`;
+    }).join('');
+    chart.innerHTML = `<div class="dash-overview-trend-fit">
+        <div class="dash-overview-trend-inner dash-bar-chart dash-bar-chart--overview-dual dash-bar-chart--overview-dual-hours">${colsHtml}</div>
+    </div>`;
+    clearOverviewTrendChartVars(chart);
+    const sub = $('overview-trend-subtitle');
+    if (sub) sub.textContent = 'Opens by UTC hour (UTC day)';
+    if (hint) {
+        hint.textContent = closedDay > 0
+            ? `${(createdDay || sumH).toLocaleString()} created · ${closedDay.toLocaleString()} closed this UTC day (opens by hour below).`
+            : `${sumH.toLocaleString()} open${sumH === 1 ? '' : 's'} by UTC hour in the selected day.`;
+    }
+    return true;
+}
+
+/** Grouped daily bars (created vs closed), or 24h opens when range is 1d. */
+function renderOverviewTrend(byDay, error, byHourOneDay) {
     const chart = $('overview-trend-chart');
     const hint = $('overview-trend-hint');
     const totalEl = $('overview-trend-total');
@@ -930,13 +985,19 @@ function renderOverviewTrend(byDay, error) {
         clearOverviewTrendChartVars(chart);
         if (totalEl) totalEl.textContent = '—';
         if (hint) hint.textContent = 'Could not load trend.';
+        const subErr = $('overview-trend-subtitle');
+        if (subErr) subErr.textContent = 'Created vs closed per day';
         return;
     }
+    if (!error && nDays === 1 && renderOverviewTrendAsHourly(chart, totalEl, hint, byHourOneDay, byDay)) return;
+
     if (!byDay || !byDay.length) {
         chart.innerHTML = '<div class="dash-trend-empty"><span class="dash-trend-empty-icon">📊</span><p>No ticket activity yet</p><span class="dash-trend-empty-sub">Tickets will appear here once created</span></div>';
         clearOverviewTrendChartVars(chart);
         if (totalEl) totalEl.textContent = '0';
         if (hint) hint.textContent = `No tickets in the last ${nDays} days.`;
+        const sub0 = $('overview-trend-subtitle');
+        if (sub0) sub0.textContent = 'Created vs closed per day';
         return;
     }
     const createdSum = byDay.reduce((a, d) => a + (d.created ?? d.count ?? 0), 0);
@@ -955,6 +1016,7 @@ function renderOverviewTrend(byDay, error) {
             : n > 14 ? Math.max(1, Math.ceil(n / 10))
                 : 1;
 
+    /** 7d: Mon Tue … on axis; 30d/90d: M/D dates; 1d handled above. */
     const useDateOnAxis = nDays > 7;
     const colsHtml = byDay.map((d, i) => {
         const created = d.created ?? d.count ?? 0;
@@ -989,6 +1051,8 @@ function renderOverviewTrend(byDay, error) {
     chart.innerHTML = `<div class="dash-overview-trend-fit">
         <div class="dash-overview-trend-inner dash-bar-chart dash-bar-chart--overview-dual${axisMod}">${colsHtml}</div>
     </div>`;
+    const sub = $('overview-trend-subtitle');
+    if (sub) sub.textContent = 'Created vs closed per day';
     if (hint) {
         hint.textContent = createdSum === 0 && closedSum === 0
             ? `No tickets in the last ${nDays} days.`
@@ -2690,7 +2754,8 @@ async function fetchAnalytics(guildId, days) {
             }
         }
         const td = overviewTrendDays || 7;
-        renderOverviewTrend((data.by_day || []).slice(-td));
+        const byDaySlice = (data.by_day || []).slice(-td);
+        renderOverviewTrend(byDaySlice, false, data.by_hour);
         renderOverviewHourly(Array.isArray(data.by_hour) && data.by_hour.length === 24 ? data.by_hour : null);
     } catch {
         if (statsEl) statsEl.innerHTML = '<p class="dash-empty">Could not load analytics. Is the bot online?</p>';

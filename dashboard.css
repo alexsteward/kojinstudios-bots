@@ -2779,6 +2779,27 @@ body.dashboard-page {
     font-variant-numeric: tabular-nums;
 }
 
+.dash-bar-chart--overview-dual-hours .dash-bar-col--ov-hourly-trend {
+    flex: 1 1 0;
+    min-width: 0;
+}
+
+.dash-bar-chart--overview-dual-hours .dash-overview-dual-bar-pair--opens-only {
+    justify-content: center;
+    gap: 0;
+}
+
+.dash-bar-chart--overview-dual-hours .dash-bar.dash-bar--ov-created {
+    flex: 0 0 auto;
+    max-width: min(5px, 42%);
+}
+
+.dash-bar-chart--overview-dual-hours .dash-bar-label {
+    font-size: clamp(0.42rem, 1.85vw, 0.62rem);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
 .dash-bar-chart--overview-dual .dash-bar--ov-created {
     background: linear-gradient(180deg, var(--d-accent) 0%, #c73e52 65%, rgba(180, 40, 55, 0.45) 100%);
     box-shadow: 0 0 10px rgba(255, 71, 87, 0.22);

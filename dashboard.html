@@ -346,12 +346,13 @@
                                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
                                             <h3>Ticket trend</h3>
                                             <div class="dash-overview-trend-periods" role="tablist" aria-label="Ticket trend time range">
+                                                <button type="button" class="dash-overview-trend-period" data-days="1" role="tab" aria-selected="false">1d</button>
                                                 <button type="button" class="dash-overview-trend-period active" data-days="7" role="tab" aria-selected="true">7d</button>
                                                 <button type="button" class="dash-overview-trend-period" data-days="30" role="tab" aria-selected="false">30d</button>
                                                 <button type="button" class="dash-overview-trend-period" data-days="90" role="tab" aria-selected="false">90d</button>
                                             </div>
                                         </div>
-                                        <p class="dash-chart-subtitle">Created vs closed per day</p>
+                                        <p id="overview-trend-subtitle" class="dash-chart-subtitle">Created vs closed per day</p>
                                     </div>
                                     <div class="dash-trend-header-right">
                                         <div class="dash-trend-legend" aria-hidden="true">
@@ -787,6 +788,7 @@
                             <div class="dash-analytics-toolbar-left">
                                 <span class="dash-analytics-toolbar-label">Time range</span>
                                 <div class="dash-analytics-period" role="tablist" aria-label="Analytics time range">
+                                    <button type="button" class="dash-period-btn" data-days="1" role="tab" aria-selected="false">1d</button>
                                     <button type="button" class="dash-period-btn active" data-days="7" role="tab" aria-selected="true">7d</button>
                                     <button type="button" class="dash-period-btn" data-days="30" role="tab" aria-selected="false">30d</button>
                                     <button type="button" class="dash-period-btn" data-days="90" role="tab" aria-selected="false">90d</button>
