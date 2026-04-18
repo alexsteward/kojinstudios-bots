@@ -131,8 +131,27 @@
 
             <button type="button" id="dash-sidebar-backdrop" class="dash-sidebar-backdrop" hidden aria-hidden="true" tabindex="-1" title="Close menu"></button>
 
-            <!-- Sidebar (account only — workspace + server live in main strip) -->
+            <!-- Sidebar: workspace + server + account -->
             <aside class="dash-sidebar" id="dash-sidebar">
+                <div class="dash-sidebar-top">
+                    <div class="dash-sidebar-workspace" id="dash-sidebar-workspace">
+                        <section class="dash-sidebar-zone dash-sidebar-zone--workspace" aria-labelledby="dash-ws-kicker">
+                            <div class="dash-sidebar-section-head dash-sidebar-section-head--workspace">
+                                <span class="dash-sidebar-kicker" id="dash-ws-kicker">Workspace</span>
+                                <p class="dash-sidebar-desc">Which server you are managing.</p>
+                            </div>
+                            <div class="dash-sidebar-server-dd">
+                                <button type="button" class="dash-sidebar-server-trigger" id="dash-sidebar-server-trigger" aria-expanded="false" aria-haspopup="listbox" aria-controls="dash-sidebar-server-menu">
+                                    <span class="dash-sidebar-server-trigger-icon" id="dash-sidebar-server-trigger-icon" aria-hidden="true"></span>
+                                    <span class="dash-sidebar-server-trigger-label" id="dash-sidebar-server-trigger-label">Select a server</span>
+                                    <svg class="dash-sidebar-server-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+                                </button>
+                                <div class="dash-sidebar-server-menu" id="dash-sidebar-server-menu" role="listbox" hidden></div>
+                            </div>
+                            <p id="discord-no-servers" class="dash-no-servers" style="display:none;">No servers with manage permissions found.</p>
+                        </section>
+                    </div>
+                </div>
                 <div class="dash-sidebar-bottom">
                     <div class="dash-user-card">
                         <div class="dash-user-avatar-wrap">
@@ -156,25 +175,6 @@
                 <!-- Toast container -->
                 <div id="dash-toasts" class="dash-toasts"></div>
 
-                <!-- Workspace + server (same controls as before; lives above main views) -->
-                <div class="dash-workspace-strip" id="dash-workspace-strip">
-                    <section class="dash-sidebar-zone dash-sidebar-zone--workspace" aria-labelledby="dash-ws-kicker">
-                        <div class="dash-sidebar-section-head dash-sidebar-section-head--workspace">
-                            <span class="dash-sidebar-kicker" id="dash-ws-kicker">Workspace</span>
-                            <p class="dash-sidebar-desc">Which server you are managing.</p>
-                        </div>
-                        <div class="dash-sidebar-server-dd">
-                            <button type="button" class="dash-sidebar-server-trigger" id="dash-sidebar-server-trigger" aria-expanded="false" aria-haspopup="listbox" aria-controls="dash-sidebar-server-menu">
-                                <span class="dash-sidebar-server-trigger-icon" id="dash-sidebar-server-trigger-icon" aria-hidden="true"></span>
-                                <span class="dash-sidebar-server-trigger-label" id="dash-sidebar-server-trigger-label">Select a server</span>
-                                <svg class="dash-sidebar-server-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
-                            </button>
-                            <div class="dash-sidebar-server-menu" id="dash-sidebar-server-menu" role="listbox" hidden></div>
-                        </div>
-                        <p id="discord-no-servers" class="dash-no-servers" style="display:none;">No servers with manage permissions found.</p>
-                    </section>
-                </div>
-
                 <!-- Welcome (no server selected) -->
                 <div id="dash-welcome" class="dash-welcome">
                     <div class="dash-welcome-mobile-bar">
@@ -188,7 +188,7 @@
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="M12 18v-6"/><path d="M9 15h6"/></svg>
                         </div>
                         <h1>Welcome to your Dashboard</h1>
-                        <p>Use <strong>Workspace</strong> above to choose a server. On phones, tap the menu button to open your account panel.</p>
+                        <p>Use <strong>Workspace</strong> in the left panel to choose a server. On phones, tap the menu button to open the panel.</p>
                     </div>
                 </div>
 
@@ -384,7 +384,7 @@
 
                         <div class="dash-overview-bottom-grid">
                             <aside class="dash-overview-col dash-overview-col--actions">
-                                <p class="dash-overview-pages-hint">Under <strong>Pages</strong>, use the same tabs as before (Overview, Configuration, Panels, Quick responses, Analytics).</p>
+                                <p class="dash-overview-pages-hint">Switch sections using the <strong>tabs</strong> under the toolbar (Overview, Configuration, and so on).</p>
                                 <div class="dash-overview-cta">
                                     <h4 class="dash-overview-cta-title">Subscription</h4>
                                     <p class="dash-overview-cta-desc">Upgrade or manage your Tickets bot plan.</p>

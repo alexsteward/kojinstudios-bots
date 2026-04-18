@@ -624,27 +624,20 @@ body.dashboard-shell-mode .dash-sidebar-backdrop {
     color: var(--d-accent);
 }
 
-/* Main column: Workspace + server picker (single control surface) */
-.dash-workspace-strip {
-    flex-shrink: 0;
-    width: 100%;
-    box-sizing: border-box;
-    padding-bottom: 1rem;
-    margin-bottom: 0.35rem;
-    border-bottom: 1px solid var(--d-border);
-}
-
-.dash-workspace-strip .dash-sidebar-zone--workspace {
-    flex: none;
+/* Sidebar: workspace (server picker) scroll area */
+.dash-sidebar-workspace {
+    flex: 1;
     min-height: 0;
+    display: flex;
+    flex-direction: column;
     padding: 0;
-}
-
-.dash-workspace-strip .dash-sidebar-server-dd {
-    max-width: min(100%, 28rem);
+    overflow-x: hidden;
+    overflow-y: visible;
 }
 
 .dash-sidebar-zone--workspace {
+    flex: 1 1 auto;
+    min-height: 0;
     padding: 0.85rem 0.85rem 0.75rem;
     border-bottom: none;
 }
@@ -781,7 +774,7 @@ h2.dash-sidebar-nav-label {
     box-shadow: 4px 0 32px rgba(0, 0, 0, 0.22);
     display: flex;
     flex-direction: column;
-    justify-content: flex-start;
+    justify-content: space-between;
     position: sticky;
     top: 64px;
     height: calc(100vh - 64px);
@@ -1050,7 +1043,6 @@ h2.dash-sidebar-nav-label {
 
 /* Sidebar footer — account */
 .dash-sidebar-bottom {
-    margin-top: auto;
     border-top: 1px solid var(--d-border);
     padding: 0.85rem;
     background: linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.12));
@@ -5908,14 +5900,13 @@ h2.dash-sidebar-nav-label {
     flex-shrink: 0;
 }
 
-#dashboard-content.dash-app--desk .dash-workspace-strip {
-    padding-bottom: 0.85rem;
-    margin-bottom: 0.25rem;
-    border-bottom-color: var(--d-border);
+#dashboard-content.dash-app--desk .dash-sidebar-workspace {
+    padding: 0;
+    border-bottom: none;
 }
 
 #dashboard-content.dash-app--desk .dash-sidebar-zone--workspace {
-    padding: 0;
+    padding: 0.75rem 0.75rem 0.65rem;
 }
 
 #dashboard-content.dash-app--desk .dash-sidebar-kicker {
