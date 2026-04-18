@@ -478,11 +478,57 @@ function setSidebarServerTriggerPlaceholder() {
     if (ic) ic.innerHTML = '';
 }
 
+let sidebarServerMenuPosRaf = 0;
+
+function resetFloatingSidebarServerMenu() {
+    const menu = $('dash-sidebar-server-menu');
+    if (!menu) return;
+    menu.classList.remove('dash-sidebar-server-menu--floating');
+    ['left', 'top', 'bottom', 'width', 'max-height'].forEach(p => menu.style.removeProperty(p));
+}
+
+/** Fixed viewport position so the guild list is not clipped by .dash-sidebar-top overflow. */
+function positionFloatingSidebarServerMenu() {
+    const btn = $('dash-sidebar-server-trigger');
+    const menu = $('dash-sidebar-server-menu');
+    if (!btn || !menu || menu.hasAttribute('hidden')) return;
+    const r = btn.getBoundingClientRect();
+    const gap = 8;
+    const vwMax = Math.min(window.innerHeight * 0.52, 380);
+    const spaceBelow = window.innerHeight - r.bottom - gap - 12;
+    const spaceAbove = r.top - gap - 12;
+    menu.classList.add('dash-sidebar-server-menu--floating');
+    const w = Math.min(r.width, window.innerWidth - 16);
+    const left = Math.max(8, Math.min(r.left, window.innerWidth - w - 8));
+    menu.style.width = `${w}px`;
+    menu.style.left = `${left}px`;
+    if (spaceBelow >= 140 || spaceBelow >= spaceAbove) {
+        menu.style.top = `${r.bottom + gap}px`;
+        menu.style.removeProperty('bottom');
+        menu.style.maxHeight = `${Math.min(vwMax, Math.max(120, spaceBelow))}px`;
+    } else {
+        menu.style.removeProperty('top');
+        menu.style.bottom = `${window.innerHeight - r.top + gap}px`;
+        menu.style.maxHeight = `${Math.min(vwMax, Math.max(120, spaceAbove))}px`;
+    }
+}
+
+function schedulePositionFloatingSidebarServerMenu() {
+    const menu = $('dash-sidebar-server-menu');
+    if (!menu || menu.hasAttribute('hidden')) return;
+    cancelAnimationFrame(sidebarServerMenuPosRaf);
+    sidebarServerMenuPosRaf = requestAnimationFrame(() => {
+        sidebarServerMenuPosRaf = 0;
+        positionFloatingSidebarServerMenu();
+    });
+}
+
 function closeServerMenus() {
     const sidebarMenu = $('dash-sidebar-server-menu');
     const sb = $('dash-sidebar-server-trigger');
     if (sidebarMenu) sidebarMenu.setAttribute('hidden', '');
     if (sb) sb.setAttribute('aria-expanded', 'false');
+    resetFloatingSidebarServerMenu();
 }
 
 function initServerDropdowns() {
@@ -497,15 +543,25 @@ function initServerDropdowns() {
             if (isClosed) {
                 menu.removeAttribute('hidden');
                 btn.setAttribute('aria-expanded', 'true');
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => positionFloatingSidebarServerMenu());
+                });
             } else {
-                menu.setAttribute('hidden', '');
-                btn.setAttribute('aria-expanded', 'false');
+                closeServerMenus();
             }
         });
         if (wrap) wrap.addEventListener('click', (e) => e.stopPropagation());
     }
 
     bindDropdown('dash-sidebar-server-trigger', 'dash-sidebar-server-menu', '.dash-sidebar-server-dd');
+
+    const topScroll = document.querySelector('.dash-sidebar-top');
+    if (topScroll) {
+        topScroll.addEventListener('scroll', schedulePositionFloatingSidebarServerMenu, { passive: true });
+    }
+    document.querySelector('.dash-main')?.addEventListener('scroll', schedulePositionFloatingSidebarServerMenu, { passive: true });
+    window.addEventListener('scroll', schedulePositionFloatingSidebarServerMenu, { capture: true, passive: true });
+    window.addEventListener('resize', schedulePositionFloatingSidebarServerMenu, { passive: true });
 
     function onGuildOptionPick(e) {
         const btn = e.target.closest('.dash-server-picker-option');
