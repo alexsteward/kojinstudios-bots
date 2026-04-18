@@ -576,15 +576,31 @@ body.dashboard-shell-mode .dash-sidebar-backdrop {
     border-bottom: none;
 }
 
-/* Pages + section nav: pinned to bottom of the sidebar column (above account card) */
+/* Fills space between Workspace and account card; centers Pages + nav vertically */
+.dash-sidebar-middle {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: stretch;
+    padding: 0.35rem 0;
+    overflow: visible;
+    position: relative;
+    z-index: 0;
+}
+
+/* Pages + section nav: sits in the vertical middle of the sidebar (under Workspace) */
 .dash-sidebar-zone--pages {
     flex: 0 0 auto;
     min-height: 0;
     display: flex;
     flex-direction: column;
-    margin-top: auto;
-    padding: 1rem 0.85rem 0.75rem;
-    border-top: 1px solid var(--d-border);
+    margin-top: 0;
+    padding: 0.85rem 0.85rem 0.65rem;
+    border: 1px solid var(--d-border);
+    border-radius: var(--d-radius-sm);
+    background: rgba(12, 16, 22, 0.35);
     overflow: visible;
     position: relative;
     z-index: 0;
@@ -5915,10 +5931,16 @@ h2.dash-sidebar-nav-label {
     border-color: var(--d-border-hover);
 }
 
+#dashboard-content.dash-app--desk .dash-sidebar-middle {
+    padding: 0.25rem 0;
+}
+
 #dashboard-content.dash-app--desk .dash-sidebar-zone--pages {
-    margin-top: auto;
-    padding: 1rem 0.75rem 0.55rem;
-    border-top-color: var(--d-border);
+    margin-top: 0;
+    padding: 0.75rem 0.75rem 0.55rem;
+    border-color: var(--d-border);
+    border-radius: 0.5rem;
+    background: color-mix(in srgb, var(--d-surface-2) 55%, transparent);
 }
 
 #dashboard-content.dash-app--desk .dash-sidebar-nav-label {
