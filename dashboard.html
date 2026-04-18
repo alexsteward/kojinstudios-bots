@@ -133,58 +133,56 @@
 
             <!-- Sidebar — Whisper desk rail (brand → workspace → pages nav → account) -->
             <aside class="dash-sidebar" id="dash-sidebar">
-                <div class="dash-sidebar-top">
-                    <a href="index.html" class="dash-sidebar-brand dash-sidebar-brand--desk">
-                        <span class="dash-sidebar-desk-logo" aria-hidden="true">
-                            <img src="images/logo.png" alt="" class="dash-sidebar-desk-logo-img" width="32" height="32">
-                        </span>
-                        <span class="dash-sidebar-desk-nameblock">
-                            <span class="dash-sidebar-brand-text dash-sidebar-desk-title">Kojin<strong>Bots</strong></span>
-                            <span class="dash-sidebar-desk-pill">Tickets</span>
-                        </span>
-                    </a>
-                    <div class="dash-sidebar-workspace" id="dash-sidebar-workspace">
-                        <section class="dash-sidebar-zone dash-sidebar-zone--workspace" aria-labelledby="dash-ws-kicker">
-                            <div class="dash-sidebar-section-head dash-sidebar-section-head--workspace">
-                                <span class="dash-sidebar-kicker" id="dash-ws-kicker">Workspace</span>
-                                <p class="dash-sidebar-desc">Which server you are managing.</p>
-                            </div>
-                            <div class="dash-sidebar-server-dd">
-                                <button type="button" class="dash-sidebar-server-trigger" id="dash-sidebar-server-trigger" aria-expanded="false" aria-haspopup="listbox" aria-controls="dash-sidebar-server-menu">
-                                    <span class="dash-sidebar-server-trigger-icon" id="dash-sidebar-server-trigger-icon" aria-hidden="true"></span>
-                                    <span class="dash-sidebar-server-trigger-label" id="dash-sidebar-server-trigger-label">Select a server</span>
-                                    <svg class="dash-sidebar-server-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
-                                </button>
-                                <div class="dash-sidebar-server-menu" id="dash-sidebar-server-menu" role="listbox" hidden></div>
-                            </div>
-                            <p id="discord-no-servers" class="dash-no-servers" style="display:none;">No servers with manage permissions found.</p>
-                        </section>
-                    </div>
-                    <div class="dash-sidebar-zone dash-sidebar-zone--nav" aria-labelledby="dash-pages-kicker">
-                        <span class="dash-sidebar-kicker" id="dash-pages-kicker">Pages</span>
-                        <nav id="dash-side-nav" class="dash-side-nav" aria-label="Dashboard sections">
-                            <button type="button" class="dash-side-nav-item dash-nav-tab active" data-tab="overview">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-                                Overview
+                <a href="index.html" class="dash-sidebar-brand dash-sidebar-brand--desk">
+                    <span class="dash-sidebar-desk-logo" aria-hidden="true">
+                        <img src="images/logo.png" alt="" class="dash-sidebar-desk-logo-img" width="32" height="32">
+                    </span>
+                    <span class="dash-sidebar-desk-nameblock">
+                        <span class="dash-sidebar-brand-text dash-sidebar-desk-title">Kojin<strong>Bots</strong></span>
+                        <span class="dash-sidebar-desk-pill">Tickets</span>
+                    </span>
+                </a>
+                <div class="dash-sidebar-workspace" id="dash-sidebar-workspace">
+                    <section class="dash-sidebar-zone dash-sidebar-zone--workspace" aria-labelledby="dash-ws-kicker">
+                        <div class="dash-sidebar-section-head dash-sidebar-section-head--workspace">
+                            <span class="dash-sidebar-kicker" id="dash-ws-kicker">Workspace</span>
+                            <p class="dash-sidebar-desc">Which server you are managing.</p>
+                        </div>
+                        <div class="dash-sidebar-server-dd">
+                            <button type="button" class="dash-sidebar-server-trigger" id="dash-sidebar-server-trigger" aria-expanded="false" aria-haspopup="listbox" aria-controls="dash-sidebar-server-menu">
+                                <span class="dash-sidebar-server-trigger-icon" id="dash-sidebar-server-trigger-icon" aria-hidden="true"></span>
+                                <span class="dash-sidebar-server-trigger-label" id="dash-sidebar-server-trigger-label">Select a server</span>
+                                <svg class="dash-sidebar-server-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
                             </button>
-                            <button type="button" class="dash-side-nav-item dash-nav-tab" data-tab="config">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/></svg>
-                                Configuration
-                            </button>
-                            <button type="button" class="dash-side-nav-item dash-nav-tab" data-tab="panels">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 12l2 2 4-4"/></svg>
-                                Panels
-                            </button>
-                            <button type="button" class="dash-side-nav-item dash-nav-tab" data-tab="responses">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                                Quick responses
-                            </button>
-                            <button type="button" class="dash-side-nav-item dash-nav-tab" data-tab="analytics">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
-                                Analytics
-                            </button>
-                        </nav>
-                    </div>
+                            <div class="dash-sidebar-server-menu" id="dash-sidebar-server-menu" role="listbox" hidden></div>
+                        </div>
+                        <p id="discord-no-servers" class="dash-no-servers" style="display:none;">No servers with manage permissions found.</p>
+                    </section>
+                </div>
+                <div class="dash-sidebar-zone dash-sidebar-zone--nav" aria-labelledby="dash-pages-kicker">
+                    <span class="dash-sidebar-kicker" id="dash-pages-kicker">Pages</span>
+                    <nav id="dash-side-nav" class="dash-side-nav" aria-label="Dashboard sections">
+                        <button type="button" class="dash-side-nav-item dash-nav-tab active" data-tab="overview">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                            Overview
+                        </button>
+                        <button type="button" class="dash-side-nav-item dash-nav-tab" data-tab="config">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/></svg>
+                            Configuration
+                        </button>
+                        <button type="button" class="dash-side-nav-item dash-nav-tab" data-tab="panels">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 12l2 2 4-4"/></svg>
+                            Panels
+                        </button>
+                        <button type="button" class="dash-side-nav-item dash-nav-tab" data-tab="responses">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                            Quick responses
+                        </button>
+                        <button type="button" class="dash-side-nav-item dash-nav-tab" data-tab="analytics">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+                            Analytics
+                        </button>
+                    </nav>
                 </div>
                 <div class="dash-sidebar-bottom">
                     <div class="dash-user-card">
