@@ -289,6 +289,19 @@ body.dashboard-shell-mode .dash-sidebar-backdrop {
     animation: fadeSlideUp 0.35s var(--d-ease-out) both;
 }
 
+.dash-main-pages-wrap {
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: 0.65rem;
+    padding-top: 0.65rem;
+    border-top: 1px solid var(--d-border);
+}
+
+.dash-main-pages-wrap .dash-main-pages-label {
+    margin: 0 0 0.45rem;
+    padding-left: 0.1rem;
+}
+
 .dash-server-header-top {
     display: flex;
     align-items: center;
@@ -561,9 +574,9 @@ body.dashboard-shell-mode .dash-sidebar-backdrop {
     gap: 0.35rem 0.45rem;
     width: 100%;
     box-sizing: border-box;
-    margin-top: 0.65rem;
-    padding-top: 0.65rem;
-    border-top: 1px solid var(--d-border);
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
 }
 
 .dash-main-tab {
@@ -611,20 +624,27 @@ body.dashboard-shell-mode .dash-sidebar-backdrop {
     color: var(--d-accent);
 }
 
-/* Sidebar: workspace (server picker) + account card */
-.dash-sidebar-workspace {
-    flex: 1;
+/* Main column: Workspace + server picker (single control surface) */
+.dash-workspace-strip {
+    flex-shrink: 0;
+    width: 100%;
+    box-sizing: border-box;
+    padding-bottom: 1rem;
+    margin-bottom: 0.35rem;
+    border-bottom: 1px solid var(--d-border);
+}
+
+.dash-workspace-strip .dash-sidebar-zone--workspace {
+    flex: none;
     min-height: 0;
-    display: flex;
-    flex-direction: column;
     padding: 0;
-    overflow-x: hidden;
-    overflow-y: visible;
+}
+
+.dash-workspace-strip .dash-sidebar-server-dd {
+    max-width: min(100%, 28rem);
 }
 
 .dash-sidebar-zone--workspace {
-    flex: 1 1 auto;
-    min-height: 0;
     padding: 0.85rem 0.85rem 0.75rem;
     border-bottom: none;
 }
@@ -761,7 +781,7 @@ h2.dash-sidebar-nav-label {
     box-shadow: 4px 0 32px rgba(0, 0, 0, 0.22);
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: flex-start;
     position: sticky;
     top: 64px;
     height: calc(100vh - 64px);
@@ -1030,6 +1050,7 @@ h2.dash-sidebar-nav-label {
 
 /* Sidebar footer — account */
 .dash-sidebar-bottom {
+    margin-top: auto;
     border-top: 1px solid var(--d-border);
     padding: 0.85rem;
     background: linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.12));
@@ -5887,13 +5908,14 @@ h2.dash-sidebar-nav-label {
     flex-shrink: 0;
 }
 
-#dashboard-content.dash-app--desk .dash-sidebar-workspace {
-    padding: 0;
-    border-bottom: none;
+#dashboard-content.dash-app--desk .dash-workspace-strip {
+    padding-bottom: 0.85rem;
+    margin-bottom: 0.25rem;
+    border-bottom-color: var(--d-border);
 }
 
 #dashboard-content.dash-app--desk .dash-sidebar-zone--workspace {
-    padding: 0.75rem 0.75rem 0.65rem;
+    padding: 0;
 }
 
 #dashboard-content.dash-app--desk .dash-sidebar-kicker {
@@ -5919,11 +5941,22 @@ h2.dash-sidebar-nav-label {
     border-color: var(--d-border-hover);
 }
 
-#dashboard-content.dash-app--desk .dash-main-tab-nav {
-    gap: 0.3rem 0.4rem;
+#dashboard-content.dash-app--desk .dash-main-pages-wrap {
     margin-top: 0.55rem;
     padding-top: 0.55rem;
     border-top-color: var(--d-border);
+}
+
+#dashboard-content.dash-app--desk .dash-main-pages-label {
+    font-size: 0.5625rem;
+    letter-spacing: 0.12em;
+    color: var(--wd-muted);
+    margin-bottom: 0.35rem;
+    padding-left: 0.35rem;
+}
+
+#dashboard-content.dash-app--desk .dash-main-tab-nav {
+    gap: 0.3rem 0.4rem;
 }
 
 #dashboard-content.dash-app--desk .dash-main-tab {

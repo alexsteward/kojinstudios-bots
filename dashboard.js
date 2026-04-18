@@ -84,7 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const tab = btn.dataset.tab;
             if (!tab) return;
             if (!selectedGuildId) {
-                toast('Pick a server in the sidebar first — then you can switch tabs.', 'error');
+                toast('Pick a server in Workspace first — then you can switch tabs.', 'error');
                 return;
             }
             switchTab(tab);
