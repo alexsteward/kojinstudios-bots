@@ -220,17 +220,44 @@ function formatUtcHourAxis12(h) {
     return `${n - 12}p`;
 }
 
-/** Overview hourly x-axis: 12a/2a… for 1d; 00–22 (2h ticks) for multi-day aggregates. */
+/** M/D (or M/D–M/D) UTC calendar window for current analytics period. */
+function overviewHourlyAnalyticsDateWindowPlain() {
+    const n = Math.max(1, Math.min(365, overviewTrendDays || 7));
+    const { start, end } = analyticsUtcRangeForPeriod(n);
+    const needsYear = start.getUTCFullYear() !== end.getUTCFullYear();
+    const a = formatUtcMd(start, needsYear);
+    const b = formatUtcMd(end, needsYear);
+    if (n === 1 || a === b) return a;
+    return `${a}–${b}`;
+}
+
+function overviewHourlyDataDatePhrase() {
+    return `Dates in data: ${overviewHourlyAnalyticsDateWindowPlain()}`;
+}
+
+/** Tooltip for hourly axis tick: UTC bucket + calendar dates included in analytics. */
+function overviewHourlyAxisTickTitle(tickHour) {
+    const n = Math.max(1, Math.min(365, overviewTrendDays || 7));
+    const dateWin = overviewHourlyAnalyticsDateWindowPlain();
+    const hh = String(tickHour).padStart(2, '0');
+    const useClock = n === 1;
+    const bucket = `UTC ${hh}:00–${hh}:59`;
+    if (useClock) {
+        const clk = formatUtcHourAxis12(tickHour);
+        return `${bucket} (${clk}) · Dates in data: ${dateWin}`;
+    }
+    return `${bucket} · Dates in data: ${dateWin} (${n}d range)`;
+}
+
+/** Stacked vertical label (e.g. 0 / 0 for 00) + title with date window. */
 function buildOverviewHourlyAxisHtml() {
     const ticks = [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22];
     const useClock = (overviewTrendDays || 7) === 1;
     return ticks.map(h => {
         const label = useClock ? formatUtcHourAxis12(h) : String(h).padStart(2, '0');
-        const h1 = String((h + 1) % 24).padStart(2, '0');
-        const title = useClock
-            ? `${String(h).padStart(2, '0')}:00 UTC`
-            : `UTC ${String(h).padStart(2, '0')}:00–${h1}:00 · all opens in this hour bucket across your selected period`;
-        return `<span title="${escA(title)}">${esc(label)}</span>`;
+        const stacked = label.split('').map(c => `<span class="dash-hourly-axis-c">${esc(c)}</span>`).join('');
+        const title = overviewHourlyAxisTickTitle(h);
+        return `<span class="dash-hourly-axis-tick" title="${escA(title)}"><span class="dash-hourly-axis-stack">${stacked}</span></span>`;
     }).join('');
 }
 
@@ -1154,24 +1181,25 @@ function renderOverviewHourly(byHour, error) {
     });
     const polylineAttr = linePts.map(([x, y]) => `${x},${y}`).join(' ');
     const gid = 'ohgrad-' + String(selectedGuildId || 'dash').replace(/\W/g, '') + '-fill';
+    const datePhrase = overviewHourlyDataDatePhrase();
     const hourlyColTip = (v, i) => {
         const label = `${String(i).padStart(2, '0')}:00 UTC`;
         const opensPhrase = v === 1 ? '1 open' : `${v} opens`;
         return `<span class="dash-hourly-col-tip" aria-hidden="true">
                 <span class="dash-hourly-col-tip-count">${esc(String(v))}</span>
-                <span class="dash-hourly-col-tip-meta">${esc(`${opensPhrase} · ${label}`)}</span>
+                <span class="dash-hourly-col-tip-meta">${esc(`${opensPhrase} · ${label} · ${datePhrase}`)}</span>
             </span>`;
     };
     const hitLayer = byHour.map((v, i) => {
         const label = `${String(i).padStart(2, '0')}:00 UTC`;
         const opensPhrase = v === 1 ? '1 open' : `${v} opens`;
-        const aria = escA(`${label} · ${opensPhrase}`);
+        const aria = escA(`${label} · ${opensPhrase} · ${datePhrase}`);
         return `<div class="dash-hourly-hit" style="--i:${i}" aria-label="${aria}">${hourlyColTip(v, i)}</div>`;
     }).join('');
     const valuesRow = byHour.map((v, i) => {
         const label = `${String(i).padStart(2, '0')}:00 UTC`;
         const opensPhrase = v === 1 ? '1 open' : `${v} opens`;
-        const aria = escA(`${label} · ${opensPhrase}`);
+        const aria = escA(`${label} · ${opensPhrase} · ${datePhrase}`);
         const z = v === 0 ? ' dash-hourly-val--zero' : '';
         const pk = solePeakHour && v === rawPeak ? ' dash-hourly-val--peak' : '';
         return `<span class="dash-hourly-val${z}${pk}" aria-label="${aria}">${esc(String(v))}${hourlyColTip(v, i)}</span>`;
