@@ -345,7 +345,6 @@
                                         <div class="dash-trend-title-row dash-trend-title-row--wrap">
                                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
                                             <h3>Ticket trend</h3>
-                                            <span id="overview-trend-range-label" class="dash-trend-period">—</span>
                                             <div class="dash-overview-trend-periods" role="tablist" aria-label="Ticket trend time range">
                                                 <button type="button" class="dash-overview-trend-period active" data-days="7" role="tab" aria-selected="true">7d</button>
                                                 <button type="button" class="dash-overview-trend-period" data-days="30" role="tab" aria-selected="false">30d</button>
@@ -362,7 +361,10 @@
                                         <div class="dash-trend-total" id="overview-trend-total">—</div>
                                     </div>
                                 </div>
-                                <div id="overview-trend-chart" class="dash-overview-chart dash-overview-chart--dual"></div>
+                                <div class="dash-overview-trend-body">
+                                    <div id="overview-trend-chart" class="dash-overview-chart dash-overview-chart--dual"></div>
+                                    <div id="overview-trend-range-line" class="dash-overview-trend-range" aria-live="polite"></div>
+                                </div>
                                 <div class="dash-trend-footer">
                                     <span class="dash-trend-hint" id="overview-trend-hint">Loading&hellip;</span>
                                     <a href="#" class="dash-trend-link" id="overview-trend-analytics-link">View full analytics →</a>
