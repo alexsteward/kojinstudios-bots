@@ -75,11 +75,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const backdrop = document.querySelector('.dash-panel-editor-backdrop');
     if (backdrop) backdrop.addEventListener('click', closePanelEditor);
 
-    const mainTabNav = $('dash-main-tab-nav');
-    if (mainTabNav) {
-        mainTabNav.addEventListener('click', e => {
+    const sideNav = $('dash-side-nav');
+    if (sideNav) {
+        sideNav.addEventListener('click', e => {
             const btn = e.target.closest('.dash-nav-tab');
-            if (!btn || !mainTabNav.contains(btn)) return;
+            if (!btn || !sideNav.contains(btn)) return;
             e.preventDefault();
             const tab = btn.dataset.tab;
             if (!tab) return;
