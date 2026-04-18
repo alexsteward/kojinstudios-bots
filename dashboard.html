@@ -129,8 +129,10 @@
     <div id="dashboard-content" class="dash-app dash-app--desk" style="display:none;">
         <div class="dash-layout">
 
+            <button type="button" id="dash-sidebar-backdrop" class="dash-sidebar-backdrop" hidden aria-hidden="true" tabindex="-1" title="Close menu"></button>
+
             <!-- Sidebar -->
-            <aside class="dash-sidebar">
+            <aside class="dash-sidebar" id="dash-sidebar">
                 <div class="dash-sidebar-top">
                     <a href="index.html" class="dash-sidebar-brand dash-sidebar-brand--desk">
                         <span class="dash-sidebar-desk-logo" aria-hidden="true">
@@ -205,12 +207,18 @@
 
                 <!-- Welcome (no server selected) -->
                 <div id="dash-welcome" class="dash-welcome">
+                    <div class="dash-welcome-mobile-bar">
+                        <button type="button" class="dash-sidebar-toggle-btn" data-action="toggle-sidebar" aria-label="Open navigation menu" aria-expanded="false" aria-controls="dash-sidebar">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
+                        </button>
+                        <span class="dash-welcome-mobile-title">Dashboard</span>
+                    </div>
                     <div class="dash-welcome-inner">
                         <div class="dash-welcome-icon">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="M12 18v-6"/><path d="M9 15h6"/></svg>
                         </div>
                         <h1>Welcome to your Dashboard</h1>
-                        <p>Open <strong>Your servers</strong> in the sidebar and pick a server to continue.</p>
+                        <p>Use <strong>Workspace</strong> in the left panel to choose a server. On phones, tap the menu button to open the panel.</p>
                     </div>
                 </div>
 
@@ -220,6 +228,9 @@
                     <div class="dash-server-header">
                         <div class="dash-toolbar">
                             <div class="dash-toolbar-left">
+                                <button type="button" class="dash-sidebar-toggle-btn dash-sidebar-toggle-btn--toolbar" data-action="toggle-sidebar" aria-label="Open navigation menu" aria-expanded="false" aria-controls="dash-sidebar">
+                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
+                                </button>
                                 <button type="button" class="dash-back-btn" id="dashboard-back-to-servers" title="Back to welcome">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
                                 </button>

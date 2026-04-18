@@ -34,6 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initMobileMenu();
     initNavScroll();
     initOverviewFeedLayoutSync();
+    initDashboardSidebar();
 
     const user   = stored(STORAGE_USER);
     const guilds = stored(STORAGE_GUILDS);
@@ -80,6 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
             switchTab(t.dataset.tab);
+            closeMobileSidebar();
         })
     );
 
@@ -90,6 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
         a.addEventListener('click', (e) => {
             e.preventDefault();
             switchTab(a.dataset.goTab);
+            closeMobileSidebar();
         });
     });
 
@@ -139,6 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.addEventListener('keydown', (e) => {
         if (e.key !== 'Escape') return;
+        closeMobileSidebar();
         closeServerMenus();
         if ($('dash-panel-editor')?.style.display === 'flex') { closePanelEditor(); return; }
         if ($('app-panel-editor')?.style.display === 'flex') { closeAppPanelEditor(); return; }
@@ -357,7 +361,6 @@ function initServerDropdowns() {
     }
 
     bindDropdown('dash-sidebar-server-trigger', 'dash-sidebar-server-menu', '.dash-sidebar-server-dd');
-    document.addEventListener('click', () => closeServerMenus());
 
     function onGuildOptionPick(e) {
         const btn = e.target.closest('.dash-server-picker-option');
@@ -441,8 +444,7 @@ function selectServer(guild) {
     if (guildsDataCache) renderGuildList(guildsDataCache);
     updateServerPickerButton(guild);
 
-    const sidebar = document.querySelector('.dash-sidebar');
-    if (sidebar) sidebar.classList.remove('open');
+    closeMobileSidebar();
 
     switchTab('overview');
     loadServerData();
@@ -455,8 +457,88 @@ function backToServers() {
     $('dash-server').style.display  = 'none';
     document.querySelector('.dash-layout')?.classList.add('dash-layout--no-server');
     closeServerMenus();
+    closeMobileSidebar();
     setSidebarServerTriggerPlaceholder();
 
+}
+
+function isMobileDashboardSidebar() {
+    return typeof window.matchMedia === 'function' && window.matchMedia('(max-width: 768px)').matches;
+}
+
+function closeMobileSidebar() {
+    const sidebar = document.querySelector('.dash-sidebar');
+    const layout = document.querySelector('.dash-layout');
+    const backdrop = $('dash-sidebar-backdrop');
+    if (sidebar) sidebar.classList.remove('open');
+    if (layout) layout.classList.remove('dash-layout--sidebar-open');
+    if (backdrop) {
+        backdrop.hidden = true;
+        backdrop.setAttribute('aria-hidden', 'true');
+    }
+    document.querySelectorAll('[data-action="toggle-sidebar"]').forEach(b => {
+        b.setAttribute('aria-expanded', 'false');
+        b.setAttribute('aria-label', 'Open navigation menu');
+    });
+    if (document.body.classList.contains('dash-sidebar-open')) {
+        document.body.classList.remove('dash-sidebar-open');
+        document.body.style.overflow = '';
+    }
+}
+
+function toggleMobileSidebar() {
+    const sidebar = document.querySelector('.dash-sidebar');
+    const layout = document.querySelector('.dash-layout');
+    const backdrop = $('dash-sidebar-backdrop');
+    if (!sidebar) return;
+    const willOpen = !sidebar.classList.contains('open');
+    sidebar.classList.toggle('open', willOpen);
+    if (layout) layout.classList.toggle('dash-layout--sidebar-open', willOpen);
+    if (backdrop) {
+        backdrop.hidden = !willOpen;
+        backdrop.setAttribute('aria-hidden', willOpen ? 'false' : 'true');
+    }
+    document.querySelectorAll('[data-action="toggle-sidebar"]').forEach(b => {
+        b.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+        b.setAttribute('aria-label', willOpen ? 'Close navigation menu' : 'Open navigation menu');
+    });
+    if (willOpen && isMobileDashboardSidebar()) {
+        document.body.classList.add('dash-sidebar-open');
+        document.body.style.overflow = 'hidden';
+    } else {
+        document.body.classList.remove('dash-sidebar-open');
+        document.body.style.overflow = '';
+    }
+}
+
+function initDashboardSidebar() {
+    document.querySelectorAll('[data-action="toggle-sidebar"]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleMobileSidebar();
+        });
+    });
+
+    const backdrop = $('dash-sidebar-backdrop');
+    if (backdrop) {
+        backdrop.addEventListener('click', () => {
+            closeMobileSidebar();
+        });
+    }
+
+    document.addEventListener('click', (e) => {
+        closeServerMenus();
+        if (!isMobileDashboardSidebar()) return;
+        const sidebar = document.querySelector('.dash-sidebar');
+        if (!sidebar?.classList.contains('open')) return;
+        if (e.target.closest('.dash-sidebar')) return;
+        if (e.target.closest('[data-action="toggle-sidebar"]')) return;
+        closeMobileSidebar();
+    });
+
+    window.addEventListener('resize', () => {
+        if (!isMobileDashboardSidebar()) closeMobileSidebar();
+    }, { passive: true });
 }
 
 function switchTab(tab) {
@@ -848,10 +930,10 @@ function renderOverviewTrend(byDay, error) {
         const pctCl = closed > 0 ? Math.max((closed / max) * 100, 4) : 0;
         const dayLabel = d.label || d.date;
         const showLab = (i % labelEvery === 0) || (i === n - 1);
-        const title = `${escA(dayLabel)} · ${created} created, ${closed} closed`;
+        const a11y = escA(`${dayLabel} · ${created} created, ${closed} closed`);
         const tipDate = esc(dayLabel);
-        return `<div class="dash-bar-col dash-bar-col--overview-dual" title="${title}">
-            <div class="dash-overview-bar-tip" role="tooltip">
+        return `<div class="dash-bar-col dash-bar-col--overview-dual" aria-label="${a11y}">
+            <div class="dash-overview-bar-tip" aria-hidden="true">
                 <span class="dash-overview-bar-tip-date">${tipDate}</span>
                 <span class="dash-overview-bar-tip-stats"><strong>${created}</strong> created · <strong>${closed}</strong> closed</span>
             </div>
@@ -908,11 +990,26 @@ function renderOverviewHourly(byHour, error) {
     });
     const polylineAttr = linePts.map(([x, y]) => `${x},${y}`).join(' ');
     const gid = 'ohgrad-' + String(selectedGuildId || 'dash').replace(/\W/g, '') + '-fill';
+    const hourlyColTip = (v, i) => {
+        const label = `${String(i).padStart(2, '0')}:00 UTC`;
+        const opensPhrase = v === 1 ? '1 open' : `${v} opens`;
+        return `<span class="dash-hourly-col-tip" aria-hidden="true">
+                <span class="dash-hourly-col-tip-count">${esc(String(v))}</span>
+                <span class="dash-hourly-col-tip-meta">${esc(`${opensPhrase} · ${label}`)}</span>
+            </span>`;
+    };
     const hitLayer = byHour.map((v, i) => {
         const label = `${String(i).padStart(2, '0')}:00 UTC`;
-        const opens = `${v} open${v === 1 ? '' : 's'}`;
-        const tip = escA(`${label} · ${opens}`);
-        return `<div class="dash-hourly-hit" title="${tip}" style="--i:${i}"></div>`;
+        const opensPhrase = v === 1 ? '1 open' : `${v} opens`;
+        const aria = escA(`${label} · ${opensPhrase}`);
+        return `<div class="dash-hourly-hit" style="--i:${i}" aria-label="${aria}">${hourlyColTip(v, i)}</div>`;
+    }).join('');
+    const valuesRow = byHour.map((v, i) => {
+        const label = `${String(i).padStart(2, '0')}:00 UTC`;
+        const opensPhrase = v === 1 ? '1 open' : `${v} opens`;
+        const aria = escA(`${label} · ${opensPhrase}`);
+        const z = v === 0 ? ' dash-hourly-val--zero' : '';
+        return `<span class="dash-hourly-val${z}" aria-label="${aria}">${esc(String(v))}${hourlyColTip(v, i)}</span>`;
     }).join('');
     el.innerHTML = `<div class="dash-hourly-svg-wrap">
   <svg class="dash-hourly-svg dash-hourly-svg--fill" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true">
@@ -923,10 +1020,11 @@ function renderOverviewHourly(byHour, error) {
       </linearGradient>
     </defs>
     <polygon fill="url(#${gid})" points="0,${H} ${polylineAttr} ${W},${H}" />
-    <polyline fill="none" stroke="var(--d-accent)" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" points="${polylineAttr}" />
+    <polyline fill="none" stroke="var(--d-accent)" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" points="${polylineAttr}" />
   </svg>
   <div class="dash-hourly-hit-layer" role="presentation">${hitLayer}</div>
 </div>
+  <div class="dash-hourly-values-row" aria-hidden="true">${valuesRow}</div>
   <div class="dash-hourly-axis">${[0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22].map(h => `<span>${String(h).padStart(2, '0')}</span>`).join('')}</div>`;
 }
 
