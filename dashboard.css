@@ -256,6 +256,7 @@ body.dashboard-page {
 
 /* ─── Server header (in-content) ────────────────────── */
 .dash-server-header {
+    flex-shrink: 0;
     margin-bottom: 1.5rem;
     animation: fadeSlideUp 0.35s var(--d-ease-out) both;
 }
@@ -1039,12 +1040,32 @@ body.dashboard-page {
 .dash-main {
     flex: 1;
     min-width: 0;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
     padding: 2rem 2.5rem 4rem;
     position: relative;
     background:
         radial-gradient(ellipse 80% 50% at 50% -10%, rgba(255, 71, 87, 0.05) 0%, transparent 60%),
         radial-gradient(ellipse 60% 40% at 100% 0%, rgba(88, 101, 242, 0.04) 0%, transparent 50%),
         radial-gradient(ellipse 40% 30% at 0% 80%, rgba(168, 85, 247, 0.03) 0%, transparent 50%);
+}
+
+/* One “page” at a time: toolbar stays put; tab bodies scroll here (not the whole window). */
+#dash-server {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.dash-tab-stage {
+    flex: 1;
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
 }
 
 /* ─── Toasts ────────────────────────────────────────── */
@@ -1110,6 +1131,7 @@ body.dashboard-page {
 
 /* ─── Welcome ───────────────────────────────────────── */
 .dash-welcome {
+    flex: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -1252,6 +1274,7 @@ body.dashboard-page {
 
 /* ─── Loading ───────────────────────────────────────── */
 .dash-loading {
+    flex-shrink: 0;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -2949,6 +2972,27 @@ body.dashboard-page {
     max-width: 15rem;
     margin-left: auto;
     margin-right: auto;
+}
+
+.dash-hourly-col-tip--range {
+    min-width: 9.5rem;
+    max-width: min(18rem, 94vw);
+    text-align: left;
+}
+
+.dash-hourly-col-tip--range .dash-hourly-col-tip-count {
+    text-align: center;
+}
+
+.dash-hourly-col-tip-spread--days {
+    margin-top: 0.35rem;
+    max-height: 11rem;
+    overflow-y: auto;
+    padding-right: 0.2rem;
+    font-size: 0.58rem;
+    font-weight: 600;
+    line-height: 1.45;
+    white-space: normal;
 }
 
 .dash-hourly-col-tip-win {

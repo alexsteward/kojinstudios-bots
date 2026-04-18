@@ -220,56 +220,79 @@ function formatUtcHourAxis12(h) {
     return `${n - 12}p`;
 }
 
-/** M/D (or M/D–M/D) UTC calendar window for current analytics period. */
-function overviewHourlyAnalyticsDateWindowPlain() {
+/** Calendar date (M/D/YYYY) for day index 0..period-1 in the analytics window (UTC calendar). */
+function overviewHourlyCalendarDayAtIndex(idx) {
     const n = Math.max(1, Math.min(365, overviewTrendDays || 7));
-    const { start, end } = analyticsUtcRangeForPeriod(n);
-    const needsYear = start.getUTCFullYear() !== end.getUTCFullYear();
-    const a = formatUtcMd(start, needsYear);
-    const b = formatUtcMd(end, needsYear);
-    if (n === 1 || a === b) return a;
-    return `${a}–${b}`;
+    const { start } = analyticsUtcRangeForPeriod(n);
+    const d = new Date(start);
+    d.setUTCDate(d.getUTCDate() + idx);
+    return formatUtcMd(d, true);
 }
 
-/** Per-calendar-day opens for one UTC hour (from `by_day_hour`). */
+/** Per-calendar-day opens for one clock hour (from `by_day_hour`). Dates always M/D/YYYY. */
 function formatHourSpreadParts(hourIndex, byDayHour) {
     if (!Array.isArray(byDayHour) || !byDayHour.length) return [];
     const out = [];
-    for (const row of byDayHour) {
+    for (let idx = 0; idx < byDayHour.length; idx++) {
+        const row = byDayHour[idx];
         const h = row.hours;
         if (!Array.isArray(h) || h.length !== 24) continue;
-        const n = Number(h[hourIndex]) || 0;
-        if (n > 0) {
-            const date = String(row.date || '').trim();
+        const cnt = Number(h[hourIndex]) || 0;
+        if (cnt > 0) {
+            const dayStr = overviewHourlyCalendarDayAtIndex(idx);
             const lab = String(row.label || '').trim();
-            out.push(lab && date ? `${lab} ${date}: ${n}` : (date ? `${date}: ${n}` : String(n)));
+            out.push(lab ? `${lab} ${dayStr}: ${cnt}` : `${dayStr}: ${cnt}`);
         }
     }
     return out;
 }
 
-function overviewHourlyDataWindowSuffix() {
-    return overviewHourlyAnalyticsDateWindowPlain();
+/**
+ * One line per calendar day for this clock hour (counts include 0).
+ * Uses `by_day_hour` rows when aligned with `periodN`; otherwise dates from the analytics window and 0.
+ */
+function formatHourSpreadAllDaysLines(hourIndex, byDayHour, periodN) {
+    const n = Math.max(1, Math.min(365, periodN));
+    const lines = [];
+    const rows = Array.isArray(byDayHour) ? byDayHour : [];
+    for (let idx = 0; idx < n; idx++) {
+        const row = rows[idx];
+        let cnt = 0;
+        if (row && Array.isArray(row.hours) && row.hours.length === 24) {
+            cnt = Number(row.hours[hourIndex]) || 0;
+        }
+        const lab = row ? String(row.label || '').trim() : '';
+        const apiDate = row ? String(row.date || '').trim() : '';
+        const dayStr = apiDate || overviewHourlyCalendarDayAtIndex(idx);
+        lines.push(lab ? `${lab} ${dayStr}: ${cnt}` : `${dayStr}: ${cnt}`);
+    }
+    return lines;
 }
 
-/** Native tooltip on axis ticks: hour + how opens split across days. */
+/** Native tooltip on axis ticks. >1d: no UTC — per-day lines (truncated). */
 function overviewHourlyAxisTickTitle(tickHour, byDayHour) {
     const parts = formatHourSpreadParts(tickHour, byDayHour);
-    const win = overviewHourlyDataWindowSuffix();
     const hh = String(tickHour).padStart(2, '0');
     const n = overviewTrendDays || 7;
     const useClock = n === 1;
     if (!parts.length) {
-        return useClock
-            ? `UTC ${hh}:00–${hh}:59 (${formatUtcHourAxis12(tickHour)}) — no opens · ${win}`
-            : `UTC ${hh}:00–${hh}:59 — no opens · ${win}`;
+        if (useClock) {
+            return `UTC ${hh}:00–${hh}:59 (${formatUtcHourAxis12(tickHour)}) — no opens · ${overviewHourlyCalendarDayAtIndex(0)}`;
+        }
+        const dayLines = formatHourSpreadAllDaysLines(tickHour, byDayHour, n);
+        const head = dayLines.slice(0, 8).join(' · ');
+        return n > 8
+            ? `Hour ${hh} — ${head} · … (+${n - 8} days, hover column for full list)`
+            : `Hour ${hh} — ${head}`;
     }
     const spread = parts.join(' · ');
-    const max = 260;
+    const max = 320;
     const cut = spread.length > max ? spread.slice(0, max - 1) + '…' : spread;
-    return useClock
-        ? `UTC ${hh}:00 (${formatUtcHourAxis12(tickHour)}) — ${cut} · ${win}`
-        : `UTC ${hh}:00 — ${cut} · ${win}`;
+    if (useClock) {
+        const day0 = overviewHourlyCalendarDayAtIndex(0);
+        return `UTC ${hh}:00 (${formatUtcHourAxis12(tickHour)}) — ${cut} · ${day0}`;
+    }
+    return `Hour ${hh} — ${cut}`;
 }
 
 /** Stacked vertical label (e.g. 0 / 0 for 00) + title with per-day spread. */
@@ -289,21 +312,23 @@ function setOverviewHourlySubtitle() {
     if (!sub) return;
     const n = overviewTrendDays || 7;
     if (n === 1) {
-        sub.textContent = 'Opens by UTC hour for that calendar day. Hover a column for the split.';
+        sub.textContent = `Opens by UTC clock hour on ${overviewHourlyCalendarDayAtIndex(0)}. Hover a column for details.`;
     } else {
-        sub.textContent = `Totals per UTC hour across ${n}d. Hover axis or counts for Mon 4/7: 2, Tue 4/8: 1 … (per calendar day).`;
+        const { start, end } = analyticsUtcRangeForPeriod(n);
+        const a = formatUtcMd(start, true);
+        const b = formatUtcMd(end, true);
+        sub.textContent = `Each column is clock hour 0–23, summed across ${a} through ${b}. Hover a column or axis tick for per-day counts.`;
     }
 }
 
-/** Analytics window shown under hourly chart (same UTC range as ticket trend). */
+/** Footer under hourly chart: explicit calendar dates; "UTC day" label only for 1d. */
 function formatHourlyPeriodFoot() {
     const n = Math.max(1, Math.min(365, overviewTrendDays || 7));
     const { start, end } = analyticsUtcRangeForPeriod(n);
-    const needsYear = start.getUTCFullYear() !== end.getUTCFullYear();
-    const a = formatUtcMd(start, needsYear);
-    const b = formatUtcMd(end, needsYear);
-    if (n === 1 || a === b) return `${a} · UTC`;
-    return `${a}–${b} · ${n}d · UTC`;
+    const a = formatUtcMd(start, true);
+    const b = formatUtcMd(end, true);
+    if (n === 1 || a === b) return `${a} · UTC day`;
+    return `${n} days · ${a} through ${b}`;
 }
 
 function kojinActorHeaders() {
@@ -623,6 +648,12 @@ function toggleMobileSidebar() {
     }
 }
 
+/** Scroll the in-layout tab panel to top (sidebar pages swap without keeping long-page scroll). */
+function scrollDashTabStageToTop() {
+    const stage = $('dash-tab-stage');
+    if (stage) stage.scrollTop = 0;
+}
+
 function initDashboardSidebar() {
     document.querySelectorAll('[data-action="toggle-sidebar"]').forEach(btn => {
         btn.addEventListener('click', (e) => {
@@ -676,6 +707,8 @@ function switchTab(tab) {
     if (tab === 'overview') {
         requestAnimationFrame(() => syncOverviewFeedLayout());
     }
+    scrollDashTabStageToTop();
+    if (window.scrollY > 0) window.scrollTo({ top: 0, behavior: 'auto' });
 }
 
 /** Light refresh when returning to Overview so new tickets / analytics show without a full reload. */
@@ -767,6 +800,7 @@ async function loadServerData() {
     $('dash-loading').style.opacity = '0';
     setTimeout(() => { $('dash-loading').style.display = 'none'; }, 250);
     document.querySelectorAll('.dash-tab-content').forEach(c => { c.style.transition = 'opacity 0.35s'; c.style.opacity = '1'; });
+    scrollDashTabStageToTop();
     requestAnimationFrame(() => {
         requestAnimationFrame(() => syncOverviewFeedLayout());
     });
@@ -1055,6 +1089,8 @@ function renderOverviewTrend(byDay, error, byHourOneDay) {
         };
     }
     const nDays = overviewTrendDays || 7;
+    const { start: trendRangeStart, end: trendRangeEnd } = analyticsUtcRangeForPeriod(nDays);
+    const trendRangeFoot = `${formatUtcMd(trendRangeStart, true)} through ${formatUtcMd(trendRangeEnd, true)}`;
     if (error) {
         chart.innerHTML = '';
         clearOverviewTrendChartVars(chart);
@@ -1070,7 +1106,7 @@ function renderOverviewTrend(byDay, error, byHourOneDay) {
         chart.innerHTML = '<div class="dash-trend-empty"><span class="dash-trend-empty-icon">📊</span><p>No ticket activity yet</p><span class="dash-trend-empty-sub">Tickets will appear here once created</span></div>';
         clearOverviewTrendChartVars(chart);
         if (totalEl) totalEl.textContent = '0';
-        if (hint) hint.textContent = `No tickets in the last ${nDays} days.`;
+        if (hint) hint.textContent = nDays === 1 ? 'No tickets in the last UTC day.' : `No tickets from ${trendRangeFoot}.`;
         const sub0 = $('overview-trend-subtitle');
         if (sub0) sub0.textContent = 'Created vs closed per day';
         return;
@@ -1091,8 +1127,8 @@ function renderOverviewTrend(byDay, error, byHourOneDay) {
             : n > 14 ? Math.max(1, Math.ceil(n / 10))
                 : 1;
 
-    /** 7d: Mon Tue … on axis; 30d/90d: M/D dates; 1d handled above. */
-    const useDateOnAxis = nDays > 7;
+    /** Multi-day: calendar date on axis (full M/D/YYYY from API); 1d handled above. */
+    const useDateOnAxis = nDays > 1;
     const colsHtml = byDay.map((d, i) => {
         const created = d.created ?? d.count ?? 0;
         const closed = d.closed ?? 0;
@@ -1130,8 +1166,8 @@ function renderOverviewTrend(byDay, error, byHourOneDay) {
     if (sub) sub.textContent = 'Created vs closed per day';
     if (hint) {
         hint.textContent = createdSum === 0 && closedSum === 0
-            ? `No tickets in the last ${nDays} days.`
-            : `${createdSum.toLocaleString()} created · ${closedSum.toLocaleString()} closed in this range.`;
+            ? (nDays === 1 ? 'No tickets in the last UTC day.' : `No tickets from ${trendRangeFoot}.`)
+            : `${createdSum.toLocaleString()} created · ${closedSum.toLocaleString()} closed · ${trendRangeFoot}`;
     }
 }
 
@@ -1144,7 +1180,7 @@ function renderOverviewHourly(byHour, error, byDayHour) {
         el.innerHTML = '<p class="dash-empty dash-empty--tight">Could not load hourly activity.</p>';
         if (hint) hint.textContent = '';
         const subE = $('overview-hourly-subtitle');
-        if (subE) subE.textContent = 'By hour of day (UTC)';
+        if (subE) subE.textContent = 'By clock hour';
         return;
     }
     if (!Array.isArray(byHour) || byHour.length !== 24) {
@@ -1152,7 +1188,7 @@ function renderOverviewHourly(byHour, error, byDayHour) {
         el.innerHTML = '<div class="dash-trend-empty" style="min-height:100px"><p>No hourly data</p></div>';
         if (hint) hint.textContent = '';
         const subB = $('overview-hourly-subtitle');
-        if (subB) subB.textContent = 'By hour of day (UTC)';
+        if (subB) subB.textContent = 'By clock hour';
         return;
     }
     const periodN = overviewTrendDays || 7;
@@ -1160,9 +1196,14 @@ function renderOverviewHourly(byHour, error, byDayHour) {
     setOverviewHourlySubtitle();
     const sum = byHour.reduce((a, b) => a + b, 0);
     if (hint) {
-        hint.textContent = sum === 0
-            ? 'No opens in this range — switch period or wait for new tickets.'
-            : `${sum.toLocaleString()} opens · ${periodN === 1 ? 'UTC day' : `rolled up across ${periodN}d`}`;
+        if (sum === 0) {
+            hint.textContent = 'No opens in this range — switch period or wait for new tickets.';
+        } else if (periodN === 1) {
+            hint.textContent = `${sum.toLocaleString()} opens · ${overviewHourlyCalendarDayAtIndex(0)}`;
+        } else {
+            const { start: rs, end: re } = analyticsUtcRangeForPeriod(periodN);
+            hint.textContent = `${sum.toLocaleString()} opens · ${periodN} calendar days from ${formatUtcMd(rs, true)} through ${formatUtcMd(re, true)}`;
+        }
     }
     if (sum === 0) {
         const axisHtml = buildOverviewHourlyAxisHtml(Array.isArray(byDayHour) ? byDayHour : null);
@@ -1186,7 +1227,7 @@ function renderOverviewHourly(byHour, error, byDayHour) {
   </div>
   <div class="dash-hourly-empty-msg">
     <p class="dash-hourly-empty-title">Nothing to plot yet</p>
-    <p class="dash-hourly-empty-desc">Opens will stack into these UTC hour buckets once tickets come in. <strong>1d</strong> is the tightest slice; <strong>30d / 90d</strong> smooths busy servers.</p>
+    <p class="dash-hourly-empty-desc">Once tickets arrive, each hour stacks by calendar day (hover shows dated lines). <strong>1d</strong> is the tightest slice; <strong>30d / 90d</strong> smooths busy servers.</p>
   </div>
 </div>`;
         return;
@@ -1205,33 +1246,48 @@ function renderOverviewHourly(byHour, error, byDayHour) {
     const polylineAttr = linePts.map(([x, y]) => `${x},${y}`).join(' ');
     const gid = 'ohgrad-' + String(selectedGuildId || 'dash').replace(/\W/g, '') + '-fill';
     const dayHour = Array.isArray(byDayHour) ? byDayHour : null;
-    const win = overviewHourlyDataWindowSuffix();
     const hourlyColTip = (v, i) => {
         const hh = String(i).padStart(2, '0');
         const parts = formatHourSpreadParts(i, dayHour);
-        const spreadEsc = parts.length ? esc(parts.join(' · ')) : esc(`No per-day opens · ${win}`);
-        const opensPhrase = v === 1 ? '1 open' : `${v} opens`;
-        return `<span class="dash-hourly-col-tip" aria-hidden="true">
+        if (periodN === 1) {
+            const lineMeta = `UTC ${hh}:00 (${formatUtcHourAxis12(i)})`;
+            const spreadLines = parts.length
+                ? parts
+                : [`No opens on ${overviewHourlyCalendarDayAtIndex(0)}`];
+            const spreadHtml = spreadLines.map(l => esc(l)).join('<br>');
+            return `<span class="dash-hourly-col-tip dash-hourly-col-tip--1d" aria-hidden="true">
                 <span class="dash-hourly-col-tip-count">${esc(String(v))}</span>
-                <span class="dash-hourly-col-tip-line">${esc(opensPhrase)} · UTC ${hh}:00</span>
-                <span class="dash-hourly-col-tip-spread">${spreadEsc}</span>
-                <span class="dash-hourly-col-tip-win">${esc(win)}</span>
+                <span class="dash-hourly-col-tip-line">${esc(lineMeta)}</span>
+                <span class="dash-hourly-col-tip-spread">${spreadHtml}</span>
+            </span>`;
+        }
+        const dayLines = formatHourSpreadAllDaysLines(i, dayHour, periodN);
+        const spreadHtml = dayLines.map(l => esc(l)).join('<br>');
+        return `<span class="dash-hourly-col-tip dash-hourly-col-tip--range" aria-hidden="true">
+                <span class="dash-hourly-col-tip-count">${esc(String(v))}</span>
+                <span class="dash-hourly-col-tip-spread dash-hourly-col-tip-spread--days">${spreadHtml}</span>
             </span>`;
     };
     const hitLayer = byHour.map((v, i) => {
         const hh = String(i).padStart(2, '0');
         const parts = formatHourSpreadParts(i, dayHour);
-        const opensPhrase = v === 1 ? '1 open' : `${v} opens`;
-        const spreadText = parts.length ? parts.join(' · ') : `no per-day opens · ${win}`;
-        const aria = escA(`${opensPhrase} at UTC ${hh}:00. By day: ${spreadText}. Window ${win}.`);
+        const dayListText = periodN === 1
+            ? (parts.length ? parts.join(' · ') : `none on ${overviewHourlyCalendarDayAtIndex(0)}`)
+            : formatHourSpreadAllDaysLines(i, dayHour, periodN).join('; ');
+        const aria = periodN === 1
+            ? escA(`${v} at UTC ${hh}:00. ${parts.length ? dayListText : dayListText}`)
+            : escA(`${v} in hour ${hh}. ${dayListText}`);
         return `<div class="dash-hourly-hit" style="--i:${i}" aria-label="${aria}">${hourlyColTip(v, i)}</div>`;
     }).join('');
     const valuesRow = byHour.map((v, i) => {
         const hh = String(i).padStart(2, '0');
         const parts = formatHourSpreadParts(i, dayHour);
-        const opensPhrase = v === 1 ? '1 open' : `${v} opens`;
-        const spreadText = parts.length ? parts.join(' · ') : `no per-day opens · ${win}`;
-        const aria = escA(`${opensPhrase} at UTC ${hh}:00. By day: ${spreadText}. Window ${win}.`);
+        const dayListText = periodN === 1
+            ? (parts.length ? parts.join(' · ') : `none on ${overviewHourlyCalendarDayAtIndex(0)}`)
+            : formatHourSpreadAllDaysLines(i, dayHour, periodN).join('; ');
+        const aria = periodN === 1
+            ? escA(`${v} at UTC ${hh}:00. ${parts.length ? dayListText : dayListText}`)
+            : escA(`${v} in hour ${hh}. ${dayListText}`);
         const z = v === 0 ? ' dash-hourly-val--zero' : '';
         const pk = solePeakHour && v === rawPeak ? ' dash-hourly-val--peak' : '';
         return `<span class="dash-hourly-val${z}${pk}" aria-label="${aria}">${esc(String(v))}${hourlyColTip(v, i)}</span>`;
@@ -1251,7 +1307,7 @@ function renderOverviewHourly(byHour, error, byDayHour) {
 </div>
   <div class="dash-hourly-values-row" aria-hidden="true">${valuesRow}</div>
   <div class="dash-hourly-axis">${buildOverviewHourlyAxisHtml(dayHour)}</div>
-  <div class="dash-hourly-period-range" aria-hidden="true">${esc(formatHourlyPeriodFoot())}</div>`;
+  ${periodN === 1 ? `<div class="dash-hourly-period-range" aria-hidden="true">${esc(formatHourlyPeriodFoot())}</div>` : ''}`;
 }
 
 let overviewFeedLayoutRo = null;
@@ -2786,11 +2842,13 @@ async function fetchAnalytics(guildId, days) {
     const headline = $('analytics-headline');
     if (headline) {
         const { start, end } = analyticsUtcRangeForPeriod(periodNum);
-        const y0 = start.getUTCFullYear();
-        const y1 = end.getUTCFullYear();
-        const needsYear = y0 !== y1;
-        const span = `${formatUtcMd(start, needsYear)}–${formatUtcMd(end, needsYear)}`;
-        headline.textContent = `${span} (${rangeLabel}d, UTC) — tickets opened, categories, and average close time.`;
+        const a = formatUtcMd(start, true);
+        const b = formatUtcMd(end, true);
+        if (periodNum === 1) {
+            headline.textContent = `${a} (1d, UTC calendar day) — tickets opened, categories, and average close time.`;
+        } else {
+            headline.textContent = `${a} through ${b} (${rangeLabel}d) — tickets opened, categories, and average close time.`;
+        }
     }
     if (statsEl) statsEl.innerHTML = '<div class="dash-skeleton dash-skeleton-stat"></div>'.repeat(4);
     try {
@@ -2914,9 +2972,10 @@ function renderChart(days) {
 
     const barsHtml = days.map((d, i) => {
         const pct = Math.max((d.count / max) * 100, 2);
-        const dayLabel = d.label || d.date;
+        const tip = d.date && d.label ? `${d.date} (${d.label})` : (d.date || d.label || '—');
+        const dayLabel = d.date || d.label || '—';
         const showLab = (i % labelEvery === 0) || (i === n - 1);
-        return `<div class="dash-bar-col" title="${escA(dayLabel)}: ${d.count} ticket${d.count !== 1 ? 's' : ''}">
+        return `<div class="dash-bar-col" title="${escA(tip)}: ${d.count} ticket${d.count !== 1 ? 's' : ''}">
             <div class="dash-bar dash-bar--analytics" style="height:${pct}%;--bar-i:${i}"></div>
             <span class="dash-bar-label${showLab ? '' : ' dash-bar-label--faint'}">${showLab ? esc(dayLabel) : '\u00a0'}</span>
         </div>`;
