@@ -572,24 +572,22 @@ body.dashboard-shell-mode .dash-sidebar-backdrop {
 .dash-sidebar-zone--workspace {
     flex: none;
     min-height: 0;
-    padding: 0.85rem 0.85rem 2rem;
+    padding: 0.85rem 0.85rem 1.25rem;
     border-bottom: none;
 }
 
+/* Pages + section nav: pinned to bottom of the sidebar column (above account card) */
 .dash-sidebar-zone--pages {
-    flex: 1 1 auto;
+    flex: 0 0 auto;
     min-height: 0;
     display: flex;
     flex-direction: column;
-    margin-top: 1.25rem;
-    padding: 1.75rem 0.85rem 0.75rem;
+    margin-top: auto;
+    padding: 1rem 0.85rem 0.75rem;
     border-top: 1px solid var(--d-border);
-    overflow-x: hidden;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
+    overflow: visible;
     position: relative;
     z-index: 0;
-    scroll-margin-top: 0.5rem;
 }
 
 .dash-side-nav {
@@ -3327,23 +3325,6 @@ h2.dash-sidebar-nav-label {
     min-height: var(--overview-actions-height);
 }
 
-.dash-overview-pages-hint {
-    margin: 0;
-    padding: 0.65rem 0.75rem;
-    font-size: 0.8125rem;
-    font-weight: 500;
-    line-height: 1.45;
-    color: var(--d-text-2);
-    background: rgba(22, 29, 39, 0.4);
-    border: 1px solid var(--d-border);
-    border-radius: var(--d-radius-sm);
-}
-
-.dash-overview-pages-hint strong {
-    color: var(--d-text);
-    font-weight: 700;
-}
-
 .dash-overview-col--feed .dash-feed-card,
 .dash-overview-col--audit .dash-feed-card {
     height: var(--overview-actions-height);
@@ -5908,7 +5889,7 @@ h2.dash-sidebar-nav-label {
 }
 
 #dashboard-content.dash-app--desk .dash-sidebar-zone--workspace {
-    padding: 0.75rem 0.75rem 2rem;
+    padding: 0.75rem 0.75rem 1.25rem;
 }
 
 #dashboard-content.dash-app--desk .dash-sidebar-kicker {
@@ -5935,8 +5916,8 @@ h2.dash-sidebar-nav-label {
 }
 
 #dashboard-content.dash-app--desk .dash-sidebar-zone--pages {
-    margin-top: 1.35rem;
-    padding: 1.75rem 0.75rem 0.55rem;
+    margin-top: auto;
+    padding: 1rem 0.75rem 0.55rem;
     border-top-color: var(--d-border);
 }
 
