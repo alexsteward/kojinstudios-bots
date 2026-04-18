@@ -211,89 +211,6 @@ function formatUtcMd(d, alwaysYear) {
     return alwaysYear ? `${m}/${day}/${y}` : `${m}/${day}`;
 }
 
-const _UTC_MO = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
-function formatUtcRangeLong(start, end) {
-    const y0 = start.getUTCFullYear();
-    const y1 = end.getUTCFullYear();
-    const m0 = _UTC_MO[start.getUTCMonth()];
-    const m1 = _UTC_MO[end.getUTCMonth()];
-    const d0 = start.getUTCDate();
-    const d1 = end.getUTCDate();
-    if (y0 !== y1) return `${m0} ${d0}, ${y0} – ${m1} ${d1}, ${y1}`;
-    if (start.getUTCMonth() === end.getUTCMonth()) return `${m0} ${d0}–${d1}, ${y0}`;
-    return `${m0} ${d0} – ${m1} ${d1}, ${y0}`;
-}
-
-function dedupeAdjacentStrings(arr) {
-    return arr.filter((x, i, a) => i === 0 || x !== a[i - 1]);
-}
-
-/** Evenly spaced UTC calendar labels (inclusive), for long ranges. */
-function utcRangeTickMds(start, end, k) {
-    if (k < 2) return [];
-    const ySpan = start.getUTCFullYear() !== end.getUTCFullYear();
-    const nSeg = k - 1;
-    const out = [];
-    for (let i = 0; i < k; i++) {
-        const ms = start.getTime() + (end.getTime() - start.getTime()) * (i / nSeg);
-        const d = new Date(ms);
-        const z = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
-        out.push(formatUtcMd(z, ySpan));
-    }
-    return dedupeAdjacentStrings(out);
-}
-
-/**
- * Overview trend date strip below the chart: one compact line for 7d/30d;
- * longer prose + spaced tick row for 45d+ (e.g. 90d).
- */
-function formatOverviewTrendRangeRich(byDaySlice, nDays, isError) {
-    if (isError) return { main: '—', tickDates: null, aria: 'Date range unavailable' };
-    const n = Math.max(1, Math.min(365, Number(nDays) || 7));
-    const { start, end } = analyticsUtcRangeForPeriod(n);
-    const needsYear = start.getUTCFullYear() !== end.getUTCFullYear();
-    const fallbackStart = formatUtcMd(start, needsYear);
-    const fallbackEnd = formatUtcMd(end, needsYear);
-    let main;
-    if (n >= 45) {
-        main = `${formatUtcRangeLong(start, end)} · ${n} days · UTC`;
-    } else if (Array.isArray(byDaySlice) && byDaySlice.length > 0) {
-        const d0 = String(byDaySlice[0].date || '').trim();
-        const d1 = String(byDaySlice[byDaySlice.length - 1].date || '').trim();
-        if (d0 && d1) {
-            main = needsYear ? `${fallbackStart}–${fallbackEnd} · ${n}d · UTC` : `${d0}–${d1} · ${n}d · UTC`;
-        } else {
-            main = `${fallbackStart}–${fallbackEnd} · ${n}d · UTC`;
-        }
-    } else {
-        main = `${fallbackStart}–${fallbackEnd} · ${n}d · UTC`;
-    }
-    let tickDates = null;
-    if (n >= 45) {
-        const k = n >= 90 ? 8 : 6;
-        tickDates = utcRangeTickMds(start, end, k);
-    }
-    const aria = tickDates && tickDates.length
-        ? `${main} · ${tickDates.join(', ')}`
-        : main;
-    return { main, tickDates, aria };
-}
-
-function updateOverviewTrendRangeLabel(byDaySlice, nDays, isError) {
-    const wrap = $('overview-trend-range-line');
-    if (!wrap) return;
-    const nd = nDays != null ? nDays : overviewTrendDays;
-    const { main, tickDates, aria } = formatOverviewTrendRangeRich(byDaySlice, nd, !!isError);
-    let ticksHtml = '';
-    if (tickDates && tickDates.length) {
-        ticksHtml = `<div class="dash-overview-trend-range-ticks" aria-hidden="true">${tickDates.map(d =>
-            `<span class="dash-overview-trend-range-tick">${esc(d)}</span>`).join('')}</div>`;
-    }
-    wrap.innerHTML = `<div class="dash-overview-trend-range-main">${esc(main)}</div>${ticksHtml}`;
-    wrap.setAttribute('aria-label', aria);
-}
-
 function kojinActorHeaders() {
     const h = {};
     const user = stored(STORAGE_USER) || null;
@@ -967,7 +884,6 @@ function syncOverviewTrendPeriodButtons(days) {
         b.classList.toggle('active', on);
         b.setAttribute('aria-selected', on ? 'true' : 'false');
     });
-    updateOverviewTrendRangeLabel(null, parseInt(d, 10) || 7, false);
 }
 
 function clearOverviewTrendChartVars(chart) {
@@ -992,7 +908,6 @@ function renderOverviewTrend(byDay, error) {
         };
     }
     const nDays = overviewTrendDays || 7;
-    updateOverviewTrendRangeLabel(error ? null : byDay, nDays, !!error);
     if (error) {
         chart.innerHTML = '';
         clearOverviewTrendChartVars(chart);
@@ -1023,15 +938,23 @@ function renderOverviewTrend(byDay, error) {
             : n > 14 ? Math.max(1, Math.ceil(n / 10))
                 : 1;
 
+    const useDateOnAxis = nDays > 7;
     const colsHtml = byDay.map((d, i) => {
         const created = d.created ?? d.count ?? 0;
         const closed = d.closed ?? 0;
         const pctC = created > 0 ? Math.max((created / max) * 100, 4) : 0;
         const pctCl = closed > 0 ? Math.max((closed / max) * 100, 4) : 0;
-        const dayLabel = d.label || d.date;
+        const datePart = String(d.date || '').trim();
+        const wkPart = String(d.label || '').trim();
+        const bottomLabel = useDateOnAxis
+            ? (datePart || wkPart || '')
+            : (wkPart || datePart || '');
+        const tipHead = useDateOnAxis && datePart && wkPart
+            ? `${datePart} (${wkPart})`
+            : (bottomLabel || datePart || wkPart || '—');
         const showLab = (i % labelEvery === 0) || (i === n - 1);
-        const a11y = escA(`${dayLabel} · ${created} created, ${closed} closed`);
-        const tipDate = esc(dayLabel);
+        const a11y = escA(`${tipHead} · ${created} created, ${closed} closed`);
+        const tipDate = esc(tipHead);
         return `<div class="dash-bar-col dash-bar-col--overview-dual" aria-label="${a11y}">
             <div class="dash-overview-bar-tip" aria-hidden="true">
                 <span class="dash-overview-bar-tip-date">${tipDate}</span>
@@ -1041,12 +964,13 @@ function renderOverviewTrend(byDay, error) {
                 <div class="dash-bar dash-bar--ov-created" style="height:${pctC}%"></div>
                 <div class="dash-bar dash-bar--ov-closed" style="height:${pctCl}%"></div>
             </div>
-            <span class="dash-bar-label${showLab ? '' : ' dash-bar-label--faint'}">${showLab ? esc(dayLabel) : '\u00a0'}</span>
+            <span class="dash-bar-label${showLab ? '' : ' dash-bar-label--faint'}">${showLab ? esc(bottomLabel) : '\u00a0'}</span>
         </div>`;
     }).join('');
 
+    const axisMod = useDateOnAxis ? ' dash-bar-chart--overview-dual-dates' : '';
     chart.innerHTML = `<div class="dash-overview-trend-fit">
-        <div class="dash-overview-trend-inner dash-bar-chart dash-bar-chart--overview-dual">${colsHtml}</div>
+        <div class="dash-overview-trend-inner dash-bar-chart dash-bar-chart--overview-dual${axisMod}">${colsHtml}</div>
     </div>`;
     if (hint) {
         hint.textContent = createdSum === 0 && closedSum === 0
@@ -2657,7 +2581,6 @@ async function fetchAnalytics(guildId, days) {
     const catsEl = $('analytics-categories');
     const rangeLabel = String(days || '30');
     const periodNum = parseInt(rangeLabel, 10) || overviewTrendDays || 7;
-    updateOverviewTrendRangeLabel(null, periodNum, false);
     const headline = $('analytics-headline');
     if (headline) {
         const { start, end } = analyticsUtcRangeForPeriod(periodNum);

@@ -2631,18 +2631,6 @@ body.dashboard-page {
     box-shadow: 0 0 0 1px rgba(255, 71, 87, 0.12);
 }
 
-.dash-overview-trend-body {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    min-height: 0;
-    width: 100%;
-}
-
-.dash-overview-trend-body .dash-overview-chart--dual {
-    margin-bottom: 0;
-}
-
 .dash-overview-chart--dual {
     flex: 1;
     min-height: 180px;
@@ -2652,57 +2640,6 @@ body.dashboard-page {
     overflow: visible;
     position: relative;
     z-index: 0;
-}
-
-.dash-overview-trend-range {
-    flex-shrink: 0;
-    width: 100%;
-    margin: 0;
-    padding: 0.5rem 0.35rem 0.15rem;
-    box-sizing: border-box;
-    border-top: 1px solid rgba(255, 255, 255, 0.07);
-    text-align: center;
-}
-
-.dash-overview-trend-range-main {
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: var(--d-text-2);
-    line-height: 1.35;
-    letter-spacing: 0.01em;
-}
-
-.dash-overview-trend-range-ticks {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.35rem 0.25rem;
-    margin-top: 0.4rem;
-    padding: 0 0.05rem;
-    font-size: 0.625rem;
-    font-weight: 700;
-    font-variant-numeric: tabular-nums;
-    color: var(--d-text-3);
-    letter-spacing: 0.02em;
-}
-
-.dash-overview-trend-range-tick {
-    flex: 1 1 auto;
-    min-width: 0;
-    text-align: center;
-    white-space: nowrap;
-}
-
-@media (max-width: 520px) {
-    .dash-overview-trend-range-ticks {
-        justify-content: center;
-        row-gap: 0.25rem;
-    }
-    .dash-overview-trend-range-tick {
-        flex: 0 1 auto;
-        min-width: 2.25rem;
-    }
 }
 
 /* Ticket trend: all day columns share width — no horizontal scroll */
@@ -2834,6 +2771,12 @@ body.dashboard-page {
     text-overflow: ellipsis;
     white-space: nowrap;
     color: var(--d-text-2);
+}
+
+.dash-bar-chart--overview-dual-dates .dash-bar-label {
+    font-size: clamp(0.5rem, 1.85vw, 0.72rem);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
 }
 
 .dash-bar-chart--overview-dual .dash-bar--ov-created {
