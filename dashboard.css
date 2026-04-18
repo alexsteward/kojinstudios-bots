@@ -254,6 +254,34 @@ body.dashboard-page {
     padding-top: 64px;
 }
 
+/* Logged-in dashboard: hide duplicate marketing chrome; tabs live under the server toolbar */
+body.dashboard-shell-mode .dashboard-site-nav,
+body.dashboard-shell-mode .mobile-menu,
+body.dashboard-shell-mode .mobile-toggle {
+    display: none !important;
+}
+
+body.dashboard-shell-mode .dash-app {
+    padding-top: 0;
+    min-height: 100vh;
+}
+
+body.dashboard-shell-mode .dash-layout {
+    min-height: 100vh;
+    height: 100vh;
+    max-height: 100vh;
+}
+
+body.dashboard-shell-mode .dash-sidebar {
+    top: 0;
+    height: 100vh;
+    max-height: 100vh;
+}
+
+body.dashboard-shell-mode .dash-sidebar-backdrop {
+    top: 0;
+}
+
 /* ─── Server header (in-content) ────────────────────── */
 .dash-server-header {
     flex-shrink: 0;
@@ -526,7 +554,64 @@ body.dashboard-page {
     margin: 0 0.05rem;
 }
 
-/* Column under brand: Workspace (server) always first, then Pages — never hide or disable nav. */
+.dash-main-tab-nav {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem 0.45rem;
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: 0.65rem;
+    padding-top: 0.65rem;
+    border-top: 1px solid var(--d-border);
+}
+
+.dash-main-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin: 0;
+    padding: 0.45rem 0.65rem;
+    border-radius: var(--d-radius-sm);
+    border: 1px solid transparent;
+    background: rgba(22, 29, 39, 0.25);
+    color: var(--d-text-3);
+    font-size: 0.78rem;
+    font-weight: 600;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    letter-spacing: -0.02em;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.2s var(--d-ease), border-color 0.2s var(--d-ease), color 0.2s var(--d-ease), box-shadow 0.2s var(--d-ease);
+    -webkit-tap-highlight-color: transparent;
+}
+
+.dash-main-tab svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    opacity: 0.65;
+}
+
+.dash-main-tab:hover {
+    color: var(--d-text-2);
+    background: var(--d-surface-2);
+    border-color: var(--d-border);
+}
+
+.dash-main-tab.active {
+    color: var(--d-accent);
+    background: linear-gradient(135deg, rgba(255, 71, 87, 0.12), rgba(255, 71, 87, 0.04));
+    border-color: rgba(255, 71, 87, 0.22);
+    box-shadow: 0 0 20px rgba(255, 71, 87, 0.08);
+}
+
+.dash-main-tab.active svg {
+    opacity: 1;
+    color: var(--d-accent);
+}
+
+/* Sidebar: workspace (server picker) + account card */
 .dash-sidebar-workspace {
     flex: 1;
     min-height: 0;
@@ -538,31 +623,10 @@ body.dashboard-page {
 }
 
 .dash-sidebar-zone--workspace {
-    flex-shrink: 0;
-    padding: 0.85rem 0.85rem 0.75rem;
-    border-bottom: 1px solid var(--d-border);
-}
-
-.dash-sidebar-zone--pages {
     flex: 1 1 auto;
     min-height: 0;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: stretch;
-    padding: 0.55rem 0.85rem 0.75rem;
-    overflow-x: hidden;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-}
-
-/* One flex item so "Pages" + nav stay stacked and move as a single centered block */
-.dash-sidebar-pages-inner {
-    flex: 0 0 auto;
-    display: flex;
-    flex-direction: column;
-    gap: 0.35rem;
-    width: 100%;
+    padding: 0.85rem 0.85rem 0.75rem;
+    border-bottom: none;
 }
 
 .dash-sidebar-section-head--workspace {
@@ -586,10 +650,6 @@ body.dashboard-page {
 h2.dash-sidebar-nav-label {
     font-family: inherit;
     line-height: 1.3;
-}
-
-.dash-sidebar-pages-inner .dash-sidebar-nav-label {
-    margin: 0;
 }
 
 .dash-sidebar-server-dd {
@@ -3289,54 +3349,6 @@ h2.dash-sidebar-nav-label {
     min-width: 0;
 }
 
-.dash-side-nav {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-}
-
-.dash-side-nav-item {
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    width: 100%;
-    padding: 0.55rem 0.65rem;
-    background: rgba(22, 29, 39, 0.25);
-    border: 1px solid transparent;
-    border-radius: var(--d-radius-sm);
-    color: var(--d-text-3);
-    font-size: 0.8125rem;
-    font-weight: 600;
-    text-align: left;
-    cursor: pointer;
-    transition: all 0.2s var(--d-ease);
-}
-
-.dash-side-nav-item svg {
-    width: 17px;
-    height: 17px;
-    flex-shrink: 0;
-    opacity: 0.65;
-}
-
-.dash-side-nav-item:hover {
-    color: var(--d-text-2);
-    background: var(--d-surface-2);
-    border-color: var(--d-border);
-}
-
-.dash-side-nav-item.active {
-    color: var(--d-accent);
-    background: linear-gradient(135deg, rgba(255, 71, 87, 0.12), rgba(255, 71, 87, 0.04));
-    border-color: rgba(255, 71, 87, 0.22);
-    box-shadow: 0 0 20px rgba(255, 71, 87, 0.08);
-}
-
-.dash-side-nav-item.active svg {
-    opacity: 1;
-    color: var(--d-accent);
-}
-
 .dash-feed-card {
     background: linear-gradient(135deg, var(--d-surface), var(--d-surface-2));
     border: 1px solid var(--d-border);
@@ -5884,10 +5896,6 @@ h2.dash-sidebar-nav-label {
     padding: 0.75rem 0.75rem 0.65rem;
 }
 
-#dashboard-content.dash-app--desk .dash-sidebar-zone--pages {
-    padding: 0.45rem 0.75rem 0.5rem;
-}
-
 #dashboard-content.dash-app--desk .dash-sidebar-kicker {
     color: var(--wd-muted);
     letter-spacing: 0.1em;
@@ -5911,23 +5919,16 @@ h2.dash-sidebar-nav-label {
     border-color: var(--d-border-hover);
 }
 
-#dashboard-content.dash-app--desk .dash-sidebar-nav-label {
-    font-size: 0.5625rem;
-    letter-spacing: 0.12em;
-    color: var(--wd-muted);
-    margin-top: 0;
-    margin-bottom: 0.35rem;
-    padding-left: 0.35rem;
+#dashboard-content.dash-app--desk .dash-main-tab-nav {
+    gap: 0.3rem 0.4rem;
+    margin-top: 0.55rem;
+    padding-top: 0.55rem;
+    border-top-color: var(--d-border);
 }
 
-#dashboard-content.dash-app--desk .dash-side-nav {
-    padding: 0 0.35rem 0.5rem;
-    gap: 0.2rem;
-}
-
-#dashboard-content.dash-app--desk .dash-side-nav-item {
+#dashboard-content.dash-app--desk .dash-main-tab {
     border-radius: 0.5rem;
-    padding: 0.6rem 0.75rem;
+    padding: 0.5rem 0.7rem;
     font-size: 0.8125rem;
     font-weight: 500;
     color: var(--d-text-2);
@@ -5935,24 +5936,24 @@ h2.dash-sidebar-nav-label {
     border: 1px solid transparent;
 }
 
-#dashboard-content.dash-app--desk .dash-side-nav-item:hover {
+#dashboard-content.dash-app--desk .dash-main-tab:hover {
     background: var(--d-surface-2);
     color: var(--d-text);
 }
 
-#dashboard-content.dash-app--desk .dash-side-nav-item.active {
+#dashboard-content.dash-app--desk .dash-main-tab.active {
     background: var(--wd-primary-soft);
     color: var(--wd-primary);
     border-color: var(--wd-primary-border);
     box-shadow: none;
 }
 
-#dashboard-content.dash-app--desk .dash-side-nav-item.active svg {
+#dashboard-content.dash-app--desk .dash-main-tab.active svg {
     color: var(--wd-primary);
     opacity: 1;
 }
 
-#dashboard-content.dash-app--desk .dash-side-nav-item svg {
+#dashboard-content.dash-app--desk .dash-main-tab svg {
     width: 1rem;
     height: 1rem;
     opacity: 0.85;

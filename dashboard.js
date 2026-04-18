@@ -75,16 +75,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const backdrop = document.querySelector('.dash-panel-editor-backdrop');
     if (backdrop) backdrop.addEventListener('click', closePanelEditor);
 
-    const sideNav = $('dash-side-nav');
-    if (sideNav) {
-        sideNav.addEventListener('click', e => {
+    const mainTabNav = $('dash-main-tab-nav');
+    if (mainTabNav) {
+        mainTabNav.addEventListener('click', e => {
             const btn = e.target.closest('.dash-nav-tab');
-            if (!btn || !sideNav.contains(btn)) return;
+            if (!btn || !mainTabNav.contains(btn)) return;
             e.preventDefault();
             const tab = btn.dataset.tab;
             if (!tab) return;
             if (!selectedGuildId) {
-                toast('Pick a server in Workspace above — the main panel opens after you choose one.', 'error');
+                toast('Pick a server in the sidebar first — then you can switch tabs.', 'error');
                 return;
             }
             switchTab(tab);
@@ -387,11 +387,13 @@ function toast(msg, type = 'success') {
 
 // ─── Auth ────────────────────────────────────────────────────────────────────
 function showLogin() {
+    document.body.classList.remove('dashboard-shell-mode');
     $('dashboard-login').style.display = 'block';
     $('dashboard-content').style.display = 'none';
 }
 
 function showDashboard(user, guilds) {
+    document.body.classList.add('dashboard-shell-mode');
     $('dashboard-login').style.display = 'none';
     $('dashboard-content').style.display = 'block';
     const av  = $('dashboard-user-avatar');
