@@ -231,32 +231,55 @@ function overviewHourlyAnalyticsDateWindowPlain() {
     return `${a}–${b}`;
 }
 
-function overviewHourlyDataDatePhrase() {
-    return `Dates in data: ${overviewHourlyAnalyticsDateWindowPlain()}`;
-}
-
-/** Tooltip for hourly axis tick: UTC bucket + calendar dates included in analytics. */
-function overviewHourlyAxisTickTitle(tickHour) {
-    const n = Math.max(1, Math.min(365, overviewTrendDays || 7));
-    const dateWin = overviewHourlyAnalyticsDateWindowPlain();
-    const hh = String(tickHour).padStart(2, '0');
-    const useClock = n === 1;
-    const bucket = `UTC ${hh}:00–${hh}:59`;
-    if (useClock) {
-        const clk = formatUtcHourAxis12(tickHour);
-        return `${bucket} (${clk}) · Dates in data: ${dateWin}`;
+/** Per-calendar-day opens for one UTC hour (from `by_day_hour`). */
+function formatHourSpreadParts(hourIndex, byDayHour) {
+    if (!Array.isArray(byDayHour) || !byDayHour.length) return [];
+    const out = [];
+    for (const row of byDayHour) {
+        const h = row.hours;
+        if (!Array.isArray(h) || h.length !== 24) continue;
+        const n = Number(h[hourIndex]) || 0;
+        if (n > 0) {
+            const date = String(row.date || '').trim();
+            const lab = String(row.label || '').trim();
+            out.push(lab && date ? `${lab} ${date}: ${n}` : (date ? `${date}: ${n}` : String(n)));
+        }
     }
-    return `${bucket} · Dates in data: ${dateWin} (${n}d range)`;
+    return out;
 }
 
-/** Stacked vertical label (e.g. 0 / 0 for 00) + title with date window. */
-function buildOverviewHourlyAxisHtml() {
+function overviewHourlyDataWindowSuffix() {
+    return overviewHourlyAnalyticsDateWindowPlain();
+}
+
+/** Native tooltip on axis ticks: hour + how opens split across days. */
+function overviewHourlyAxisTickTitle(tickHour, byDayHour) {
+    const parts = formatHourSpreadParts(tickHour, byDayHour);
+    const win = overviewHourlyDataWindowSuffix();
+    const hh = String(tickHour).padStart(2, '0');
+    const n = overviewTrendDays || 7;
+    const useClock = n === 1;
+    if (!parts.length) {
+        return useClock
+            ? `UTC ${hh}:00–${hh}:59 (${formatUtcHourAxis12(tickHour)}) — no opens · ${win}`
+            : `UTC ${hh}:00–${hh}:59 — no opens · ${win}`;
+    }
+    const spread = parts.join(' · ');
+    const max = 260;
+    const cut = spread.length > max ? spread.slice(0, max - 1) + '…' : spread;
+    return useClock
+        ? `UTC ${hh}:00 (${formatUtcHourAxis12(tickHour)}) — ${cut} · ${win}`
+        : `UTC ${hh}:00 — ${cut} · ${win}`;
+}
+
+/** Stacked vertical label (e.g. 0 / 0 for 00) + title with per-day spread. */
+function buildOverviewHourlyAxisHtml(byDayHour) {
     const ticks = [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22];
     const useClock = (overviewTrendDays || 7) === 1;
     return ticks.map(h => {
         const label = useClock ? formatUtcHourAxis12(h) : String(h).padStart(2, '0');
         const stacked = label.split('').map(c => `<span class="dash-hourly-axis-c">${esc(c)}</span>`).join('');
-        const title = overviewHourlyAxisTickTitle(h);
+        const title = overviewHourlyAxisTickTitle(h, byDayHour);
         return `<span class="dash-hourly-axis-tick" title="${escA(title)}"><span class="dash-hourly-axis-stack">${stacked}</span></span>`;
     }).join('');
 }
@@ -266,9 +289,9 @@ function setOverviewHourlySubtitle() {
     if (!sub) return;
     const n = overviewTrendDays || 7;
     if (n === 1) {
-        sub.textContent = 'Opens grouped by UTC hour for the selected calendar day.';
+        sub.textContent = 'Opens by UTC hour for that calendar day. Hover a column for the split.';
     } else {
-        sub.textContent = `UTC clock-hour totals across the full ${n}d range (not a single-day timeline).`;
+        sub.textContent = `Totals per UTC hour across ${n}d. Hover axis or counts for Mon 4/7: 2, Tue 4/8: 1 … (per calendar day).`;
     }
 }
 
@@ -1112,7 +1135,7 @@ function renderOverviewTrend(byDay, error, byHourOneDay) {
     }
 }
 
-function renderOverviewHourly(byHour, error) {
+function renderOverviewHourly(byHour, error, byDayHour) {
     const el = $('overview-hourly-chart');
     const hint = $('overview-hourly-hint');
     if (!el) return;
@@ -1142,7 +1165,7 @@ function renderOverviewHourly(byHour, error) {
             : `${sum.toLocaleString()} opens · ${periodN === 1 ? 'UTC day' : `rolled up across ${periodN}d`}`;
     }
     if (sum === 0) {
-        const axisHtml = buildOverviewHourlyAxisHtml();
+        const axisHtml = buildOverviewHourlyAxisHtml(Array.isArray(byDayHour) ? byDayHour : null);
         const periodHtml = esc(formatHourlyPeriodFoot());
         const egid = 'oh-empty-grad-' + String(selectedGuildId || 'dash').replace(/\W/g, '');
         el.innerHTML = `<div class="dash-hourly-empty-rich">
@@ -1181,25 +1204,34 @@ function renderOverviewHourly(byHour, error) {
     });
     const polylineAttr = linePts.map(([x, y]) => `${x},${y}`).join(' ');
     const gid = 'ohgrad-' + String(selectedGuildId || 'dash').replace(/\W/g, '') + '-fill';
-    const datePhrase = overviewHourlyDataDatePhrase();
+    const dayHour = Array.isArray(byDayHour) ? byDayHour : null;
+    const win = overviewHourlyDataWindowSuffix();
     const hourlyColTip = (v, i) => {
-        const label = `${String(i).padStart(2, '0')}:00 UTC`;
+        const hh = String(i).padStart(2, '0');
+        const parts = formatHourSpreadParts(i, dayHour);
+        const spreadEsc = parts.length ? esc(parts.join(' · ')) : esc(`No per-day opens · ${win}`);
         const opensPhrase = v === 1 ? '1 open' : `${v} opens`;
         return `<span class="dash-hourly-col-tip" aria-hidden="true">
                 <span class="dash-hourly-col-tip-count">${esc(String(v))}</span>
-                <span class="dash-hourly-col-tip-meta">${esc(`${opensPhrase} · ${label} · ${datePhrase}`)}</span>
+                <span class="dash-hourly-col-tip-line">${esc(opensPhrase)} · UTC ${hh}:00</span>
+                <span class="dash-hourly-col-tip-spread">${spreadEsc}</span>
+                <span class="dash-hourly-col-tip-win">${esc(win)}</span>
             </span>`;
     };
     const hitLayer = byHour.map((v, i) => {
-        const label = `${String(i).padStart(2, '0')}:00 UTC`;
+        const hh = String(i).padStart(2, '0');
+        const parts = formatHourSpreadParts(i, dayHour);
         const opensPhrase = v === 1 ? '1 open' : `${v} opens`;
-        const aria = escA(`${label} · ${opensPhrase} · ${datePhrase}`);
+        const spreadText = parts.length ? parts.join(' · ') : `no per-day opens · ${win}`;
+        const aria = escA(`${opensPhrase} at UTC ${hh}:00. By day: ${spreadText}. Window ${win}.`);
         return `<div class="dash-hourly-hit" style="--i:${i}" aria-label="${aria}">${hourlyColTip(v, i)}</div>`;
     }).join('');
     const valuesRow = byHour.map((v, i) => {
-        const label = `${String(i).padStart(2, '0')}:00 UTC`;
+        const hh = String(i).padStart(2, '0');
+        const parts = formatHourSpreadParts(i, dayHour);
         const opensPhrase = v === 1 ? '1 open' : `${v} opens`;
-        const aria = escA(`${label} · ${opensPhrase} · ${datePhrase}`);
+        const spreadText = parts.length ? parts.join(' · ') : `no per-day opens · ${win}`;
+        const aria = escA(`${opensPhrase} at UTC ${hh}:00. By day: ${spreadText}. Window ${win}.`);
         const z = v === 0 ? ' dash-hourly-val--zero' : '';
         const pk = solePeakHour && v === rawPeak ? ' dash-hourly-val--peak' : '';
         return `<span class="dash-hourly-val${z}${pk}" aria-label="${aria}">${esc(String(v))}${hourlyColTip(v, i)}</span>`;
@@ -1218,7 +1250,7 @@ function renderOverviewHourly(byHour, error) {
   <div class="dash-hourly-hit-layer" role="presentation">${hitLayer}</div>
 </div>
   <div class="dash-hourly-values-row" aria-hidden="true">${valuesRow}</div>
-  <div class="dash-hourly-axis">${buildOverviewHourlyAxisHtml()}</div>
+  <div class="dash-hourly-axis">${buildOverviewHourlyAxisHtml(dayHour)}</div>
   <div class="dash-hourly-period-range" aria-hidden="true">${esc(formatHourlyPeriodFoot())}</div>`;
 }
 
@@ -2768,7 +2800,7 @@ async function fetchAnalytics(guildId, days) {
             const avKpi = $('overview-avg-response');
             if (avKpi) avKpi.textContent = '—';
             renderOverviewTrend(null, true);
-            renderOverviewHourly(null, true);
+            renderOverviewHourly(null, true, null);
             toast(data.error || 'Analytics unavailable. Set DASHBOARD_BACKEND_URL on Netlify and ensure the bot API is reachable.', 'error');
             return;
         }
@@ -2843,13 +2875,17 @@ async function fetchAnalytics(guildId, days) {
         const td = overviewTrendDays || 7;
         const byDaySlice = (data.by_day || []).slice(-td);
         renderOverviewTrend(byDaySlice, false, data.by_hour);
-        renderOverviewHourly(Array.isArray(data.by_hour) && data.by_hour.length === 24 ? data.by_hour : null);
+        renderOverviewHourly(
+            Array.isArray(data.by_hour) && data.by_hour.length === 24 ? data.by_hour : null,
+            false,
+            Array.isArray(data.by_day_hour) && data.by_day_hour.length ? data.by_day_hour : null
+        );
     } catch {
         if (statsEl) statsEl.innerHTML = '<p class="dash-empty">Could not load analytics. Is the bot online?</p>';
         const avKpi = $('overview-avg-response');
         if (avKpi) avKpi.textContent = '—';
         renderOverviewTrend(null, true);
-        renderOverviewHourly(null, true);
+        renderOverviewHourly(null, true, null);
     }
 }
 

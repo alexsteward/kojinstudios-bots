@@ -2888,8 +2888,8 @@ body.dashboard-page {
     left: 50%;
     bottom: calc(100% + 6px);
     transform: translateX(-50%);
-    min-width: 4.75rem;
-    max-width: 12rem;
+    min-width: 6.5rem;
+    max-width: min(16rem, 92vw);
     padding: 0.45rem 0.55rem;
     border-radius: var(--d-radius-sm);
     background: var(--d-surface-3);
@@ -2927,6 +2927,37 @@ body.dashboard-page {
     line-height: 1.35;
     margin-top: 0.2rem;
     max-width: 10rem;
+}
+
+.dash-hourly-col-tip-line {
+    display: block;
+    font-size: 0.625rem;
+    font-weight: 700;
+    color: var(--d-text-2);
+    margin-top: 0.15rem;
+    letter-spacing: 0.02em;
+}
+
+.dash-hourly-col-tip-spread {
+    display: block;
+    font-size: 0.6rem;
+    font-weight: 600;
+    color: var(--d-text);
+    line-height: 1.4;
+    margin-top: 0.3rem;
+    text-align: left;
+    max-width: 15rem;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.dash-hourly-col-tip-win {
+    display: block;
+    font-size: 0.55rem;
+    font-weight: 600;
+    color: var(--d-text-3);
+    margin-top: 0.25rem;
+    letter-spacing: 0.02em;
 }
 
 /* One count per hour (UTC), aligned under the curve */
