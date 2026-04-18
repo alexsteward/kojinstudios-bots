@@ -194,6 +194,49 @@ function stored(k) {
 function esc(t)  { const d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
 function escA(t) { return String(t).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
+/** Inclusive UTC calendar window for analytics (matches `webhook_server.handle_analytics`). */
+function analyticsUtcRangeForPeriod(nDays) {
+    const n = Math.max(1, Math.min(365, Number(nDays) || 7));
+    const now = new Date();
+    const end = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+    const start = new Date(end);
+    start.setUTCDate(start.getUTCDate() - (n - 1));
+    return { start, end, n };
+}
+
+function formatUtcMd(d, alwaysYear) {
+    const m = d.getUTCMonth() + 1;
+    const day = d.getUTCDate();
+    const y = d.getUTCFullYear();
+    return alwaysYear ? `${m}/${day}/${y}` : `${m}/${day}`;
+}
+
+/** Text for `#overview-trend-range-label`: actual dates + period (UTC). */
+function formatOverviewTrendRangePill(byDaySlice, nDays, isError) {
+    if (isError) return '—';
+    const n = Math.max(1, Math.min(365, Number(nDays) || 7));
+    const { start, end } = analyticsUtcRangeForPeriod(n);
+    const needsYear = start.getUTCFullYear() !== end.getUTCFullYear();
+    const fallbackStart = formatUtcMd(start, needsYear);
+    const fallbackEnd = formatUtcMd(end, needsYear);
+    if (Array.isArray(byDaySlice) && byDaySlice.length > 0) {
+        const d0 = String(byDaySlice[0].date || '').trim();
+        const d1 = String(byDaySlice[byDaySlice.length - 1].date || '').trim();
+        if (d0 && d1) {
+            if (needsYear) return `${fallbackStart}–${fallbackEnd} · ${n}d UTC`;
+            return `${d0}–${d1} · ${n}d UTC`;
+        }
+    }
+    return `${fallbackStart}–${fallbackEnd} · ${n}d UTC`;
+}
+
+function updateOverviewTrendRangeLabel(byDaySlice, nDays, isError) {
+    const el = $('overview-trend-range-label');
+    if (!el) return;
+    const nd = nDays != null ? nDays : overviewTrendDays;
+    el.textContent = formatOverviewTrendRangePill(byDaySlice, nd, !!isError);
+}
+
 function kojinActorHeaders() {
     const h = {};
     const user = stored(STORAGE_USER) || null;
@@ -867,6 +910,7 @@ function syncOverviewTrendPeriodButtons(days) {
         b.classList.toggle('active', on);
         b.setAttribute('aria-selected', on ? 'true' : 'false');
     });
+    updateOverviewTrendRangeLabel(null, parseInt(d, 10) || 7, false);
 }
 
 function clearOverviewTrendChartVars(chart) {
@@ -881,7 +925,6 @@ function renderOverviewTrend(byDay, error) {
     const chart = $('overview-trend-chart');
     const hint = $('overview-trend-hint');
     const totalEl = $('overview-trend-total');
-    const rangeLabel = $('overview-trend-range-label');
     const link = $('overview-trend-analytics-link');
     if (!chart) return;
     if (link) {
@@ -892,7 +935,7 @@ function renderOverviewTrend(byDay, error) {
         };
     }
     const nDays = overviewTrendDays || 7;
-    if (rangeLabel) rangeLabel.textContent = `Last ${nDays} days`;
+    updateOverviewTrendRangeLabel(error ? null : byDay, nDays, !!error);
     if (error) {
         chart.innerHTML = '';
         clearOverviewTrendChartVars(chart);
@@ -2556,9 +2599,16 @@ async function fetchAnalytics(guildId, days) {
     const statsEl = $('analytics-stats');
     const catsEl = $('analytics-categories');
     const rangeLabel = String(days || '30');
+    const periodNum = parseInt(rangeLabel, 10) || overviewTrendDays || 7;
+    updateOverviewTrendRangeLabel(null, periodNum, false);
     const headline = $('analytics-headline');
     if (headline) {
-        headline.textContent = `Last ${rangeLabel} days — tickets opened, categories, and average close time.`;
+        const { start, end } = analyticsUtcRangeForPeriod(periodNum);
+        const y0 = start.getUTCFullYear();
+        const y1 = end.getUTCFullYear();
+        const needsYear = y0 !== y1;
+        const span = `${formatUtcMd(start, needsYear)}–${formatUtcMd(end, needsYear)}`;
+        headline.textContent = `${span} (${rangeLabel}d, UTC) — tickets opened, categories, and average close time.`;
     }
     if (statsEl) statsEl.innerHTML = '<div class="dash-skeleton dash-skeleton-stat"></div>'.repeat(4);
     try {
