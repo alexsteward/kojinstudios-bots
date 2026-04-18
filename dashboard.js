@@ -35,6 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initNavScroll();
     initOverviewFeedLayoutSync();
     initDashboardSidebar();
+    syncDashTabPanelsFromDom();
 
     const user   = stored(STORAGE_USER);
     const guilds = stored(STORAGE_GUILDS);
@@ -74,16 +75,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const backdrop = document.querySelector('.dash-panel-editor-backdrop');
     if (backdrop) backdrop.addEventListener('click', closePanelEditor);
 
-    document.querySelectorAll('.dash-nav-tab').forEach(t =>
-        t.addEventListener('click', () => {
+    const sideNav = $('dash-side-nav');
+    if (sideNav) {
+        sideNav.addEventListener('click', e => {
+            const btn = e.target.closest('.dash-nav-tab');
+            if (!btn || !sideNav.contains(btn)) return;
+            e.preventDefault();
+            const tab = btn.dataset.tab;
+            if (!tab) return;
             if (!selectedGuildId) {
-                toast('Select a server from the menu first.', 'error');
+                toast('Pick a server in Workspace above — the main panel opens after you choose one.', 'error');
                 return;
             }
-            switchTab(t.dataset.tab);
+            switchTab(tab);
             closeMobileSidebar();
-        })
-    );
+        });
+    }
 
     initServerDropdowns();
 
@@ -387,7 +394,6 @@ function showLogin() {
 function showDashboard(user, guilds) {
     $('dashboard-login').style.display = 'none';
     $('dashboard-content').style.display = 'block';
-    document.querySelector('.dash-layout')?.classList.add('dash-layout--no-server');
     const av  = $('dashboard-user-avatar');
     const ini = $('dashboard-user-initial');
     const disp = $('dashboard-user-display');
@@ -577,7 +583,6 @@ function selectServer(guild) {
         requestAnimationFrame(() => { server.style.opacity = '1'; });
     }, 200);
 
-    document.querySelector('.dash-layout')?.classList.remove('dash-layout--no-server');
     if (guildsDataCache) renderGuildList(guildsDataCache);
     updateServerPickerButton(guild);
 
@@ -592,7 +597,6 @@ function backToServers() {
     selectedGuild   = null;
     $('dash-welcome').style.display = 'flex';
     $('dash-server').style.display  = 'none';
-    document.querySelector('.dash-layout')?.classList.add('dash-layout--no-server');
     closeServerMenus();
     closeMobileSidebar();
     setSidebarServerTriggerPlaceholder();
@@ -652,6 +656,22 @@ function toggleMobileSidebar() {
 function scrollDashTabStageToTop() {
     const stage = $('dash-tab-stage');
     if (stage) stage.scrollTop = 0;
+    const main = document.querySelector('.dash-main');
+    if (main) main.scrollTop = 0;
+}
+
+/** Align hidden / aria-* with `.active` classes from HTML (before first switchTab). */
+function syncDashTabPanelsFromDom() {
+    document.querySelectorAll('.dash-tab-content').forEach(c => {
+        const isTarget = c.classList.contains('active');
+        c.toggleAttribute('hidden', !isTarget);
+        c.setAttribute('aria-hidden', isTarget ? 'false' : 'true');
+    });
+    document.querySelectorAll('.dash-nav-tab').forEach(t => {
+        const on = t.classList.contains('active');
+        if (on) t.setAttribute('aria-current', 'page');
+        else t.removeAttribute('aria-current');
+    });
 }
 
 function initDashboardSidebar() {
@@ -687,14 +707,19 @@ function initDashboardSidebar() {
 function switchTab(tab) {
     const fromTab = previousDashTab;
     previousDashTab = tab;
-    document.querySelectorAll('.dash-nav-tab').forEach(t =>
-        t.classList.toggle('active', t.dataset.tab === tab)
-    );
+    document.querySelectorAll('.dash-nav-tab').forEach(t => {
+        const on = t.dataset.tab === tab;
+        t.classList.toggle('active', on);
+        if (on) t.setAttribute('aria-current', 'page');
+        else t.removeAttribute('aria-current');
+    });
     const bc = $('dash-breadcrumb-tab');
     if (bc) bc.textContent = TAB_LABELS[tab] || tab;
     document.querySelectorAll('.dash-tab-content').forEach(c => {
         const isTarget = c.dataset.tab === tab;
         c.classList.toggle('active', isTarget);
+        c.toggleAttribute('hidden', !isTarget);
+        c.setAttribute('aria-hidden', isTarget ? 'false' : 'true');
         if (isTarget) {
             c.style.animation = 'none';
             c.offsetHeight; // force reflow

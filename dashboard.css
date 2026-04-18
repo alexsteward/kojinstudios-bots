@@ -526,16 +526,37 @@ body.dashboard-page {
     margin: 0 0.05rem;
 }
 
-/* overflow must stay visible here — overflow-y:auto clips the absolutely-positioned server menu */
+/* Column under brand: Workspace (server) always first, then Pages — never hide or disable nav. */
 .dash-sidebar-workspace {
     flex: 1;
     min-height: 0;
     display: flex;
     flex-direction: column;
-    padding: 0.85rem 0.85rem 0.75rem;
-    border-bottom: 1px solid var(--d-border);
+    padding: 0;
     overflow-x: hidden;
     overflow-y: visible;
+}
+
+.dash-sidebar-zone--workspace {
+    flex-shrink: 0;
+    padding: 0.85rem 0.85rem 0.75rem;
+    border-bottom: 1px solid var(--d-border);
+}
+
+.dash-sidebar-zone--pages {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 0.55rem 0.85rem 0.75rem;
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.dash-sidebar-zone--pages .dash-side-nav {
+    flex: 1 1 auto;
+    min-height: 0;
 }
 
 .dash-sidebar-section-head--workspace {
@@ -547,7 +568,7 @@ body.dashboard-page {
 }
 
 .dash-sidebar-nav-label {
-    margin: 0.85rem 0 0.45rem;
+    margin: 0 0 0.45rem;
     padding: 0 0.35rem;
     font-size: 0.625rem;
     font-weight: 700;
@@ -556,13 +577,9 @@ body.dashboard-page {
     color: var(--d-text-3);
 }
 
-.dash-layout--no-server .dash-sidebar-nav-label {
-    opacity: 0.45;
-}
-
-.dash-layout--no-server .dash-side-nav {
-    opacity: 0.5;
-    pointer-events: none;
+h2.dash-sidebar-nav-label {
+    font-family: inherit;
+    line-height: 1.3;
 }
 
 .dash-sidebar-server-dd {
@@ -658,7 +675,11 @@ body.dashboard-page {
 
 .dash-layout {
     display: flex;
+    align-items: stretch;
+    width: 100%;
     min-height: calc(100vh - 64px);
+    height: calc(100vh - 64px);
+    max-height: calc(100vh - 64px);
 }
 
 /* ─── Sidebar (matches overview density + Kojin tokens) ─ */
@@ -1051,16 +1072,19 @@ body.dashboard-page {
         radial-gradient(ellipse 40% 30% at 0% 80%, rgba(168, 85, 247, 0.03) 0%, transparent 50%);
 }
 
-/* One “page” at a time: toolbar stays put; tab bodies scroll here (not the whole window). */
+/* Server workspace: same pattern as whisper-desk — column fills main, one scroll surface for tab pages. */
 #dash-server {
     flex: 1;
+    min-width: 0;
     min-height: 0;
     display: flex;
     flex-direction: column;
+    overflow: hidden;
 }
 
 .dash-tab-stage {
-    flex: 1;
+    flex: 1 1 auto;
+    min-width: 0;
     min-height: 0;
     overflow-x: hidden;
     overflow-y: auto;
@@ -1270,7 +1294,13 @@ body.dashboard-page {
 
 .dash-tab-content > .dash-card { animation: fadeSlideUp 0.4s var(--d-ease-out) both; }
 
-.dash-tab-content.active { display: block; }
+.dash-tab-content:not(.active) {
+    display: none !important;
+}
+
+.dash-tab-content.active {
+    display: block !important;
+}
 
 /* ─── Loading ───────────────────────────────────────── */
 .dash-loading {
@@ -3262,10 +3292,10 @@ body.dashboard-page {
 }
 
 .dash-side-nav-item.active {
-    color: var(--d-text);
-    background: linear-gradient(135deg, var(--d-surface-3), rgba(255, 71, 87, 0.08));
-    border-color: rgba(255, 71, 87, 0.15);
-    box-shadow: 0 0 20px rgba(255, 71, 87, 0.06);
+    color: var(--d-accent);
+    background: linear-gradient(135deg, rgba(255, 71, 87, 0.12), rgba(255, 71, 87, 0.04));
+    border-color: rgba(255, 71, 87, 0.22);
+    box-shadow: 0 0 20px rgba(255, 71, 87, 0.08);
 }
 
 .dash-side-nav-item.active svg {
@@ -5090,6 +5120,12 @@ body.dashboard-page {
 }
 
 @media (max-width: 768px) {
+    /* Let the page grow on small screens (sidebar overlay, keyboard, long forms). */
+    .dash-layout {
+        height: auto;
+        max-height: none;
+    }
+
     .dash-server-header-top {
         gap: 0.625rem;
     }
@@ -5806,8 +5842,16 @@ body.dashboard-page {
 }
 
 #dashboard-content.dash-app--desk .dash-sidebar-workspace {
-    padding: 0.75rem 0.75rem 0.5rem;
-    border-bottom: 1px solid var(--d-border);
+    padding: 0;
+    border-bottom: none;
+}
+
+#dashboard-content.dash-app--desk .dash-sidebar-zone--workspace {
+    padding: 0.75rem 0.75rem 0.65rem;
+}
+
+#dashboard-content.dash-app--desk .dash-sidebar-zone--pages {
+    padding: 0.45rem 0.75rem 0.5rem;
 }
 
 #dashboard-content.dash-app--desk .dash-sidebar-kicker {
@@ -5837,7 +5881,7 @@ body.dashboard-page {
     font-size: 0.5625rem;
     letter-spacing: 0.12em;
     color: var(--wd-muted);
-    margin-top: 0.75rem;
+    margin-top: 0;
     margin-bottom: 0.35rem;
     padding-left: 0.35rem;
 }

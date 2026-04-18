@@ -144,21 +144,24 @@
                         </span>
                     </a>
                     <div class="dash-sidebar-workspace" id="dash-sidebar-workspace">
-                        <div class="dash-sidebar-section-head dash-sidebar-section-head--workspace">
-                            <span class="dash-sidebar-kicker">Workspace</span>
-                            <p class="dash-sidebar-desc">Choose a server, then a page.</p>
-                        </div>
-                        <div class="dash-sidebar-server-dd">
-                            <button type="button" class="dash-sidebar-server-trigger" id="dash-sidebar-server-trigger" aria-expanded="false" aria-haspopup="listbox" aria-controls="dash-sidebar-server-menu">
-                                <span class="dash-sidebar-server-trigger-icon" id="dash-sidebar-server-trigger-icon" aria-hidden="true"></span>
-                                <span class="dash-sidebar-server-trigger-label" id="dash-sidebar-server-trigger-label">Select a server</span>
-                                <svg class="dash-sidebar-server-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
-                            </button>
-                            <div class="dash-sidebar-server-menu" id="dash-sidebar-server-menu" role="listbox" hidden></div>
-                        </div>
-                        <p id="discord-no-servers" class="dash-no-servers" style="display:none;">No servers with manage permissions found.</p>
-                        <p class="dash-sidebar-nav-label" id="dash-sidebar-nav-label">Pages</p>
-                        <nav class="dash-side-nav" id="dash-side-nav" aria-label="Dashboard sections">
+                        <section class="dash-sidebar-zone dash-sidebar-zone--workspace" aria-labelledby="dash-ws-kicker">
+                            <div class="dash-sidebar-section-head dash-sidebar-section-head--workspace">
+                                <span class="dash-sidebar-kicker" id="dash-ws-kicker">Workspace</span>
+                                <p class="dash-sidebar-desc">Which server you are managing.</p>
+                            </div>
+                            <div class="dash-sidebar-server-dd">
+                                <button type="button" class="dash-sidebar-server-trigger" id="dash-sidebar-server-trigger" aria-expanded="false" aria-haspopup="listbox" aria-controls="dash-sidebar-server-menu">
+                                    <span class="dash-sidebar-server-trigger-icon" id="dash-sidebar-server-trigger-icon" aria-hidden="true"></span>
+                                    <span class="dash-sidebar-server-trigger-label" id="dash-sidebar-server-trigger-label">Select a server</span>
+                                    <svg class="dash-sidebar-server-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+                                </button>
+                                <div class="dash-sidebar-server-menu" id="dash-sidebar-server-menu" role="listbox" hidden></div>
+                            </div>
+                            <p id="discord-no-servers" class="dash-no-servers" style="display:none;">No servers with manage permissions found.</p>
+                        </section>
+                        <section class="dash-sidebar-zone dash-sidebar-zone--pages" aria-labelledby="dash-sidebar-nav-label">
+                            <h2 class="dash-sidebar-nav-label" id="dash-sidebar-nav-label">Pages</h2>
+                            <nav class="dash-side-nav" id="dash-side-nav" aria-label="Dashboard sections">
                             <button type="button" class="dash-side-nav-item dash-nav-tab active" data-tab="overview">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
                                 Overview
@@ -179,7 +182,8 @@
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
                                 Analytics
                             </button>
-                        </nav>
+                            </nav>
+                        </section>
                     </div>
                 </div>
                 <div class="dash-sidebar-bottom">
